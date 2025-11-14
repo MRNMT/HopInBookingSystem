@@ -28,5 +28,5 @@ out/
 .DS_Store
 Thumbs.db
 
-# Git
-.git/
+# # Git
+# .git/
