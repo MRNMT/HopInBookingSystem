@@ -27,7 +27,7 @@ export const Navbar = () => {
 
       {/* Button */}
       <div className="hidden md:block">
-        <Button variant="primary">Book Now</Button>
+        <Button variant="primary">Sign In</Button>
       </div>
 
     </nav>
