@@ -1,9 +1,9 @@
-
+import { LandingPage } from "./pages/LandingPage"
 
 function App() {
 
   return (
-    <h1 className="text-lg bg-sky-950">Hello Thembelihle</h1>
+    <LandingPage />
    
   )
 }
