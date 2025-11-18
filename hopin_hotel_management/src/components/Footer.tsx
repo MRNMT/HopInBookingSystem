@@ -1,6 +1,6 @@
 import React from "react"
 import { Button } from "./Button"
-import logo from "../assets/logo.jpg"
+import logo from "../assets/logo2.png"
 import { FaXTwitter } from "react-icons/fa6"
 import { FiFacebook } from "react-icons/fi"
 import { FaInstagram } from "react-icons/fa6"
