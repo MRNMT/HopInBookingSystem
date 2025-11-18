@@ -8,7 +8,7 @@ export const Navbar = () => {
       
       {/* Logo */}
       <div className="flex items-center">
-        <img src={logo} alt="Logo" className="h-10 w-10 rounded-full object-cover" />
+        <img src={logo} alt="Logo" className="h-19 w-19 rounded-full object-cover" />
       </div>
 
       {/* Navigation Links */}
