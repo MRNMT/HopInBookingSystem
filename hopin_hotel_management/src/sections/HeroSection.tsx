@@ -26,6 +26,12 @@ export const HeroSection = () => {
         </div>
 
       </div>
+      <div className="bg-amber-400">
+        <div className="bg-amber-50">Where are you going?</div>
+        <div className="bg-amber-50">Check-in date - Checkout date</div>
+        <div className="bg-amber-50">2 adult-0 children - 1 room</div>
+        <div><Button variant="primary">Search here</Button></div>
+      </div>
     </div>
   );
 };
