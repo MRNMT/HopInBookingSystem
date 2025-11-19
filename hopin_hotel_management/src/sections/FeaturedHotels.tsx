@@ -8,9 +8,9 @@ import hotel2 from "../assets/hotel2.jpg";
 import hotel3 from "../assets/hotel3.jpg";
 
 const hotels = [
-  { photo: hotel1, name: "Grand Luxury Hotel", location: "New York, USA", reviews: "5 678" },
-  { photo: hotel2, name: "Ocean View Resort", location: "Miami, USA", reviews: "5 678" },
-  { photo: hotel3, name: "Metropolitian Suites", location: "Los Angeles, USA", reviews: "5 678" }
+  { photo: hotel1, name: "Deluxe Room", location: "Standard Accommodation", reviews: "5 678" },
+  { photo: hotel2, name: "Premium Suite", location: "Luxury Accomodation", reviews: "5 678" },
+  { photo: hotel3, name: "Metropolitian Suites", location: "Luxury Accomodation", reviews: "5 678" }
 ];
 
 export const FeaturedHotels = () => {
