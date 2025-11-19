@@ -8,18 +8,17 @@ const PORT = process.env.PORT || 5000;
 
 const startServer = async () => {
   try {
-    // 1. Test Database Connection
-    const dbTest = await pool.query('SELECT NOW()');
-    console.log('✅ Database connected successfully:', dbTest.rows[0].now);
 
-    // 2. Start Listening
+    const dbTest = await pool.query('SELECT NOW()');
+    console.log(' Database connected successfully:', dbTest.rows[0].now);
+
     app.listen(PORT, () => {
       console.log(`Server is running on http://localhost:${PORT}`);
       console.log(`API Documentation available at http://localhost:${PORT}/api/v1`);
     });
 
   } catch (error) {
-    console.error('Database connection failed:', error);
+    console.error(' Database connection failed:', error);
     process.exit(1); 
   }
 };
