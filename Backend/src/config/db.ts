@@ -22,3 +22,7 @@ export const connectDB = async (): Promise<void> => {
     throw error;
   }
 };
+
+// Export the pool itself for testing connection health
+export default pool;
+ 
