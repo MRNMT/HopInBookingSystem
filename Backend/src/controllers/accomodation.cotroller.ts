@@ -3,10 +3,17 @@ import * as accommodationService from "../services/accommodation.service";
 import Accommodation from "../types/accommodation.type";
 
 export const getAllAccommodations = async (req: Request, res: Response) => {
-  try {
+  
+    try {
     const accommodations = await accommodationService.getAll();
+
+    if(accommodations == null){
+        res.status(404).json({message: "No accommodations found"})
+    }
+
     res.status(200).json(accommodations);
   } catch (error) {
+    
     console.error("Error in fetching all accomodations", error);
     res.status(500).json({ message: "Internal Server Error" });
   }
@@ -39,7 +46,7 @@ export const updateAccommodation = async (req: Request, res: Response) => {
     const data: Partial<Accommodation> = req.body
 
     try{
-        
+
         const updatedAccommodation  = await accommodationService.update(id, data);
 
         if(!updateAccommodation){
