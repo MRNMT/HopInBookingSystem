@@ -12,26 +12,37 @@ export const Footer: React.FC = () => {
 
   return (
     <footer className="w-full text-gray-100">
-      <div className="bg-blue-400 px-6 py-10">
+      {/* <div className="bg-blue-400 px-6 py-10">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
           <div>
-            <h2 className="text-2xl md:text-3xl font-semibold">Ready to start your journey?</h2>
-            <p className="mt-1 text-sm md:text-base text-blue-100/90">
-              Join thousands of satisfied travelers who trust HopIn for their accommodation needs.
-            </p>
+            
           </div>
 
           <div className="flex items-center gap-3">
             <div className="flex gap-3">
-              <Link to="/register">
-                <Button variant="secondary">Sign Up</Button>
-              </Link>
-              <Link to="/login">
-                <Button variant="secondary">Sign In</Button>
+             
               </Link>
             </div>
           </div>
         </div>
+      </div> */}
+      <div className="bg-[#0088FF]">
+      <div className="text-center h-80  ">
+        <h2 className="text-2xl md:text-3xl font-semibold mt-50">Ready to start your journey?</h2>
+            <p className="mt-1 text-sm md:text-base text-blue-100/90">
+              Join thousands of satisfied travelers who trust HopIn for their accommodation needs.
+            </p>
+
+      </div>
+      <div className="flex justify-center gap-4 mb-10">
+         <Link to="/register">
+                <Button variant="secondary">Sign Up</Button>
+              </Link>
+              <Link to="/login">
+                <Button variant="secondary">Sign In</Button>
+                </Link>
+
+      </div>
       </div>
 
       <div className="bg-gray-200 px-6 py-12">
@@ -111,7 +122,7 @@ export const Footer: React.FC = () => {
             </ul>
           </div>
         </div>
-        <hr />
+        <hr className="text-gray-900 mt-10 mb-5" />
         <div className="text-center text-gray-900 py-4 text-sm"> © {year} HopIn. All rights reserved.</div>
       </div>
 

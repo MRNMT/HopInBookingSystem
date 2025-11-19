@@ -48,24 +48,33 @@ export const getUserById = async (req: Request, res: Response) => {
 const updated = await userService.updateProfile(req.user.id, updateData);
 export const updateUser = async (req: Request, res: Response) => {
 
-    const id = parseInt(req.params.id)
-    const data: Partial<User> = req.body
 
-    try{
-        
-        const updatedUser  = await userService.update(id, data);
+export const getMyBookings = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    if (!req.user?.id) {
+      return next(new AppError(401, 'Authentication required.'));
+    }
+    
+    const bookings = await userService.getMyBookings(req.user.id);
+    
+    res.status(200).json({ 
+      message: 'User bookings retrieved', 
+      data: bookings 
+    });
+  } catch (error) {
+    next(error);
+  }
+};
 
         if(!updateUser){
             res.status(404).json({message: "User not found"})
         }
 
-        return res.status(200).json({updatedUser})
-    }catch(error){
-        console.log("Error in updating", error)
+export const getMyFavorites = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    if (!req.user?.id) {
+      return next(new AppError(401, 'Authentication required.'));
     }
-}
-
-export const createUser = async (req: Request, res: Response) => {
     
     res.status(200).json({ 
       message: 'Profile updated successfully', 
