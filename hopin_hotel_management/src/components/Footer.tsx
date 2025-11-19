@@ -4,6 +4,8 @@ import logo from "../assets/logo2.png"
 import { FaXTwitter } from "react-icons/fa6"
 import { FiFacebook } from "react-icons/fi"
 import { FaInstagram } from "react-icons/fa6"
+import { Link } from "react-router-dom";
+
 
 export const Footer: React.FC = () => {
   const year = new Date().getFullYear()
@@ -21,14 +23,18 @@ export const Footer: React.FC = () => {
 
           <div className="flex items-center gap-3">
             <div className="flex gap-3">
-              <Button variant="primary">Sign Up</Button>
-              <Button variant="primary">Sign In</Button>
+              <Link to="/register">
+                <Button variant="secondary">Sign Up</Button>
+              </Link>
+              <Link to="/login">
+                <Button variant="secondary">Sign In</Button>
+              </Link>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="bg-blue-200 px-6 py-12">
+      <div className="bg-gray-200 px-6 py-12">
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="flex flex-col gap-4">
             <img src={logo} alt="HopIn logo" className="w-36 h-auto rounded-md shadow-sm object-cover" />
@@ -105,12 +111,12 @@ export const Footer: React.FC = () => {
             </ul>
           </div>
         </div>
+        <hr />
+        <div className="text-center text-gray-900 py-4 text-sm"> © {year} HopIn. All rights reserved.</div>
       </div>
 
       
-      <div className="bg-gray-50 text-gray-900 text-center py-4 text-sm">
-        © {year} HopIn. All rights reserved.
-      </div>
+      
     </footer>
   )
 }
