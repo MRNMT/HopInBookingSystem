@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import type { ChangeEvent, FormEvent } from 'react';
 import logo from '../assets/logo.jpg';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
+import { Link } from "react-router-dom";
+
 
 export const Register: React.FC = () => {
     const [full_name, setFullName] = useState('');
@@ -45,8 +47,8 @@ export const Register: React.FC = () => {
             <div className="w-full max-w-md bg-white rounded-lg shadow-md p-6">
                 <div className="text-center mb-6">
                     <img src={logo} alt="HopIn logo" className="mx-auto h-20 w-20 object-contain" />
-                    <h1 className="text-2xl font-semibold text-[#0088FF] mt-3">Welcome Back to HopIn</h1>
-                    <p className="text-sm text-gray-600 mt-1">Create an Account</p>
+                    <h1 className="text-2xl font-semibold text-[#0088FF] mt-3">Welcome to HopIn Hotel Booking System</h1>
+                    <p className="text-sm text-gray-600 mt-1">Create an Account to get started</p>
                 </div>
 
                 <form onSubmit={handleSubmit} noValidate>
@@ -129,8 +131,11 @@ export const Register: React.FC = () => {
                     </div>
 
                     <p className="text-center text-sm text-gray-600">
-                        Already have an account? <a href="#" className="text-[#0088FF] hover:underline">Login</a>
-                    </p>
+                            Already have an account? 
+                            <Link to="/login" className="text-[#0088FF] hover:underline">
+                                Login
+                            </Link>
+                            </p>
                 </form>
             </div>
         </div>

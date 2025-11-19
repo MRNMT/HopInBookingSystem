@@ -1,6 +1,8 @@
 import logo from "../assets/logo.jpg";
 import { Button } from "./Button";
 import { Bell, Heart } from "lucide-react";
+import { Link } from "react-router-dom";
+
 
 export const Navbar = () => {
   return (
@@ -27,7 +29,9 @@ export const Navbar = () => {
 
       {/* Button */}
       <div className="hidden md:block">
-        <Button variant="primary">Sign In</Button>
+        <Link to="/login">
+          <Button variant="primary">Sign In</Button>
+        </Link>
       </div>
 
     </nav>
