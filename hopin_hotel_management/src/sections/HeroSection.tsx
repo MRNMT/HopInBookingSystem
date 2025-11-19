@@ -2,6 +2,7 @@ import hotelBackground from "../assets/hotel_bg.jpg";
 import { Button } from "../components/Button";
 import { CiLocationOn, CiCalendar } from "react-icons/ci";
 import { FiUser } from "react-icons/fi";
+import {MdHotel}  from "react-icons/md";
 
 export const HeroSection = () => {
   return (
@@ -33,13 +34,35 @@ export const HeroSection = () => {
 
           {/* Location */}
           <div className="flex flex-col w-full">
-            <h3 className="text-gray-600 font-semibold">Location</h3>
+            <h3 className="text-gray-600 font-semibold">City</h3>
             <div className="flex items-center gap-2 text-gray-500 mt-1 border-b pb-2">
               <CiLocationOn className="text-xl" />
-              <span>Where are you going?</span>
+              <select name="" id="">
+                <option value="">Polokwane</option>
+                <option value="">Cape Town</option>
+                <option value="">Pretoria</option>
+                <option value="">Johannesburg</option>
+                <option value="">Mbombela</option>
+              </select>
+              
             </div>
           </div>
-
+           {/* Hotels */}
+          <div className="flex flex-col w-full">
+            <h3 className="text-gray-600 font-semibold">Hotels</h3>
+            <div className="flex items-center gap-2 text-gray-500 mt-1 border-b pb-2">
+              <MdHotel className="text-xl" />
+              <select name="" id="">
+              <option value="">Deluxe Room</option>
+              <option value="">Premium Suite</option>
+              <option value="">Standard Room</option>
+              <option value="">Executive Suite</option>
+              
+              </select>
+              
+            </div>
+          </div>
+          
           {/* Check-in */}
           <div className="flex flex-col w-full">
             <h3 className="text-gray-600 font-semibold">Check-in</h3>
@@ -72,7 +95,7 @@ export const HeroSection = () => {
       {/* SEARCH BUTTON BELOW BOX */}
       <div className="w-full flex justify-center mt-4 px-4">
         <button className="bg-[#0088FF] hover:bg-[#006FCC] text-white py-3 px-8 rounded-lg w-full max-w-4xl font-medium">
-          Search Now
+          Find
         </button>
       </div>
     </>
