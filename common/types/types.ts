@@ -23,7 +23,7 @@ export interface PaginatedResponse<T> {
 }
 
 // --- Auth & Users ---
-export interface UserProfile {
+export interface User {
   id: string;
   email: string;
   full_name: string;

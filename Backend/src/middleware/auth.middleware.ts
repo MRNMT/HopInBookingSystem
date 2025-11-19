@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { env } from '../config/env';
-import { pool } from '../config/db';
+import pool from '../config/db';
 import { User } from '../../../common/types/types';
 
 declare global {

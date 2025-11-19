@@ -1,7 +1,30 @@
-// Shared validation schemas used across all apps
-// Add your validation logic here, e.g., using libraries like Joi, Yup, or Zod
+import { z } from 'zod';
 
-export const exampleSchema = {
-  // Placeholder for shared validation schemas
-  // Example: user registration, booking forms, etc.
-};
+//Register Schema
+
+export const registerSchema = z.object({
+  // The 'body' property checks the data coming in the request body
+  body: z.object({
+    fullName: z.string()
+      .min(2, { message: "Full name must be at least 2 characters." }),
+
+    email: z.string()
+      .email({ message: "Invalid email format." }),
+
+    // Password is required for standard registration, but marked optional in DTO
+    // to support OAuth where a password isn't sent. Here, we enforce it.
+    password: z.string()
+      .min(8, { message: "Password must be at least 8 characters." }),
+  }),
+});
+
+//LOGIN SCHEMA
+export const loginSchema = z.object({
+  body: z.object({
+    email: z.string()
+      .email({ message: "Invalid email format." }),
+      
+    password: z.string()
+      .min(1, { message: "Password is required." }),
+  }),
+});
