@@ -1,15 +1,6 @@
 {
-  "name": "backend",
-  "version": "1.0.0",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
   "dependencies": {
+<<<<<<< HEAD
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
@@ -25,5 +16,8 @@
     "@types/pg": "^8.15.6",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3"
+=======
+    "react-icons": "^5.5.0"
+>>>>>>> 6c32ffdb2a419ea0a588bffb3057e53e47192f0d
   }
 }
