@@ -1,33 +1,20 @@
-import {Router} from 'express'
-import { 
-  registerController, 
-  loginController, 
-  getMeController 
-} from '../../controllers/auth.controller';
+import { Router } from 'express';
+import { register, login, logout, googleAuth } from '../../controllers/auth.controller';
+import { validateRequest } from '../../middleware/validation.middleware';
+import { registerSchema, loginSchema } from '../../../../common/validation/schemas';
 
-const authRouter = Router();
-postgresql://postgres:[HopInHotel@111]@db.oaigsalnihaycaenspwx.supabase.co:5432/postgres
-postgresql://postgres:HopInHotel@111@db.oaigsalnihaycaenspwx.supabase.co:5432/postgres
+const router = Router();
 
-/**
- * @route   POST /api/v1/auth/register
- * @desc    Register a new customer
- * @access  Public
- */
-authRouter.post('/register', registerController);
+// POST /api/v1/auth/register
+router.post('/register', validateRequest(registerSchema), register);
 
-/**
- * @route   POST /api/v1/auth/login
- * @desc    Login user and get token
- * @access  Public
- */
-authRouter.post('/login', loginController);
+// POST /api/v1/auth/login
+router.post('/login', validateRequest(loginSchema), login);
 
-/**
- * @route   GET /api/v1/auth/me
- * @desc    Get current logged-in user's profile
- * @access  Private (Requires Auth Token)
- */
-authRouter.get('/me', getMeController);
+// POST /api/v1/auth/logout
+router.post('/logout', logout);
 
-export default authRouter;
+// GET /api/v1/auth/google
+router.get('/google', googleAuth);
+
+export default router;
