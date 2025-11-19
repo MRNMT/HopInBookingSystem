@@ -12,6 +12,11 @@ export const getById = async (id: number): Promise<Accommodation | null> =>{
     return null;
 }
 
+export const getByCity = async (city: string): Promise<Accommodation | null> =>{
+    //Todo
+    return null;
+}
+
 export const update = async (id: number, data: Partial<Accommodation>): Promise<Accommodation | null> =>{
     //Todo
     return null;

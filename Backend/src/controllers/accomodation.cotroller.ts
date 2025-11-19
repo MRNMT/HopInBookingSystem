@@ -22,6 +22,16 @@ export const getAccommodationById = async (req: Request, res: Response) => {
         res.status(404).json({message: "Accomodation not Found"})
     }
 }
+export const getAccommodationByCity = async (req: Request, res: Response) => {
+    try{
+        const city = parseInt(req.params.city)
+        const accommodation = await accommodationService.getByCity(city);
+        res.status(200).json(accommodation)
+    }catch(error){
+        console.log("Getting accommodation error:", error)
+        res.status(404).json({message: "Accomodation not Found"})
+    }
+}
 
 export const updateAccommodation = async (req: Request, res: Response) => {
 
