@@ -22,9 +22,11 @@ export const getById = async (id: number): Promise<Accommodation | null> =>{
     return result.rows[0]
 }
 
-export const getByCity = async (city: string): Promise<Accommodation | null> =>{
-    //Todo
-    return null;
+    const result: QueryResult<Accommodation> = await db.query(qString, values)
+    
+    if(result.rows.length == 0 ) return null
+
+    return result.rows[0]
 }
 
 export const update = async (id: number, data: Partial<Accommodation>): Promise<Accommodation | null> =>{
