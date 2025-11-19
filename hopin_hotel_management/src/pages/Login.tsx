@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import type { ChangeEvent, FormEvent } from 'react';
 import logo from '../assets/logo.jpg';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
+import { Link } from "react-router-dom";
+
 
 export const Login: React.FC = () => {
     const [email, setEmail] = useState('');
@@ -117,8 +119,10 @@ export const Login: React.FC = () => {
                     </div>
 
                     <p className="text-center text-sm text-gray-600">
-                        Don't have an account? <a href="#" className="text-[#0088FF] hover:underline">Register</a>
-                    </p>
+                            Don't have an account? 
+                            <Link to="/register" className="text-[#0088FF] hover:underline"> Register</Link>
+                            </p>
+
                 </form>
             </div>
         </div>

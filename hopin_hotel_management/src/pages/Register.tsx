@@ -2,15 +2,17 @@ import React, { useState } from 'react';
 import type { ChangeEvent, FormEvent } from 'react';
 import logo from '../assets/logo.jpg';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
+import { Link } from "react-router-dom";
+
 
 export const Register: React.FC = () => {
-    const [fullName, setFullName] = useState('');
+    const [full_name, setFullName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [remember, setRemember] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
-    const [errors, setErrors] = useState<{ fullName?: string; email?: string; password?: string }>(
+    const [errors, setErrors] = useState<{ full_name?: string; email?: string; password?: string }>(
         {}
     );
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -45,8 +47,8 @@ export const Register: React.FC = () => {
             <div className="w-full max-w-md bg-white rounded-lg shadow-md p-6">
                 <div className="text-center mb-6">
                     <img src={logo} alt="HopIn logo" className="mx-auto h-20 w-20 object-contain" />
-                    <h1 className="text-2xl font-semibold text-[#0088FF] mt-3">Welcome Back to HopIn</h1>
-                    <p className="text-sm text-gray-600 mt-1">Create an Account</p>
+                    <h1 className="text-2xl font-semibold text-[#0088FF] mt-3">Welcome to HopIn Hotel Booking System</h1>
+                    <p className="text-sm text-gray-600 mt-1">Create an Account to get started</p>
                 </div>
 
                 <form onSubmit={handleSubmit} noValidate>
@@ -55,11 +57,11 @@ export const Register: React.FC = () => {
                         <input
                             id="fullName"
                             type="text"
-                            value={fullName}
+                            value={full_name}
                             onChange={(e: ChangeEvent<HTMLInputElement>) => setFullName(e.target.value)}
                             placeholder="Enter your full name"
-                            aria-invalid={!!errors.fullName}
-                            aria-describedby={errors.fullName ? 'fullName-error' : undefined}
+                            aria-invalid={!!errors.full_name}
+                            aria-describedby={errors.full_name ? 'fullName-error' : undefined}
                             className="w-full border rounded px-3 py-2"
                         />
                         <label htmlFor="email" className="block text-sm font-medium mb-1">Email</label>
@@ -129,8 +131,11 @@ export const Register: React.FC = () => {
                     </div>
 
                     <p className="text-center text-sm text-gray-600">
-                        Already have an account? <a href="#" className="text-[#0088FF] hover:underline">Login</a>
-                    </p>
+                            Already have an account? 
+                            <Link to="/login" className="text-[#0088FF] hover:underline">
+                                Login
+                            </Link>
+                            </p>
                 </form>
             </div>
         </div>

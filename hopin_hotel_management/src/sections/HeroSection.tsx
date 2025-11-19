@@ -21,8 +21,8 @@ export const HeroSection = () => {
           </p>
 
           <div className="flex gap-4 mt-8">
-            <Button variant="primary">Explore Hotels</Button>
-            <Button variant="outline">Learn More</Button>
+            <Button variant="primary">View Rooms</Button>
+            <Button variant="secondary">Learn More</Button>
           </div>
         </div>
       </div>
