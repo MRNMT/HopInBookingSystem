@@ -3,7 +3,7 @@ import type React from "react";
 type ButtonProps = {
   children: React.ReactNode;
   onClick?: () => void;
-  variant?: "primary" | "outline" | "ghost";
+  variant?: "primary" | "secondary" | "outline" | "ghost";
   className?: string;
   disabled?: boolean;
 };
@@ -20,6 +20,7 @@ export const Button: React.FC<ButtonProps> = ({
 
   const variants = {
     primary: "bg-[#0088FF] text-white hover:bg-[#0077E6]",
+    secondary: "bg-gray-200 text-[#0088FF] hover:bg-gray-300 ",
     outline:
       "border border-[#0088FF] text-[#0088FF] hover:bg-[#0088FF]/10",
     ghost: "text-[#0088FF] hover:bg-[#0088FF]/10",
