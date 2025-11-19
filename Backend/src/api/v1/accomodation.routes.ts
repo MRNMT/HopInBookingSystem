@@ -1,8 +1,8 @@
 import { Router } from 'express';
 import { 
-  getAccommodations, 
+  getAllAccommodations, 
   getAccommodationById 
-} from '../../controllers/accom.controller';
+} from '../../controllers/accomodation.cotroller';
 
 const accomRouter = Router();
 
@@ -11,7 +11,7 @@ const accomRouter = Router();
  * @desc    Search accommodations with filters (city, price, star_rating, etc.)
  * @access  Public
  */
-accomRouter.get('/', getAccommodations);
+accomRouter.get('/', getAllAccommodations);
 
 /**
  * @route   GET /api/v1/accommodations/:id
