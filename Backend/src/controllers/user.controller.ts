@@ -1,16 +1,12 @@
 import { Request, Response, NextFunction } from 'express';
-import { UserService } from '../services/user.service';
+import { UserService } from '../services/user.services';
 import { AppError } from '../middleware/error.handler';
 import { UpdateProfileDto } from '../../common/types/types';
 
 // Instantiate the service to handle business logic
 const userService = new UserService();
 
-/**
- * Retrieves the profile data for the currently authenticated user.
- * Route: GET /api/v1/users/profile
- * Access: Private (Logged in user)
- */
+
 export const getUserProfile = async (req: Request, res: Response, next: NextFunction) => {
   try {
     // check if user is authenticated
@@ -31,21 +27,15 @@ export const getUserProfile = async (req: Request, res: Response, next: NextFunc
   }
 };
 
-/**
- * Updates the profile data for the currently authenticated user.
- * Route: PUT /api/v1/users/profile
- * Access: Private (Logged in user)
- */
+
 export const updateUserProfile = async (req: Request, res: Response, next: NextFunction) => {
   try {
     if (!req.user?.id) {
       return next(new AppError(401, 'Authentication required.'));
     }
 
-    // 1. Extract validated data from request body (typed with DTO)
     const updateData: UpdateProfileDto = req.body;
 
-    // 2. Call Service: Perform the update in the database
     const updated = await userService.updateProfile(req.user.id, updateData);
     
     res.status(200).json({ 
@@ -57,10 +47,7 @@ export const updateUserProfile = async (req: Request, res: Response, next: NextF
   }
 };
 
-/**
- * Retrieves a specific user by ID (Typically an Admin function).
- * Route: GET /api/v1/users/:id
- */
+
 export const getUserById = async (req: Request, res: Response, next: NextFunction) => {
     try {
         // FIX: Your database uses UUIDs (strings), NOT integers. 
@@ -82,11 +69,7 @@ export const getUserById = async (req: Request, res: Response, next: NextFunctio
     }
 };
 
-/**
- * Retrieves all bookings (past and upcoming) for the authenticated user.
- * Route: GET /api/v1/users/bookings
- * Access: Private
- */
+
 export const getMyBookings = async (req: Request, res: Response, next: NextFunction) => {
   try {
     if (!req.user?.id) {
@@ -105,11 +88,7 @@ export const getMyBookings = async (req: Request, res: Response, next: NextFunct
   }
 };
 
-/**
- * Retrieves all favorited accommodations for the authenticated user.
- * Route: GET /api/v1/users/favorites
- * Access: Private
- */
+
 export const getMyFavorites = async (req: Request, res: Response, next: NextFunction) => {
   try {
     if (!req.user?.id) {
@@ -128,11 +107,6 @@ export const getMyFavorites = async (req: Request, res: Response, next: NextFunc
   }
 };
 
-/**
- * Adds an accommodation to the user's favorites list.
- * Route: POST /api/v1/users/favorites
- * Access: Private
- */
 export const addFavorite = async (req: Request, res: Response, next: NextFunction) => {
   try {
     if (!req.user?.id) {
@@ -156,11 +130,6 @@ export const addFavorite = async (req: Request, res: Response, next: NextFunctio
   }
 };
 
-/**
- * Removes an accommodation from the user's favorites list.
- * Route: DELETE /api/v1/users/favorites/:id
- * Access: Private
- */
 export const removeFavorite = async (req: Request, res: Response, next: NextFunction) => {
   try {
     if (!req.user?.id) {

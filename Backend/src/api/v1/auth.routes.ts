@@ -1,20 +1,22 @@
 import { Router } from 'express';
-import { registerController, loginController, logoutController, googleAuth } from '../../controllers/auth.controller';
+import { 
+  registerController, 
+  loginController, 
+  logoutController, 
+  googleAuth,
+  getMeController
+} from '../../controllers/auth.controller';
 import { validateRequest } from '../../middleware/validation.middleware';
-import { registerSchema, loginSchema } from '../../../common/validation/schemas';
+import { isAuthenticated } from '../../middleware/auth.middleware';
+import { registerSchema, loginSchema } from '../../../common/validation/schemas'
 
-const router = Router();
+const authRouter = Router();
 
-// POST /api/v1/auth/register
-router.post('/register', validateRequest(registerSchema), register);
 
-// POST /api/v1/auth/login
-router.post('/login', validateRequest(loginSchema), login);
+authRouter.post('/register', validateRequest(registerSchema), registerController);
+authRouter.post('/login', validateRequest(loginSchema), loginController);
+authRouter.post('/logout', logoutController);
+authRouter.get('/google', googleAuth);
+authRouter.get('/me', isAuthenticated, getMeController);
 
-// POST /api/v1/auth/logout
-router.post('/logout', logout);
-
-// GET /api/v1/auth/google
-router.get('/google', googleAuth);
-
-export default router;
+export default authRouter;

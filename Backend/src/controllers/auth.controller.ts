@@ -6,9 +6,7 @@ import { AppError } from '../middleware/error.handler';
 
 const authService = new AuthService();
 
-/**
- * Register a new user
- */
+//Register a new user
 export const registerController = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { email, password, fullName } = req.body;
@@ -24,9 +22,8 @@ export const registerController = async (req: Request, res: Response, next: Next
   }
 };
 
-/**
- * Login existing user
- */
+
+ //Login existing user
 export const loginController = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { email, password } = req.body;
@@ -42,9 +39,7 @@ export const loginController = async (req: Request, res: Response, next: NextFun
   }
 };
 
-/**
- * Get current user profile
- */
+ // Get current user profile
 export const getMeController = async (req: Request, res: Response, next: NextFunction) => {
   try {
     if (!req.user?.id) {
@@ -81,8 +76,6 @@ export const googleAuth = passport.authenticate('google', { scope: ['profile', '
  */
 export const googleAuthCallback = async (req: Request, res: Response) => {
   try {
-    // This redirects the browser back to the frontend application with the token
-    // const token = ... (generate token from req.user)
     res.redirect(`${process.env.FRONTEND_URL}/auth/callback?token=mock-token`); 
   } catch (error) {
     res.redirect(`${process.env.FRONTEND_URL}/auth/error`);
