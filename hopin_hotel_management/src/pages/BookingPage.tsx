@@ -43,11 +43,19 @@ export const BookingPage = () => {
                         <div className='grid grid-cols-2 gap-4'>
                             <div>
                                 <label className='flex items-center gap-2 font-medium mb-2'><CiCalendar /> Check-in Date</label>
-                                <input type="text" placeholder='Select a date' className='w-full border rounded px-3 py-2' />
+                                <input
+                                    type="date"
+                                    className='outline-none w-full border rounded px-3 py-2'
+                                    placeholder="mm/dd/yyyy"
+                                />
                             </div>
                             <div>
                                 <label className='flex items-center gap-2 font-medium mb-2'><CiCalendar /> Check-out Date</label>
-                                <input type="text" placeholder='Select a date' className='w-full border rounded px-3 py-2' />
+                                <input
+                                    type="date"
+                                    className='outline-none w-full border rounded px-3 py-2'
+                                    placeholder="mm/dd/yyyy"
+                                />
                             </div>
                         </div>
 
