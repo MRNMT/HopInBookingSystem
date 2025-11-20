@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { ApiResponse } from '../../../common/types/types';
+import { ApiResponse } from '../../common/types/types';
 
 /**
  * Custom Error Class to handle operational errors (e.g., 404 Not Found, 400 Bad Request)

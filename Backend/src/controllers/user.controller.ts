@@ -1,78 +1,52 @@
 import { Request, Response, NextFunction } from 'express';
-import * as userService from '../services/user.services';
-import { AppError } from '../middleware/error.handler'
-import { UpdateProfileDto } from '../../../common/types/types';
+import { UserService } from '../services/user.service';
+import { AppError } from '../middleware/error.handler';
+import { UpdateProfileDto } from '../../common/types/types';
 
+// Instantiate the service to handle business logic
+const userService = new UserService();
 
+/**
+ * Retrieves the profile data for the currently authenticated user.
+ * Route: GET /api/v1/users/profile
+ * Access: Private (Logged in user)
+ */
 export const getUserProfile = async (req: Request, res: Response, next: NextFunction) => {
   try {
+    // check if user is authenticated
     if (!req.user?.id) {
       return next(new AppError(401, 'Authentication required.'));
     }
     
+    // 2. fetch user data from database using the ID from the token
     const profile = await userService.getProfile(req.user.id);
     
-    // 3. Send response
+    // 3. Send Success Response
     res.status(200).json({ 
       message: 'User profile retrieved successfully', 
       data: profile 
     });
   } catch (error) {
-    next(error);
+    next(error); //to the errorHandler
   }
 };
 
-
+/**
+ * Updates the profile data for the currently authenticated user.
+ * Route: PUT /api/v1/users/profile
+ * Access: Private (Logged in user)
+ */
 export const updateUserProfile = async (req: Request, res: Response, next: NextFunction) => {
   try {
     if (!req.user?.id) {
       return next(new AppError(401, 'Authentication required.'));
-    console.error("Error in fetching all Users", error);
-    res.status(500).json({ message: "Internal Server Error" });
-  }
-};
-
-export const getUserById = async (req: Request, res: Response) => {
-    try{
-        const id = parseInt(req.params.id)
-        const user = await userService.getById(id);
-        res.status(200).json(user)
-    }catch(error){
-        console.log("Getting user error:", error)
-        res.status(404).json({message: "User not Found"})
     }
+
+    // 1. Extract validated data from request body (typed with DTO)
     const updateData: UpdateProfileDto = req.body;
 
-const updated = await userService.updateProfile(req.user.id, updateData);
-export const updateUser = async (req: Request, res: Response) => {
-
-
-export const getMyBookings = async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    if (!req.user?.id) {
-      return next(new AppError(401, 'Authentication required.'));
-    }
-    
-    const bookings = await userService.getMyBookings(req.user.id);
-    
-    res.status(200).json({ 
-      message: 'User bookings retrieved', 
-      data: bookings 
-    });
-  } catch (error) {
-    next(error);
-  }
-};
-
-        if(!updateUser){
-            res.status(404).json({message: "User not found"})
-        }
-
-export const getMyFavorites = async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    if (!req.user?.id) {
-      return next(new AppError(401, 'Authentication required.'));
-    }
+    // 2. Call Service: Perform the update in the database
+    const updated = await userService.updateProfile(req.user.id, updateData);
     
     res.status(200).json({ 
       message: 'Profile updated successfully', 
@@ -84,22 +58,42 @@ export const getMyFavorites = async (req: Request, res: Response, next: NextFunc
 };
 
 /**
+ * Retrieves a specific user by ID (Typically an Admin function).
+ * Route: GET /api/v1/users/:id
+ */
+export const getUserById = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        // FIX: Your database uses UUIDs (strings), NOT integers. 
+        // Do not use parseInt() here.
+        const id = req.params.id; 
+        
+        const user = await userService.getById(id); // Assumes you added getById to UserService
+
+        if (!user) {
+            return next(new AppError(404, 'User not found'));
+        }
+
+        res.status(200).json({
+            message: 'User details retrieved',
+            data: user
+        });
+    } catch(error) {
+        next(error);
+    }
+};
+
+/**
  * Retrieves all bookings (past and upcoming) for the authenticated user.
- * GET /api/v1/user/bookings
+ * Route: GET /api/v1/users/bookings
+ * Access: Private
  */
 export const getMyBookings = async (req: Request, res: Response, next: NextFunction) => {
   try {
     if (!req.user?.id) {
       return next(new AppError(401, 'Authentication required.'));
-    try{
-        const createdUser  = userService.create(data)
-        res.status(201).json(data)
-    }catch(error){
-        console.log("Error in adding a user", error)
-        return res.status(400).json({message: "Bad Request"})
     }
     
-    // 1. Delegate to Service (SELECT statement with joins to get hotel info)
+    // 1. Call Service: Get bookings linked to this user ID
     const bookings = await userService.getMyBookings(req.user.id);
     
     res.status(200).json({ 
@@ -113,7 +107,8 @@ export const getMyBookings = async (req: Request, res: Response, next: NextFunct
 
 /**
  * Retrieves all favorited accommodations for the authenticated user.
- * GET /api/v1/user/favorites
+ * Route: GET /api/v1/users/favorites
+ * Access: Private
  */
 export const getMyFavorites = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -121,7 +116,7 @@ export const getMyFavorites = async (req: Request, res: Response, next: NextFunc
       return next(new AppError(401, 'Authentication required.'));
     }
     
-    // 1. Delegate to Service (SELECT statement joining users, favorites, and accommodations)
+    // 1. Call Service: Get accommodations from the user_favorites join table
     const favorites = await userService.getMyFavorites(req.user.id);
     
     res.status(200).json({ 
@@ -135,20 +130,22 @@ export const getMyFavorites = async (req: Request, res: Response, next: NextFunc
 
 /**
  * Adds an accommodation to the user's favorites list.
- * POST /api/v1/user/favorites
+ * Route: POST /api/v1/users/favorites
+ * Access: Private
  */
 export const addFavorite = async (req: Request, res: Response, next: NextFunction) => {
   try {
     if (!req.user?.id) {
       return next(new AppError(401, 'Authentication required.'));
     }
+    
     const { accommodationId } = req.body;
 
     if (!accommodationId) {
         return next(new AppError(400, 'Accommodation ID is required.'));
     }
     
-    // 1. Delegate to Service (INSERT statement into user_favorites)
+    // 1. Call Service: Insert into user_favorites table
     await userService.addFavorite(req.user.id, accommodationId);
     
     res.status(201).json({ 
@@ -161,19 +158,22 @@ export const addFavorite = async (req: Request, res: Response, next: NextFunctio
 
 /**
  * Removes an accommodation from the user's favorites list.
- * DELETE /api/v1/user/favorites/:id
+ * Route: DELETE /api/v1/users/favorites/:id
+ * Access: Private
  */
 export const removeFavorite = async (req: Request, res: Response, next: NextFunction) => {
   try {
     if (!req.user?.id) {
       return next(new AppError(401, 'Authentication required.'));
     }
-    const accommodationId = req.params.id; // Corresponds to ':id' in the route definition
     
-    // 1. Delegate to Service (DELETE statement from user_favorites)
+    // The ID in the URL is the accommodation ID to remove
+    const accommodationId = req.params.id; 
+    
+    // 1. Call Service: Delete from user_favorites table
     await userService.removeFavorite(req.user.id, accommodationId);
     
-    // 2. 204 No Content is the standard response for a successful DELETE
+    // 204 No Content is standard for successful deletions
     res.status(204).send(); 
   } catch (error) {
     next(error);

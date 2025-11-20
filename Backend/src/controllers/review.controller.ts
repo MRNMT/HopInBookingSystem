@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { ReviewService } from '../services/review.service';
 import { AppError } from '../middleware/error.handler';
-import { CreateReviewDto } from '../../../common/types/types';
+import { CreateReviewDto } from '../../common/types/types';
 
 const reviewService = new ReviewService();
 

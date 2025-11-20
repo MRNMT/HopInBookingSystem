@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import passport from 'passport';
-import { ApiResponse } from '../../../common/types/types';
+import { ApiResponse } from '../../common/types/types';
 import { AuthService } from '../services/auth.service';
 import { AppError } from '../middleware/error.handler';
 

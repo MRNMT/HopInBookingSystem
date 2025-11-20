@@ -1,29 +1,38 @@
-import User from "../types/user.type";
+import { db } from '../config/db';
+import { User, UpdateProfileDto, Booking, Accommodation } from '../../common/types/types';
+import { AppError } from '../middleware/error.handler';
+
+export class UserService {
+  public async getProfile(userId: string): Promise<User> {
+    const query = await db.query(
+      'SELECT id, full_name, email, role, profile_image_url, created_at FROM users WHERE id = $1',     // 1. Execute the SQL query
+      [userId]
+    );
+    if (query.rows.length === 0) {     // 2. Check if any user was found
+      throw new AppError(404, 'User not found');
+    }
+    return query.rows[0] as User;     // 3. Return the first row, cast to the User type
+  }
 
 
-//pool
 
-export const getAll = async (): Promise<User[]> => {
-    //Todo
+  public async updateProfile (userId: string, data: UpdateProfileDto):Promise<String> {
+    const query = await db.query(
+        'update'
+    )
+    return "";
+  }
 
-    return [];
-}
+  
+  
+  // TODO: Implement getById(userId: string) (Admin function)
 
-export const getById = async (id: number): Promise<User | null> =>{
-    //Todo
-    return null;
-}
+  // TODO: Implement getMyBookings(userId: string)
 
-export const update = async (id: number, data: Partial<User>): Promise<User | null> =>{
-    //Todo
-    return null;
-}
+  // TODO: Implement getMyFavorites(userId: string)
 
-export const deleteById = async (id: number) => {
-    //Todo
-}
+  // TODO: Implement addFavorite(userId: string, accommodationId: string)
 
-export const create = async (data: Partial<User>): Promise<User | null> => {
-    //Todo
-    return null
+  // TODO: Implement removeFavorite(userId: string, accommodationId: string)
+
 }
