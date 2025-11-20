@@ -1,9 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
-import * as userService from '../services/user.service';
+import * as userService from '../services/user.services';
 import { AppError } from '../middleware/error.handler'
 import { UpdateProfileDto } from '../../../common/types/types';
-
-const userService = new UserService();
 
 
 export const getUserProfile = async (req: Request, res: Response, next: NextFunction) => {
