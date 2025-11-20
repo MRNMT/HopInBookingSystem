@@ -1,7 +1,7 @@
 // --- 1. Import necessary libraries ---
-import express, { Request, Response } from 'express';
-import cors from 'cors';
-import dotenv from 'dotenv';
+import express, { Request, Response } from "express";
+import cors from "cors";
+import dotenv from "dotenv";
 
 // --- Import your new v1 router ---
 import router from './api/v1/index'; // This imports the master router from index.ts
@@ -32,8 +32,8 @@ app.use(express.json());
 
 // (a) A simple "test" route to check if the server is alive
 // This just says "if someone does a GET request to '/', send this text"
-app.get('/', (req: Request, res: Response) => {
-  res.send('Hotel App Backend is running!');
+app.get("/", (req: Request, res: Response) => {
+  res.send("Hotel App Backend is running!");
 });
 
 // (b) Your *real* API routes

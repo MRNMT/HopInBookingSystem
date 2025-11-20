@@ -29,19 +29,66 @@ export const getByCity = async (
   return null;
 };
 
-export const update = async (id: number, data: Partial<Accommodation>): Promise<Accommodation | null> =>{
+export const update = async (
+  id: number,
+  data: Partial<Accommodation>
+): Promise<Accommodation | null> => {
 
-    
-    
-    const qString = `UPDATE TABLE accommodations
-                     SET name  `
+  const values: any[] = []
+  const setClauses: string [] = []
+  let paramIndex = 1
 
-    const result: QueryResult<Accommodation> = await db.query(qString, values)
+  if(data.name !== undefined){
+    setClauses.push(`name = $${paramIndex++}`)
+    values.push(data.name)
+  }
 
-    if(result.rows.length == 0 ) return null
+  if(data.description !== undefined){
+    setClauses.push(`description = $${paramIndex++}`)
+    values.push(data.description)
+  }
 
-    return result.rows[0]
-}
+  if(data.address !== undefined){
+    setClauses.push(`address = $${paramIndex++}`)
+    values.push(data.address)
+  }
+
+  if(data.city !== undefined){
+    setClauses.push(`city = $${paramIndex++}`)
+    values.push(data.city)
+  }
+
+  if(data.country !== undefined){
+    setClauses.push(`name = $${paramIndex++}`)
+    values.push(data.country)
+  }
+
+  if(data.starRating !== undefined){
+    setClauses.push(`starRating = $${paramIndex++}`)
+    values.push(data.starRating)
+  }
+
+  if(data.policies !== undefined){
+    setClauses.push(`policies = $${paramIndex++}`)
+    values.push(data.policies)
+  }
+
+  if(data.isActive !== undefined){
+    setClauses.push(`isActive = $${paramIndex++}`)
+    values.push(data.isActive)
+  }
+
+  const qString = `UPDATE TABLE accommodations
+                     SET ${setClauses.join(',')}  
+                     WHERE id = ${paramIndex}
+                     RETURNING`
+
+  const result: QueryResult<Accommodation> = await db.query(qString, values);
+
+  if (result.rows.length == 0) return null;
+
+  return result.rows[0];
+};
 
 export const deleteById = async (id: number) => {
   //Todo
