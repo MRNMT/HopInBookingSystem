@@ -48,7 +48,7 @@ export const FeaturedHotels = () => {
                 </span>
 
                 {/* Favorite Heart */}
-                <button className="absolute top-3 right-3 bg-white rounded-full p-2 shadow font-bold">
+                <button aria-label="Favorite" className="absolute top-3 right-3 bg-white rounded-full p-2 shadow font-bold">
                   <FaRegHeart className="text-gray-700 text-lg" />
                 </button>
               </div>

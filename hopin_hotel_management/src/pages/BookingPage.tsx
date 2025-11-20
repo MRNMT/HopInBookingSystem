@@ -16,7 +16,11 @@ export const BookingPage = () => {
             {/* Header */}
             <div className='flex justify-between items-center p-4 bg-white shadow-sm'>
                 <img src={logo} alt="logo" className='h-10' />
-                <FaRegUser className='text-2xl text-[#0088FF]' />
+                <span className='flex'>
+                    <FaRegUser className='text-2xl text-[#0088FF]' />MM
+
+                </span>
+                
             </div>
 
             {/* Navigation */}
