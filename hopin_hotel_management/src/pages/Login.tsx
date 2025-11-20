@@ -34,8 +34,9 @@ export const Login: React.FC = () => {
             await new Promise((res) => setTimeout(res, 800));
             // on success: redirect or update app state
             console.log('Signed in', { email, remember });
-        } catch (err) {
+        } catch (error) {
             setErrors({ ...errors, password: 'Failed to sign in. Try again.' });
+            console.log(error);
         } finally {
             setLoading(false);
         }
@@ -54,6 +55,7 @@ export const Login: React.FC = () => {
                     <div className="mb-4">
                         <label htmlFor="email" className="block text-sm font-medium mb-1">Email</label>
                         <input
+                         aria-hidden="true"
                             id="email"
                             type="email"
                             value={email}
@@ -74,6 +76,7 @@ export const Login: React.FC = () => {
                         <label htmlFor="password" className="block text-sm font-medium mb-1">Password</label>
                         <div className="flex items-center">
                             <input
+                            aria-hidden="true"
                                 id="password"
                                 type={showPassword ? 'text' : 'password'}
                                 value={password}
