@@ -4,11 +4,9 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 
 // --- Import your new v1 router ---
-import v1Router from './api/v1'; // This imports the master router from index.ts
+import router from './api/v1/index'; // This imports the master router from index.ts
 
-// --- 2. Load Environment Variables ---
-// This line loads all the variables from your .env file (like PORT or DB_URL)
-// and makes them available in 'process.env'
+
 dotenv.config();
 
 // --- 3. Create the Express App ---
@@ -42,7 +40,7 @@ app.get('/', (req: Request, res: Response) => {
 // We use the v1Router we imported.
 // This tells the app that any URL starting with '/api/v1'
 // should be handled by our new v1Router file.
-app.use('/api/v1', v1Router);
+app.use('/api/v1', router);
 
 // --- 6. Export the App ---
 // We export the 'app' object so that our server.ts file can import

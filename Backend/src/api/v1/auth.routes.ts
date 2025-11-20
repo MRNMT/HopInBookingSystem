@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { register, login, logout, googleAuth } from '../../controllers/auth.controller';
+import { registerController, loginController, logoutController, googleAuth } from '../../controllers/auth.controller';
 import { validateRequest } from '../../middleware/validation.middleware';
 import { registerSchema, loginSchema } from '../../../../common/validation/schemas';
 

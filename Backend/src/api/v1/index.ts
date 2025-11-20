@@ -16,4 +16,4 @@ router.use('/bookings', bookingRoutes);
 router.use('/reviews', reviewRoutes);
 router.use('/notifications', notificationRoutes);
 
-export { router as apiRouter };
+export default router;
