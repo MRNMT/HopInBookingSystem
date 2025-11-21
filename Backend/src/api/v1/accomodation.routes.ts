@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { 
   getAllAccommodations, 
-  getAccommodationById 
+  getAccommodationById,
 } from '../../controllers/accomodation.cotroller';
 
 const accomRouter = Router();

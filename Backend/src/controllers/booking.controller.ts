@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { CreateBookingDto } from '../../../common/types/types';
+import { CreateBookingDto } from '../../common/types/types';
 import { BookingService } from '../services/booking.service';
 import { AppError } from '../middleware/error.handler';
 

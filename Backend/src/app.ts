@@ -1,14 +1,12 @@
 // --- 1. Import necessary libraries ---
-import express, { Request, Response } from 'express';
-import cors from 'cors';
-import dotenv from 'dotenv';
+import express, { Request, Response } from "express";
+import cors from "cors";
+import dotenv from "dotenv";
 
 // --- Import your new v1 router ---
-import v1Router from './api/v1'; // This imports the master router from index.ts
+import router from './api/v1/index'; // This imports the master router from index.ts
 
-// --- 2. Load Environment Variables ---
-// This line loads all the variables from your .env file (like PORT or DB_URL)
-// and makes them available in 'process.env'
+
 dotenv.config();
 
 // --- 3. Create the Express App ---
@@ -34,15 +32,15 @@ app.use(express.json());
 
 // (a) A simple "test" route to check if the server is alive
 // This just says "if someone does a GET request to '/', send this text"
-app.get('/', (req: Request, res: Response) => {
-  res.send('Hotel App Backend is running!');
+app.get("/", (req: Request, res: Response) => {
+  res.send("Hotel App Backend is running!");
 });
 
 // (b) Your *real* API routes
 // We use the v1Router we imported.
 // This tells the app that any URL starting with '/api/v1'
 // should be handled by our new v1Router file.
-app.use('/api/v1', v1Router);
+app.use('/api/v1', router);
 
 // --- 6. Export the App ---
 // We export the 'app' object so that our server.ts file can import

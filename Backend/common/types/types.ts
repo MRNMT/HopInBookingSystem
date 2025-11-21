@@ -14,14 +14,12 @@ export interface ApiResponse<T> {
   data?: T;
   error?: string;
 }
-
 export interface PaginatedResponse<T> {
   results: T[];
   total: number;
   page: number;
   limit: number;
 }
-
 // --- Auth & Users ---
 export interface User {
   id: string;
@@ -31,37 +29,31 @@ export interface User {
   profile_image_url?: string;
   created_at: string;
 }
-
 export interface RegisterDto {
   fullName: string;
   email: string;
   password?: string;
 }
-
 export interface LoginDto {
   email: string;
   password?: string;
 }
-
 export interface UpdateProfileDto {
   full_name?: string;
   profile_image_url?: string;
 }
-
 // --- Accommodations ---
 export interface AccommodationImage {
   url: string;
   alt_text?: string;
   display_order?: number;
 }
-
 export interface Facility {
   id: number;
   name: string;
   icon_name?: string;
   category?: string;
 }
-
 export interface RoomType {
   id: string;
   accommodation_id: string;
@@ -72,7 +64,6 @@ export interface RoomType {
   total_inventory: number;
   is_available: boolean;
 }
-
 export interface Accommodation {
   id: string;
   name: string;
@@ -91,7 +82,6 @@ export interface Accommodation {
   lowest_price?: number;   // Calculated field for search results
   created_at: string;
 }
-
 export interface SearchDto {
   city?: string;
   check_in_date?: string;
@@ -102,7 +92,6 @@ export interface SearchDto {
   rating?: number;
   facilities?: string; // Comma separated IDs
 }
-
 export interface CreateAccommodationDto {
   name: string;
   description?: string;
@@ -117,7 +106,6 @@ export interface CreateAccommodationDto {
   images: AccommodationImage[];
   // Room types might be added separately or here depending on UI flow
 }
-
 // --- Bookings ---
 export interface Booking {
   id: string;
@@ -136,7 +124,6 @@ export interface Booking {
   room_type?: RoomType; 
   accommodation?: Accommodation;
 }
-
 export interface CreateBookingDto {
   room_type_id: string;
   check_in_date: string;
@@ -148,12 +135,10 @@ export interface CreateBookingDto {
   guest_phone?: string;
   special_requests?: string;
 }
-
 export interface AdminUpdateBookingDto {
   status?: BookingStatus;
   admin_notes?: string;
 }
-
 // --- Reviews ---
 export interface Review {
   id: string;
@@ -165,7 +150,6 @@ export interface Review {
   user_name?: string; // Added for UI display
   created_at: string;
 }
-
 export interface CreateReviewDto {
   booking_id: string;
   accommodation_id: string;
@@ -181,5 +165,16 @@ export interface Notification {
   title: string;
   message: string;
   is_read: boolean;
+  created_at: string;
+}
+export interface Payment {
+  id: string;
+  booking_id: string;
+  user_id: string;
+  amount: number;
+  currency: string;
+  provider: string;
+  status: PaymentStatus;
+  transaction_id: string;
   created_at: string;
 }

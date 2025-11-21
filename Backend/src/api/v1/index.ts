@@ -5,6 +5,7 @@ import accommodationRoutes from './accomodation.routes';
 import bookingRoutes from './booking.routes';
 import reviewRoutes from './review.routes';
 import notificationRoutes from './notification.routes';
+import paymentRoutes from './payments..routes';
 
 const router = Router();
 
@@ -15,5 +16,6 @@ router.use('/accommodations', accommodationRoutes);
 router.use('/bookings', bookingRoutes);
 router.use('/reviews', reviewRoutes);
 router.use('/notifications', notificationRoutes);
+router.use('/payments', paymentRoutes)
 
-export { router as apiRouter };
+export default router;

@@ -4,20 +4,14 @@ import { AppError } from '../middleware/error.handler';
 
 const notifService = new NotificationService();
 
-/**
- * Retrieves all notifications for the currently logged-in user.
- */
+//get all notifications
 export const getMyNotifications = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    // Requires isAuthenticated middleware to run first
     if (!req.user?.id) {
       return next(new AppError(401, 'Authentication required to view notifications.'));
     }
     const userId = req.user.id;
-    
-    // Delegate retrieval to the service layer
     const data = await notifService.getForUser(userId);
-    
     res.status(200).json({ 
       message: 'Notifications retrieved successfully', 
       data

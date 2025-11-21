@@ -1,19 +1,15 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import passport from 'passport';
-import { ApiResponse, User } from '../../../common/types/types';
-import { AuthService } from '../services/auth.service'; // <-- Must import the Chef!
-import { AppError } from '../middleware/error.handler'; // <-- Used for clean error handling
+import { ApiResponse } from '../../common/types/types';
+import { AuthService } from '../services/auth.service';
+import { AppError } from '../middleware/error.handler';
 
-const authService = new AuthService(); // Instantiate the Service
+const authService = new AuthService();
 
-/**
- * Handles user registration. Delegates all logic to AuthService.
- */
-export const registerController = async (req: Request, res: Response) => {
+//Register a new user
+export const registerController = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { email, password, fullName } = req.body;
-    
-    // 1. Call the Service (This is the only line that matters)
     const { user, token } = await authService.register({ email, password, fullName });
 
     const response: ApiResponse<any> = {
@@ -21,9 +17,67 @@ export const registerController = async (req: Request, res: Response) => {
       data: { user, token }
     };
     res.status(201).json(response);
-  } catch (error: any) {
-    // The Global Error Handler handles AppError codes
-    res.status(error.statusCode || 500).json({ message: error.message });
+  } catch (error) {
+    next(error);
   }
 };
-// ... (other functions like loginController follow the same pattern)
+
+
+ //Login existing user
+export const loginController = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { email, password } = req.body;
+    const { user, token } = await authService.login({ email, password });
+
+    const response: ApiResponse<any> = {
+      message: 'Login successful',
+      data: { user, token }
+    };
+    res.status(200).json(response);
+  } catch (error) {
+    next(error);
+  }
+};
+
+ // Get current user profile
+export const getMeController = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    if (!req.user?.id) {
+      throw new AppError(401, 'Authentication failed');
+    }
+    const user = await authService.getMe(req.user.id);
+    res.status(200).json({ message: 'User profile retrieved', data: user });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * Logout user
+ * (Mainly client-side for JWT, but endpoints can be used for cookies/logging)
+ */
+export const logoutController = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    // In a stateless JWT setup, the client simply discards the token.
+    // You can add server-side blacklist logic here if needed.
+    res.status(200).json({ message: 'Logged out successfully' });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * Initiate Google OAuth
+ */
+export const googleAuth = passport.authenticate('google', { scope: ['profile', 'email'] });
+
+/**
+ * Google OAuth Callback
+ */
+export const googleAuthCallback = async (req: Request, res: Response) => {
+  try {
+    res.redirect(`${process.env.FRONTEND_URL}/auth/callback?token=mock-token`); 
+  } catch (error) {
+    res.redirect(`${process.env.FRONTEND_URL}/auth/error`);
+  }
+};

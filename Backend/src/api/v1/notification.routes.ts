@@ -1,23 +1,17 @@
 import { Router } from 'express';
 import { 
-  getAccommodations, 
-  getAccommodationById 
-} from '../../controllers/accom.controller';
+  getMyNotifications, 
+  markAsRead, 
+  markAllAsRead 
+} from '../../controllers/notification.controller';
+import { isAuthenticated } from '../../middleware/auth.middleware';
 
-const accomRouter = Router();
+const notificationRouter = Router();
 
-/**
- * @route   GET /api/v1/accommodations
- * @desc    Search accommodations with filters (city, price, star_rating, etc.)
- * @access  Public
- */
-accomRouter.get('/', getAccommodations);
+notificationRouter.use(isAuthenticated); // so that only the logged in user can see the notification
 
-/**
- * @route   GET /api/v1/accommodations/:id
- * @desc    Get full details of a specific accommodation (including rooms & reviews)
- * @access  Public
- */
-accomRouter.get('/:id', getAccommodationById);
+notificationRouter.get('/', getMyNotifications);
+notificationRouter.patch('/:id/read', markAsRead);
+notificationRouter.patch('/read-all', markAllAsRead);
 
-export default accomRouter;
+export default notificationRouter;

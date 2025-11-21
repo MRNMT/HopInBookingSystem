@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    /* Language and Environment */
+    "target": "es2016",
+    "module": "commonjs",
+    
+    /* FIX: Change rootDir from "./src" to "." 
+      This allows TypeScript to compile files outside of 'src' (like your 'common' folder) 
+    */
+    "rootDir": ".",                                      
+    
+    "outDir": "./dist",
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "skipLibCheck": true
+  },
+
+  "include": ["src/**/*", "common/**/*"],
+  "exclude": ["node_modules"]
+}
