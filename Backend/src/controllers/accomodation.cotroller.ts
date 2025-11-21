@@ -1,6 +1,6 @@
 import express, { Request, Response } from "express";
 import * as accommodationService from "../services/accommodation.service";
-import Accommodation from "../types/accommodation.type";
+import { Accommodation } from "../../common/types/types";
 
 //get all
 export const getAllAccommodations = async (req: Request, res: Response) => {

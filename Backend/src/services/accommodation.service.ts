@@ -1,4 +1,4 @@
-import Accommodation from "../types/accommodation.type";
+import { Accommodation } from "../../common/types/types";
 //pool
 import { db } from "../config/db";
 import { QueryResult, Pool } from "pg";
@@ -74,9 +74,9 @@ export const update = async (
     values.push(data.country);
   }
 
-  if (data.starRating !== undefined) {
-    setClauses.push(`starRating = $${paramIndex++}`);
-    values.push(data.starRating);
+  if (data.star_rating !== undefined) {
+    setClauses.push(`star_rating = $${paramIndex++}`);
+    values.push(data.star_rating);
   }
 
   if (data.policies !== undefined) {
@@ -84,9 +84,9 @@ export const update = async (
     values.push(data.policies);
   }
 
-  if (data.isActive !== undefined) {
-    setClauses.push(`isActive = $${paramIndex++}`);
-    values.push(data.isActive);
+  if (data.is_active !== undefined) {
+    setClauses.push(`is_active = $${paramIndex++}`);
+    values.push(data.is_active);
   }
 
   const qString = `UPDATE TABLE accommodations
@@ -121,8 +121,8 @@ export const create = async (
   data: Partial<Accommodation>
 ): Promise<Accommodation | null> => {
 
-  const values: any [] = [data.name, data.description, data.address, data.city, data.country, data.starRating,
-     data.policies, data.isActive]
+  const values: any [] = [data.name, data.description, data.address, data.city, data.country, data.star_rating,
+     data.policies, data.is_active]
   const qString = `INSERT INTO accommodations VALUES($1, $2, $3, $4, $5, $6, $7, $8) RETURNING`
 
   const result: QueryResult<Accommodation> = await db.query(qString, values)
