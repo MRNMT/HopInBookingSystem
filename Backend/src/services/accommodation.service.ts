@@ -1,133 +1,126 @@
-import { Accommodation } from "../../common/types/types";
-//pool
+import { Accommodation } from "../../common/types/types"; // Corrected import path
 import { db } from "../config/db";
-import { QueryResult, Pool } from "pg";
+import { QueryResult } from "pg";
 
-//Get all
-export const getAll = async (): Promise<Accommodation[] | null> => {
-  const result: QueryResult<Accommodation> = await db.query(
-    "SELECT * FROM accommodations"
-  );
+// ==========================================================================
+// HELPER: The Base Query
+// We use this reusable string to ensure we always fetch images and calculating ratings
+// ==========================================================================
+const BASE_QUERY = `
+  SELECT 
+    a.*, 
+    COALESCE(ai.images, '[]'::jsonb) as images,
+    COALESCE(ROUND(AVG(r.rating), 1), 0)::float as average_rating,
+    COUNT(r.id)::int as total_reviews
+  FROM accommodations a
+  LEFT JOIN accommodation_images ai ON a.id = ai.accommodation_id
+  LEFT JOIN reviews r ON a.id = r.accommodation_id AND r.is_approved = true
+`;
 
-  if (result.rows.length === 0) return null;
+const GROUP_BY = `GROUP BY a.id, ai.accommodation_id`;
 
+// ==========================================================================
+// READ OPERATIONS
+// ==========================================================================
+
+export const getAll = async (): Promise<Accommodation[]> => {
+  const query = `${BASE_QUERY} WHERE a.is_active = true ${GROUP_BY} ORDER BY a.created_at DESC`;
+  const result: QueryResult<Accommodation> = await db.query(query);
   return result.rows;
 };
 
-//Get by ID 
-export const getById = async (id: number): Promise<Accommodation | null> => {
-  const qString = `SELECT * FROM accommodations WHERE id = $1`;
-  const values = [id];
+export const getById = async (id: string): Promise<Accommodation | null> => {
+  const query = `${BASE_QUERY} WHERE a.id = $1 ${GROUP_BY}`;
+  const result: QueryResult<Accommodation> = await db.query(query, [id]);
 
-  const result: QueryResult<Accommodation> = await db.query(qString, values);
-
-  if (result.rows.length == 0) return null;
-
+  if (result.rows.length === 0) return null;
   return result.rows[0];
 };
 
-//Get By city
-export const getByCity = async (
-  city: string
-): Promise<Accommodation | null> => {
-  const qString = `SELECT * FROM accommodations WHERE city = $1`;
-  const values = [city];
-
-  const result: QueryResult<Accommodation> = await db.query(qString, values);
-
-  if (result.rows.length == 0) return null;
-
-  return result.rows[0];
+export const getByCity = async (city: string): Promise<Accommodation[]> => {
+  const query = `${BASE_QUERY} WHERE a.city ILIKE $1 AND a.is_active = true ${GROUP_BY}`;
+  const result: QueryResult<Accommodation> = await db.query(query, [`%${city}%`]);
+  return result.rows;
 };
 
-//Update
-export const update = async (
-  id: number,
-  data: Partial<Accommodation>
-): Promise<Accommodation | null> => {
-  const values: any[] = [];
+// ==========================================================================
+// WRITE OPERATIONS
+// ==========================================================================
+
+export const create = async (data: Partial<Accommodation>, adminId?: string): Promise<Accommodation | null> => {
+  // 1. Insert the Accommodation
+  const fields = ['name', 'description', 'address', 'city', 'country', 'star_rating', 'policies', 'created_by'];
+  const values = [
+    data.name, data.description, data.address, data.city, data.country, 
+    data.star_rating, data.policies, adminId
+  ];
+  
+  // Dynamically build placeholders ($1, $2...)
+  const placeholders = values.map((_, i) => `$${i + 1}`).join(', ');
+
+  const insertQuery = `
+    INSERT INTO accommodations (${fields.join(', ')})
+    VALUES (${placeholders})
+    RETURNING *
+  `;
+
+  const result = await db.query(insertQuery, values);
+  
+  if (result.rows.length === 0) return null;
+  const newAccommodation = result.rows[0];
+
+  // 2. Insert Empty Images Record (so the LEFT JOIN works later)
+  // If you have images in 'data', you would insert them here.
+  await db.query(
+    `INSERT INTO accommodation_images (accommodation_id, images) VALUES ($1, '[]'::jsonb)`, 
+    [newAccommodation.id]
+  );
+
+  return newAccommodation;
+};
+
+export const update = async (id: string, data: Partial<Accommodation>): Promise<Accommodation | null> => {
   const setClauses: string[] = [];
+  const values: any[] = [];
   let paramIndex = 1;
 
-  if (data.name !== undefined) {
-    setClauses.push(`name = $${paramIndex++}`);
-    values.push(data.name);
-  }
+  // Helper to push fields conditionally
+  const addField = (key: string, value: any) => {
+    if (value !== undefined) {
+      setClauses.push(`${key} = $${paramIndex++}`);
+      values.push(value);
+    }
+  };
 
-  if (data.description !== undefined) {
-    setClauses.push(`description = $${paramIndex++}`);
-    values.push(data.description);
-  }
+  addField('name', data.name);
+  addField('description', data.description);
+  addField('address', data.address);
+  addField('city', data.city);
+  addField('country', data.country);
+  addField('star_rating', data.star_rating);
+  addField('policies', data.policies);
+  addField('is_active', data.is_active);
 
-  if (data.address !== undefined) {
-    setClauses.push(`address = $${paramIndex++}`);
-    values.push(data.address);
-  }
+  if (setClauses.length === 0) return null; // Nothing to update
 
-  if (data.city !== undefined) {
-    setClauses.push(`city = $${paramIndex++}`);
-    values.push(data.city);
-  }
+  values.push(id); // Add ID as the last parameter
 
-  if (data.country !== undefined) {
-    setClauses.push(`name = $${paramIndex++}`);
-    values.push(data.country);
-  }
+  const query = `
+    UPDATE accommodations 
+    SET ${setClauses.join(", ")}, updated_at = NOW()
+    WHERE id = $${paramIndex}
+    RETURNING *
+  `;
 
-  if (data.star_rating !== undefined) {
-    setClauses.push(`star_rating = $${paramIndex++}`);
-    values.push(data.star_rating);
-  }
+  const result: QueryResult<Accommodation> = await db.query(query, values);
 
-  if (data.policies !== undefined) {
-    setClauses.push(`policies = $${paramIndex++}`);
-    values.push(data.policies);
-  }
-
-  if (data.is_active !== undefined) {
-    setClauses.push(`is_active = $${paramIndex++}`);
-    values.push(data.is_active);
-  }
-
-  const qString = `UPDATE TABLE accommodations
-                     SET ${setClauses.join(",")}  
-                     WHERE id = ${paramIndex}
-                     RETURNING`;
-
-  values.push(id);
-  const result: QueryResult<Accommodation> = await db.query(qString, values);
-
-  if (result.rows.length == 0) return null;
-
+  if (result.rows.length === 0) return null;
   return result.rows[0];
 };
 
-
-export const deleteById = async (id: number):  Promise<Accommodation | null> => {
-  
-  const values: any[] = [id]
-  const qString = `DELETE FROM accommodation WHERE id = $1 RETURNING`
-
-  const result: QueryResult<Accommodation> = await db.query(qString, values)
-  
-  if(result.rows.length == 0) return null
-
-  return result.rows[0]
-};
-
-
-//create
-export const create = async (
-  data: Partial<Accommodation>
-): Promise<Accommodation | null> => {
-
-  const values: any [] = [data.name, data.description, data.address, data.city, data.country, data.star_rating,
-     data.policies, data.is_active]
-  const qString = `INSERT INTO accommodations VALUES($1, $2, $3, $4, $5, $6, $7, $8) RETURNING`
-
-  const result: QueryResult<Accommodation> = await db.query(qString, values)
-  
-  if(result.rows.length === 0) return null;
-
-  return result.rows[0]
+export const deleteById = async (id: string): Promise<boolean> => {
+  // We perform a "Soft Delete" by setting is_active to false
+  const query = `UPDATE accommodations SET is_active = false WHERE id = $1`;
+  const result = await db.query(query, [id]);
+  return (result.rowCount ?? 0) > 0;
 };

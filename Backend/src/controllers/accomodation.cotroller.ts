@@ -21,7 +21,7 @@ export const getAllAccommodations = async (req: Request, res: Response) => {
 //get by id
 export const getAccommodationById = async (req: Request, res: Response) => {
   try {
-    const id = parseInt(req.params.id);
+    const id = req.params.id;
     const accommodation = await accommodationService.getById(id);
     res.status(200).json(accommodation);
   } catch (error) {
@@ -44,7 +44,7 @@ export const getAccommodationByCity = async (req: Request, res: Response) => {
 
 //update
 export const updateAccommodation = async (req: Request, res: Response) => {
-  const id = parseInt(req.params.id);
+  const id = req.params.id;
   const data: Partial<Accommodation> = req.body;
 
   try {
@@ -75,7 +75,7 @@ export const createAccommodation = async (req: Request, res: Response) => {
 
 //delete
 export const deleteAccommodation = async (req: Request, res: Response) => {
-  const id = parseInt(req.params.id);
+  const id = req.params.id;
 
   try {
     const deteledAccommodation = await accommodationService.deleteById(id);
