@@ -38,7 +38,6 @@ export const createAccomodation = async (req:Request, res: Response , next: Next
     }
 }
 //update accomodation
-
 export const updateAccomodation = async (req:Request, res: Response, next: NextFunction) => {
     try{
         const updates = await accommodationService.update(req.params.id, req.body);
@@ -48,9 +47,34 @@ export const updateAccomodation = async (req:Request, res: Response, next: NextF
     }
 }
 //delete an accomodation
+export const deleteAccomodation = async (req: Request , res: Response, next: NextFunction)=>{
+    try{
+        const deleted = await accommodationService.delete(req.params.id);
+        res.status(200).json({message:'Accomodation successfully deleted', data: deleted});
+    }catch(error){
+        next(error)
+    }
+}
 //get all accomodations 
+export const getAccomodations = async (req:Request, res: Response, next: NextFunction)=>{
+    try{
+        const accomodations = await accommodationService.getAll();
+        res.status(200).json({message:'Fetched all accomodations',data:accomodations})
+    }catch(error){
+        next(error)
+    }
+}
 //get all bookings
+export const getBookings = async (req:Request, res: Response, next:NextFunction)=>{
+    try{
+        const allBookings = await bookingService.getAllBookings();
+        res.status(200).json({message:'Fetched all bookings',data: allBookings});
+    }catch(error){
+        next(error)
+    }
+}
 //update bookings
+//export const updateBookings = async (req:Request)
 //get reviews
 //approve reviews
 //delete a review
