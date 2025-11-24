@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import passport from "passport";
-import { ApiResponse } from "../../common/types/types";
+import { ApiResponse } from "../common/types/types";
 import { AuthService } from "../services/auth.service";
 import { AppError } from "../middleware/error.handler";
 
@@ -46,7 +46,7 @@ export const loginController = async (
 };
 
  // Get current user profile
-import { User } from '../../common/types/types';
+import { User } from '../common/types/types';
 
 export const getMeController = async (req: Request, res: Response, next: NextFunction) => {
   try {

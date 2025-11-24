@@ -1,5 +1,5 @@
 import { db } from "../config/db";
-import { User } from "../../common/types/types";
+import { User } from "../common/types/types";
 
 export class AdminService {
 

@@ -12,9 +12,9 @@ export const getMyPayments = async (req: Request, res: Response, next: NextFunct
 
     const payments = await paymentService.getMyPayments(req.user.id);
 
-    res.status(200).json({ 
-      message: 'Payment history retrieved', 
-      data: payments 
+    res.status(200).json({
+      message: 'Payment history retrieved',
+      data: payments
     });
   } catch (error) {
     next(error);
@@ -28,13 +28,13 @@ export const getPaymentById = async (req: Request, res: Response, next: NextFunc
     }
 
     const paymentId = req.params.id;
-    const isAdmin = ['admin', 'superadmin'].includes(req.user.role);
+    const isAdmin = req.user.role === 'admin' || req.user.role === 'superadmin';
 
     const payment = await paymentService.getById(paymentId, req.user.id, isAdmin);
 
-    res.status(200).json({ 
-      message: 'Payment details retrieved', 
-      data: payment 
+    res.status(200).json({
+      message: 'Payment details retrieved',
+      data: payment
     });
   } catch (error) {
     next(error);
@@ -46,9 +46,9 @@ export const getAllPaymentsAdmin = async (req: Request, res: Response, next: Nex
     const status = req.query.status as string;
     const payments = await paymentService.getAllAdmin(status);
 
-    res.status(200).json({ 
-      message: 'All system payments retrieved', 
-      data: payments 
+    res.status(200).json({
+      message: 'All system payments retrieved',
+      data: payments
     });
   } catch (error) {
     next(error);

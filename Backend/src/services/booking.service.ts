@@ -5,7 +5,7 @@ import {
   AdminUpdateBookingDto, 
   BookingStatus, 
   PaymentStatus 
-} from '../../common/types/types';
+} from '../common/types/types';
 import { AppError } from '../middleware/error.handler';
 import { NotificationService } from './notification.service';
 

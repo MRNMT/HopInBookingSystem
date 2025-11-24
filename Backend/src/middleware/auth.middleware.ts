@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { db } from '../config/db'; // Use the db helper for queries
-import { User, UserRole } from '../../common/types/types'; // Correct import path
+import { User, UserRole } from '../common/types/types'; // Correct import path
 import { AppError } from './error.handler';
 
 interface TokenPayload {
@@ -13,7 +13,7 @@ interface TokenPayload {
 /**
  * Middleware to verify the JWT token and ensure the user exists in the DB.
  */
-export const isAuthenticated = async (req: Request,res: Response,next: NextFunction) => {
+export const isAuthenticated = async (req: Request, res: Response, next: NextFunction) => {
   // 1. Extract Token
   const authHeader = req.headers['authorization'];
   // Supports "Bearer <token>" format
@@ -28,7 +28,7 @@ export const isAuthenticated = async (req: Request,res: Response,next: NextFunct
     if (!secret) {
       throw new Error('FATAL: JWT_SECRET is not defined.');
     }
-    
+
     const decoded = jwt.verify(token, secret) as TokenPayload;
 
     // 3. Verify User Exists in Database (Security Check)
@@ -42,8 +42,14 @@ export const isAuthenticated = async (req: Request,res: Response,next: NextFunct
 
     // 4. Attach User to Request
     // This works because we extended the Express Request type in src/types/express.d.ts
-    req.user = result.rows[0] as User;
-    
+    // Map DB user row to User interface, replace 'customer' role with 'user' to align with typing
+    const dbUser = result.rows[0];
+    const mappedUser: User = {
+      ...dbUser,
+      role: dbUser.role === 'customer' ? 'user' : dbUser.role,
+    };
+    req.user = mappedUser;
+
     next();
   } catch (error) {
     // jwt.verify throws an error if the token is invalid or expired
@@ -63,6 +69,6 @@ export const isAdminOrSuperAdmin = (req: Request, res: Response, next: NextFunct
   if (req.user.role !== 'admin' && req.user.role !== 'superadmin') {
     return next(new AppError(403, 'Admin access required.'));
   }
-  
+
   next();
 };

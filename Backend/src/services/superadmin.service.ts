@@ -1,5 +1,5 @@
 import { db } from "../config/db";
-import { User, RegisterDto } from "../../common/types/types";
+import { User, RegisterDto } from "../common/types/types";
 import { AppError } from "../middleware/error.handler";
 import { hashPassword } from "../utils/password.utils";
 

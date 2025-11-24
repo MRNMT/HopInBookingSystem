@@ -1,6 +1,6 @@
 import { Response, Request } from "express";
 import * as superAdminService from '../services/superadmin.service'
-import { RegisterDto } from "../../common/types/types";
+import { RegisterDto } from "../common/types/types";
 
 export const createAdmin = async (req: Request, res: Response) => {
     

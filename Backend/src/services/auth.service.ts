@@ -1,4 +1,4 @@
-import { RegisterDto, LoginDto, User, UserRole } from '../../common/types/types';
+import { RegisterDto, LoginDto, User, UserRole } from '../common/types/types';
 import { db } from '../config/db'; 
 import { hashPassword, comparePassword } from '../utils/password.utils';
 import { generateToken } from '../utils/jwt.utils';
