@@ -4,7 +4,6 @@ import { AppError } from '../middleware/error.handler';
 
 const paymentService = new PaymentService();
 
-
 export const getMyPayments = async (req: Request, res: Response, next: NextFunction) => {
   try {
     if (!req.user?.id) {
@@ -12,7 +11,7 @@ export const getMyPayments = async (req: Request, res: Response, next: NextFunct
     }
 
     const payments = await paymentService.getMyPayments(req.user.id);
-    
+
     res.status(200).json({ 
       message: 'Payment history retrieved', 
       data: payments 
@@ -21,7 +20,6 @@ export const getMyPayments = async (req: Request, res: Response, next: NextFunct
     next(error);
   }
 };
-
 
 export const getPaymentById = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -33,7 +31,7 @@ export const getPaymentById = async (req: Request, res: Response, next: NextFunc
     const isAdmin = ['admin', 'superadmin'].includes(req.user.role);
 
     const payment = await paymentService.getById(paymentId, req.user.id, isAdmin);
-    
+
     res.status(200).json({ 
       message: 'Payment details retrieved', 
       data: payment 
@@ -43,12 +41,11 @@ export const getPaymentById = async (req: Request, res: Response, next: NextFunc
   }
 };
 
-
 export const getAllPaymentsAdmin = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const status = req.query.status as string;
     const payments = await paymentService.getAllAdmin(status);
-    
+
     res.status(200).json({ 
       message: 'All system payments retrieved', 
       data: payments 
