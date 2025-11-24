@@ -1,19 +1,23 @@
-import { Request, Response, NextFunction } from 'express';
-import passport from 'passport';
-import { ApiResponse } from '../../common/types/types';
-import { AuthService } from '../services/auth.service';
-import { AppError } from '../middleware/error.handler';
+import { Request, Response, NextFunction } from "express";
+import passport from "passport";
+import { ApiResponse } from "../../common/types/types";
+import { AuthService } from "../services/auth.service";
+import { AppError } from "../middleware/error.handler";
 
 const authService = new AuthService();
 
 export const registerController = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { email, password, fullName } = req.body;
-    const { user, token } = await authService.register({ email, password, fullName });
+    const { user, token } = await authService.register({
+      email,
+      password,
+      fullName
+    });
 
     const response: ApiResponse<any> = {
-      message: 'User registered successfully',
-      data: { user, token }
+      message: "User registered successfully",
+      data: { user, token },
     };
     res.status(201).json(response);
   } catch (error) {
@@ -21,16 +25,19 @@ export const registerController = async (req: Request, res: Response, next: Next
   }
 };
 
-
- //Login existing user
-export const loginController = async (req: Request, res: Response, next: NextFunction) => {
+//Login existing user
+export const loginController = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     const { email, password } = req.body;
     const { user, token } = await authService.login({ email, password });
 
     const response: ApiResponse<any> = {
-      message: 'Login successful',
-      data: { user, token }
+      message: "Login successful",
+      data: { user, token },
     };
     res.status(200).json(response);
   } catch (error) {
@@ -68,7 +75,7 @@ export const googleAuth = passport.authenticate('google', { scope: ['profile', '
 
 export const googleAuthCallback = async (req: Request, res: Response) => {
   try {
-    res.redirect(`${process.env.FRONTEND_URL}/auth/callback?token=mock-token`); 
+    res.redirect(`${process.env.FRONTEND_URL}/auth/callback?token=mock-token`);
   } catch (error) {
     res.redirect(`${process.env.FRONTEND_URL}/auth/error`);
   }
