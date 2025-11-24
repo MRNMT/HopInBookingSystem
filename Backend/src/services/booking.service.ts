@@ -137,11 +137,11 @@ export class BookingService {
     }
   }
 
-  public async getAllBookings():Promise<Booking[]> {
-    let query = `SELECT * from bookings`
-    const result = await db.query(query);
-    return result.rows
-  }
+    public async getAllBookings():Promise<Booking[]> {
+      let query = `SELECT * from bookings`
+      const result = await db.query(query);
+      return result.rows
+    }
 
   public async getAllAdmin(filters: any): Promise<Booking[]> {
     const { status, date } = filters;
