@@ -93,7 +93,7 @@ export const Footer: React.FC = () => {
             <h3 className="font-semibold mb-3 text-gray-950">Quick Links</h3>
             <ul className="space-y-2 text-sm text-gray-900">
               <li>
-                <Link to="/about" className="hover:text-gray-700 transition">
+                <Link to="/admin" className="hover:text-gray-700 transition">
                   About Us
                 </Link>
               </li>
