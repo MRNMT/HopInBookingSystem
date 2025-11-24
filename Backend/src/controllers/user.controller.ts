@@ -3,27 +3,22 @@ import { UserService } from '../services/user.services';
 import { AppError } from '../middleware/error.handler';
 import { UpdateProfileDto } from '../../common/types/types';
 
-// Instantiate the service to handle business logic
 const userService = new UserService();
-
 
 export const getUserProfile = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    // check if user is authenticated
     if (!req.user?.id) {
       return next(new AppError(401, 'Authentication required.'));
     }
-    
-    // 2. fetch user data from database using the ID from the token
+
     const profile = await userService.getProfile(req.user.id);
-    
-    // 3. Send Success Response
+
     res.status(200).json({ 
       message: 'User profile retrieved successfully', 
       data: profile 
     });
   } catch (error) {
-    next(error); //to the errorHandler
+    next(error); 
   }
 };
 

@@ -3,12 +3,9 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-// Validate that the connection string exists
 if (!process.env.DATABASE_URL) {
   throw new Error('FATAL ERROR: DATABASE_URL is missing in .env file');
 }
-
-// Create the connection pool
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: {
@@ -17,7 +14,7 @@ const pool = new Pool({
 });
 
 pool.on('error', (err) => {
-  console.error('❌ Unexpected error on idle database client', err);
+  console.error('Unexpected error on idle database client', err);
   process.exit(-1);
 });
 

@@ -7,7 +7,7 @@ export class ReviewService {
   private notifService = new NotificationService();
 
   public async create(userId: string, data: CreateReviewDto): Promise<Review> {
-    const { booking_id, accommodation_id, rating, comment } = data; //params
+    const { booking_id, accommodation_id, rating, comment } = data;
     const bookingRes = await db.query(`
       SELECT b.* FROM bookings b
       JOIN room_types r ON b.room_type_id = r.id
@@ -24,7 +24,7 @@ export class ReviewService {
 
     const now = new Date();
     const checkOutDate = new Date(booking.check_out_date);
-    
+
     if (booking.status !== 'completed' && checkOutDate > now) {
       throw new AppError(400, 'You can only review after your stay is completed.');
     }
@@ -40,8 +40,6 @@ export class ReviewService {
 
     return insertRes.rows[0];
   }
-
-  // --- Admin Methods ---
 
   public async getPending(): Promise<Review[]> {
     const query = `

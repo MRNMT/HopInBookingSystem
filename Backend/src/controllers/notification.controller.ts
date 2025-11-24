@@ -4,7 +4,6 @@ import { AppError } from '../middleware/error.handler';
 
 const notifService = new NotificationService();
 
-//get all notifications
 export const getMyNotifications = async (req: Request, res: Response, next: NextFunction) => {
   try {
     if (!req.user?.id) {

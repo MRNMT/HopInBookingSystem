@@ -6,12 +6,7 @@ import { AppError } from "../middleware/error.handler";
 
 const authService = new AuthService();
 
-//Register a new user
-export const registerController = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+export const registerController = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { email, password, fullName } = req.body;
     const { user, token } = await authService.register({
@@ -50,51 +45,34 @@ export const loginController = async (
   }
 };
 
-// Get current user profile
-export const getMeController = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+ // Get current user profile
+import { User } from '../../common/types/types';
+
+export const getMeController = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    if (!req.user?.id) {
-      throw new AppError(401, "Authentication failed");
+    if (!(req.user as User)?.id) {
+      throw new AppError(401, 'Authentication failed');
     }
-    const user = await authService.getMe(req.user.id);
-    res.status(200).json({ message: "User profile retrieved", data: user });
+    const user = await authService.getMe((req.user as User).id);
+    res.status(200).json({ message: 'User profile retrieved', data: user });
   } catch (error) {
     next(error);
   }
 };
 
-/**
- * Logout user
- * (Mainly client-side for JWT, but endpoints can be used for cookies/logging)
- */
-export const logoutController = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+
+export const logoutController = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    // In a stateless JWT setup, the client simply discards the token.
-    // You can add server-side blacklist logic here if needed.
-    res.status(200).json({ message: "Logged out successfully" });
+
+    res.status(200).json({ message: 'Logged out successfully' });
   } catch (error) {
     next(error);
   }
 };
 
-/**
- * Initiate Google OAuth
- */
-export const googleAuth = passport.authenticate("google", {
-  scope: ["profile", "email"],
-});
+export const googleAuth = passport.authenticate('google', { scope: ['profile', 'email'] });
 
-/**
- * Google OAuth Callback
- */
+
 export const googleAuthCallback = async (req: Request, res: Response) => {
   try {
     res.redirect(`${process.env.FRONTEND_URL}/auth/callback?token=mock-token`);
