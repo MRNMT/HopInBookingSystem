@@ -8,21 +8,8 @@ import { Link } from "react-router-dom"
 
 export const Footer: React.FC = () => {
   const year = new Date().getFullYear()
-  const [email, setEmail] = useState("")
-  const [status, setStatus] = useState<null | "idle" | "error" | "success">(null)
+  const [status] = useState<null | "idle" | "error" | "success">(null)
 
-  const subscribe = (e: React.FormEvent) => {
-    e.preventDefault()
-    const valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())
-    if (!valid) {
-      setStatus("error")
-      return
-    }
-    // placeholder for real submit logic
-    setStatus("success")
-    setEmail("")
-    setTimeout(() => setStatus(null), 3000)
-  }
 
   return (
     <footer className="w-full text-gray-100">
@@ -42,6 +29,18 @@ export const Footer: React.FC = () => {
             </Link>
           </div>
 
+          <div className="mt-4">
+            {status === "success" && (
+              <p role="status" className="text-sm text-green-700">
+                Subscription successful!
+              </p>
+            )}
+            {status === "error" && (
+              <p role="alert" className="text-sm text-red-700">
+                Please enter a valid email address.
+              </p>
+            )}
+          </div>
          
         </div>
       </div>
@@ -93,7 +92,7 @@ export const Footer: React.FC = () => {
             <h3 className="font-semibold mb-3 text-gray-950">Quick Links</h3>
             <ul className="space-y-2 text-sm text-gray-900">
               <li>
-                <Link to="/admin" className="hover:text-gray-700 transition">
+                <Link to="/about" className="hover:text-gray-700 transition">
                   About Us
                 </Link>
               </li>

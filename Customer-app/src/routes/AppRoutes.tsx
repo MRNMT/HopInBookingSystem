@@ -4,7 +4,6 @@ import { Register } from '../pages/Register';
 import { LandingPage } from '../pages/LandingPage';
 import { BookingPage } from '../pages/BookingPage';
 import { FindPage } from '../pages/FindPage';
-import { AdminDashboard } from '../pages/AdminDashboard';
 
 export const AppRoutes = () => {
   return (
@@ -16,7 +15,6 @@ export const AppRoutes = () => {
         <Route path='/booking' element={<BookingPage/>}/>
         <Route path='/find' element={<FindPage/>}/>
         <Route path='/find' element={<FindPage/>}/>
-        <Route path='/admin' element={<AdminDashboard/>}/>
       </Routes>
     </BrowserRouter>
   )
