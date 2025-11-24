@@ -4,6 +4,7 @@ import { CiLocationOn} from "react-icons/ci";
 import { FiUser } from "react-icons/fi";
 import {MdHotel}  from "react-icons/md";
 // import styles from '../App.css'
+import { Link } from "react-router-dom";
 
 export const HeroSection = () => {
   return (
@@ -123,11 +124,13 @@ export const HeroSection = () => {
       </div>
 
       {/* SEARCH BUTTON BELOW BOX */}
+      <Link to='/find'>
       <div className="w-full flex justify-center mt-4 px-4">
         <button className="bg-[#0088FF] hover:bg-[#006FCC] text-white py-3 px-8 rounded-lg w-full max-w-4xl font-medium">
           Find
         </button>
       </div>
+      </Link>
     </>
   );
 };
