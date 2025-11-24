@@ -6,6 +6,7 @@ import bookingRoutes from './booking.routes';
 import reviewRoutes from './review.routes';
 import notificationRoutes from './notification.routes';
 import paymentRoutes from './payments..routes';
+import superAdminRoute from './superadmin.routes';
 
 const router = Router();
 
@@ -17,5 +18,6 @@ router.use('/bookings', bookingRoutes);
 router.use('/reviews', reviewRoutes);
 router.use('/notifications', notificationRoutes);
 router.use('/payments', paymentRoutes)
+router.use('/superadmin', superAdminRoute)
 
 export default router;
