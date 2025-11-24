@@ -1,8 +1,9 @@
 import express, { Request, Response } from "express";
-import * as accommodationService from "../services/accommodation.service";
-import { Accommodation } from "../../common/types/types";
+import {AccommodationService} from "../services/accommodation.service";
+import { Accommodation, CreateAccommodationDto } from "../../common/types/types";
 
-//get all
+const accommodationService = new AccommodationService();
+
 export const getAllAccommodations = async (req: Request, res: Response) => {
   try {
     const accommodations = await accommodationService.getAll();
@@ -62,11 +63,11 @@ export const updateAccommodation = async (req: Request, res: Response) => {
 
 //create
 export const createAccommodation = async (req: Request, res: Response) => {
-  const data: Partial<Accommodation> = req.body;
+  const data: CreateAccommodationDto = req.body;
 
   try {
-    const createdAccommodation = accommodationService.create(data);
-    res.status(201).json(data);
+    const createdAccommodation = await accommodationService.create(data);
+    res.status(201).json(createdAccommodation);
   } catch (error) {
     console.log("Error in adding an accommodation", error);
     return res.status(400).json({ message: "Bad Request" });
@@ -78,7 +79,7 @@ export const deleteAccommodation = async (req: Request, res: Response) => {
   const id = req.params.id;
 
   try {
-    const deteledAccommodation = await accommodationService.deleteById(id);
+    const deteledAccommodation = await accommodationService.delete(id);
 
     return res.status(200).json(deleteAccommodation);
   } catch (error) {

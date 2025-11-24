@@ -18,7 +18,6 @@ export class UserService {
   }
 
   public async updateProfile(userId: string, data: UpdateProfileDto): Promise<User> {
-    // 1. Filter out fields that are undefined or null
     const allowedUpdates = ['full_name', 'profile_image_url'];
     const updates = Object.keys(data).filter(
       (key) => allowedUpdates.includes(key) && (data as any)[key] !== undefined
@@ -41,7 +40,6 @@ export class UserService {
       RETURNING id, full_name, email, role, profile_image_url, created_at
     `;
 
-    // 3. Execute Query
     const result = await db.query(query, values);
 
     if (result.rows.length === 0) {
@@ -51,9 +49,6 @@ export class UserService {
     return result.rows[0] as User;
   }
   
-  /**
-   * Retrieves a user by ID (Used by Admins).
-   */
   public async getById(userId: string): Promise<User> {
     const result = await db.query(
       'SELECT id, full_name, email, role, profile_image_url, created_at FROM users WHERE id = $1',
@@ -67,11 +62,7 @@ export class UserService {
     return result.rows[0] as User;
   }
 
-  /**
-   * Retrieves all bookings for a user, joining with Accommodation and Room details.
-   */
   public async getMyBookings(userId: string): Promise<Booking[]> {
-    // We use json_build_object to structure the nested data nicely for the frontend
     const query = `
       SELECT 
         b.*,
@@ -93,9 +84,7 @@ export class UserService {
     return result.rows as Booking[];
   }
 
-
   public async getMyFavorites(userId: string): Promise<Accommodation[]> {
-    // Join user_favorites -> accommodations -> accommodation_images
     const query = `
       SELECT 
         a.*,
@@ -124,6 +113,6 @@ export class UserService {
       WHERE user_id = $1 AND accommodation_id = $2
     `;
     const result = await db.query(query, [userId, accommodationId]);
-    }
+  }
 
 }

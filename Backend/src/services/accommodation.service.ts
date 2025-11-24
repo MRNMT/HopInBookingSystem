@@ -1,11 +1,8 @@
-import { Accommodation } from "../../common/types/types"; // Corrected import path
-import { db } from "../config/db";
+import { Accommodation, CreateAccommodationDto } from "../../common/types/types"; // Fixed import path
+import { db } from "../config/db"; // Use the db helper
+import pool from "../config/db"; // Import pool for transactions
 import { QueryResult } from "pg";
 
-// ==========================================================================
-// HELPER: The Base Query
-// We use this reusable string to ensure we always fetch images and calculating ratings
-// ==========================================================================
 const BASE_QUERY = `
   SELECT 
     a.*, 
@@ -19,108 +16,128 @@ const BASE_QUERY = `
 
 const GROUP_BY = `GROUP BY a.id, ai.accommodation_id`;
 
-// ==========================================================================
-// READ OPERATIONS
-// ==========================================================================
+export class AccommodationService {
 
-export const getAll = async (): Promise<Accommodation[]> => {
-  const query = `${BASE_QUERY} WHERE a.is_active = true ${GROUP_BY} ORDER BY a.created_at DESC`;
-  const result: QueryResult<Accommodation> = await db.query(query);
-  return result.rows;
-};
+  public async getAll(): Promise<Accommodation[]> {
+    const query = `${BASE_QUERY} WHERE a.is_active = true ${GROUP_BY} ORDER BY a.created_at DESC`;
+    const result: QueryResult<Accommodation> = await db.query(query);
+    return result.rows;
+  }
 
-export const getById = async (id: string): Promise<Accommodation | null> => {
-  const query = `${BASE_QUERY} WHERE a.id = $1 ${GROUP_BY}`;
-  const result: QueryResult<Accommodation> = await db.query(query, [id]);
+  public async search(filters: any): Promise<Accommodation[]> {
+    return this.getAll();
+  }
 
-  if (result.rows.length === 0) return null;
-  return result.rows[0];
-};
+  public async getById(id: string): Promise<Accommodation | null> {
+    const query = `${BASE_QUERY} WHERE a.id = $1 ${GROUP_BY}`;
+    const result: QueryResult<Accommodation> = await db.query(query, [id]);
 
-export const getByCity = async (city: string): Promise<Accommodation[]> => {
-  const query = `${BASE_QUERY} WHERE a.city ILIKE $1 AND a.is_active = true ${GROUP_BY}`;
-  const result: QueryResult<Accommodation> = await db.query(query, [`%${city}%`]);
-  return result.rows;
-};
+    if (result.rows.length === 0) return null;
+    return result.rows[0];
+  }
 
-// ==========================================================================
-// WRITE OPERATIONS
-// ==========================================================================
+  public async getByCity(city: string): Promise<Accommodation[]> {
+    const query = `${BASE_QUERY} WHERE a.city ILIKE $1 AND a.is_active = true ${GROUP_BY}`;
+    const result: QueryResult<Accommodation> = await db.query(query, [`%${city}%`]);
+    return result.rows;
+  }
 
-export const create = async (data: Partial<Accommodation>, adminId?: string): Promise<Accommodation | null> => {
-  // 1. Insert the Accommodation
-  const fields = ['name', 'description', 'address', 'city', 'country', 'star_rating', 'policies', 'created_by'];
-  const values = [
-    data.name, data.description, data.address, data.city, data.country, 
-    data.star_rating, data.policies, adminId
-  ];
-  
-  // Dynamically build placeholders ($1, $2...)
-  const placeholders = values.map((_, i) => `$${i + 1}`).join(', ');
+  public async create(data: CreateAccommodationDto, adminId?: string): Promise<Accommodation | null> {
+    const client = await pool.connect();
 
-  const insertQuery = `
-    INSERT INTO accommodations (${fields.join(', ')})
-    VALUES (${placeholders})
-    RETURNING *
-  `;
+    try {
+      await client.query('BEGIN');
 
-  const result = await db.query(insertQuery, values);
-  
-  if (result.rows.length === 0) return null;
-  const newAccommodation = result.rows[0];
+      const fields = ['name', 'description', 'address', 'city', 'country', 'star_rating', 'policies', 'created_by'];
+      const values = [
+        data.name, data.description, data.address, data.city, data.country,
+        data.star_rating, data.policies, adminId
+      ];
 
-  // 2. Insert Empty Images Record (so the LEFT JOIN works later)
-  // If you have images in 'data', you would insert them here.
-  await db.query(
-    `INSERT INTO accommodation_images (accommodation_id, images) VALUES ($1, '[]'::jsonb)`, 
-    [newAccommodation.id]
-  );
+      const placeholders = values.map((_, i) => `$${i + 1}`).join(', ');
+      const insertQuery = `
+        INSERT INTO accommodations (${fields.join(', ')})
+        VALUES (${placeholders})
+        RETURNING *
+      `;
 
-  return newAccommodation;
-};
+      const result = await client.query(insertQuery, values);
+      const newAccommodation = result.rows[0];
 
-export const update = async (id: string, data: Partial<Accommodation>): Promise<Accommodation | null> => {
-  const setClauses: string[] = [];
-  const values: any[] = [];
-  let paramIndex = 1;
+      const imagesJson = JSON.stringify(data.images || []);
+      await client.query(
+        `INSERT INTO accommodation_images (accommodation_id, images) VALUES ($1, $2)`, 
+        [newAccommodation.id, imagesJson]
+      );
 
-  // Helper to push fields conditionally
-  const addField = (key: string, value: any) => {
-    if (value !== undefined) {
-      setClauses.push(`${key} = $${paramIndex++}`);
-      values.push(value);
+      if (data.facilities && data.facilities.length > 0) {
+        for (const facilityId of data.facilities) {
+          await client.query(
+            `INSERT INTO accommodation_facilities (accommodation_id, facility_id) VALUES ($1, $2)`,
+            [newAccommodation.id, facilityId]
+          );
+        }
+      }
+
+      await client.query('COMMIT');
+      return newAccommodation;
+
+    } catch (error) {
+      await client.query('ROLLBACK');
+      throw error;
+    } finally {
+      client.release();
     }
-  };
+  }
 
-  addField('name', data.name);
-  addField('description', data.description);
-  addField('address', data.address);
-  addField('city', data.city);
-  addField('country', data.country);
-  addField('star_rating', data.star_rating);
-  addField('policies', data.policies);
-  addField('is_active', data.is_active);
+  public async update(id: string, data: Partial<Accommodation>): Promise<Accommodation | null> {
+    const setClauses: string[] = [];
+    const values: any[] = [];
+    let paramIndex = 1;
 
-  if (setClauses.length === 0) return null; // Nothing to update
+    const addField = (key: string, value: any) => {
+      if (value !== undefined) {
+        setClauses.push(`${key} = $${paramIndex++}`);
+        values.push(value);
+      }
+    };
 
-  values.push(id); // Add ID as the last parameter
+    addField('name', data.name);
+    addField('description', data.description);
+    addField('address', data.address);
+    addField('city', data.city);
+    addField('country', data.country);
+    addField('star_rating', data.star_rating);
+    addField('policies', data.policies);
+    addField('is_active', data.is_active);
 
-  const query = `
-    UPDATE accommodations 
-    SET ${setClauses.join(", ")}, updated_at = NOW()
-    WHERE id = $${paramIndex}
-    RETURNING *
-  `;
+    if (setClauses.length === 0) return null;
 
-  const result: QueryResult<Accommodation> = await db.query(query, values);
+    values.push(id);
 
-  if (result.rows.length === 0) return null;
-  return result.rows[0];
-};
+    const query = `
+      UPDATE accommodations 
+      SET ${setClauses.join(", ")}, updated_at = NOW()
+      WHERE id = $${paramIndex}
+      RETURNING *
+    `;
 
-export const deleteById = async (id: string): Promise<boolean> => {
-  // We perform a "Soft Delete" by setting is_active to false
-  const query = `UPDATE accommodations SET is_active = false WHERE id = $1`;
-  const result = await db.query(query, [id]);
-  return (result.rowCount ?? 0) > 0;
-};
+    const result: QueryResult<Accommodation> = await db.query(query, values);
+
+    if (result.rows.length === 0) return null;
+    return result.rows[0];
+  }
+
+  public async delete(id: string): Promise<void> {
+    const query = `UPDATE accommodations SET is_active = false WHERE id = $1`;
+    const result = await db.query(query, [id]);
+
+    if ((result.rowCount ?? 0) === 0) {
+    }
+  }
+
+  public async getAllAdmin(): Promise<Accommodation[]> {
+    const result = await db.query('SELECT * FROM accommodations ORDER BY created_at DESC');
+    return result.rows;
+  }
+}

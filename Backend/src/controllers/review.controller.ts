@@ -14,7 +14,6 @@ export const createReview = async (req: Request, res: Response, next: NextFuncti
     const reviewData: CreateReviewDto = req.body;
     await reviewService.create(userId, reviewData);
     
-    // 3. Send successful response
     res.status(201).json({ 
       message: 'Review submitted successfully. It is now pending moderation.' 
     });
