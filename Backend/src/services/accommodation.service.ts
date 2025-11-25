@@ -1,4 +1,4 @@
-import { Accommodation, CreateAccommodationDto } from "../../common/types/types"; // Fixed import path
+import { Accommodation, CreateAccommodationDto } from "../common/types/types"; // Fixed import path
 import { db } from "../config/db"; // Use the db helper
 import pool from "../config/db"; // Import pool for transactions
 import { QueryResult } from "pg";

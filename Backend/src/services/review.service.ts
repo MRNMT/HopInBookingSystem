@@ -1,5 +1,5 @@
 import { db } from '../config/db';
-import { Review, CreateReviewDto } from '../../common/types/types';
+import { Review, CreateReviewDto } from '../common/types/types';
 import { AppError } from '../middleware/error.handler';
 import { NotificationService } from './notification.service';
 

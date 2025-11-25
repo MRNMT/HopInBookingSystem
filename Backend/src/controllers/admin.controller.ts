@@ -4,6 +4,7 @@ import { BookingService } from '../services/booking.service';
 import { ReviewService } from '../services/review.service';
 import { AdminService } from '../services/admin.service';
 import { AppError } from '../middleware/error.handler';
+import { constants } from 'http2';
 
 const accommodationService = new AccommodationService();
 const bookingService = new BookingService();
@@ -38,7 +39,6 @@ export const createAccomodation = async (req:Request, res: Response , next: Next
     }
 }
 //update accomodation
-
 export const updateAccomodation = async (req:Request, res: Response, next: NextFunction) => {
     try{
         const updates = await accommodationService.update(req.params.id, req.body);
@@ -48,9 +48,68 @@ export const updateAccomodation = async (req:Request, res: Response, next: NextF
     }
 }
 //delete an accomodation
+export const deleteAccomodation = async (req: Request , res: Response, next: NextFunction)=>{
+    try{
+        const deleted = await accommodationService.delete(req.params.id);
+        res.status(200).json({message:'Accomodation successfully deleted', data: deleted});
+    }catch(error){
+        next(error)
+    }
+}
 //get all accomodations 
-//get all bookings
+export const getAccomodations = async (req:Request, res: Response, next: NextFunction)=>{
+    try{
+        const accomodations = await accommodationService.getAll();
+        res.status(200).json({message:'Fetched all accomodations',data:accomodations})
+    }catch(error){
+        next(error)
+    }
+}
+//get bookings
+export const getBookings = async (req: Request,res:Response, next:NextFunction)=>{
+    try{
+        const bookings = await bookingService.getAllBookings()
+        res.status(200).json({message:'fetched all bookings', data: bookings})
+    }catch(error){
+        next(error)
+    }
+}
+
 //update bookings
+export const updateBookings = async (req:Request, res: Response, next: NextFunction) =>{
+    try{
+        const updatedBookings = await bookingService.updateAdmin(req.params.id, req.body);
+        res.status(200).json({message : 'Updated admin', data:updatedBookings})
+    }
+    catch(error){
+        next(error)
+    }
+}
 //get reviews
+export const getAllPendingReviews = async (req: Request , res: Response, next: NextFunction) =>{
+    try{
+        const allReviews = await reviewService.getPending();
+        res.status(200).json({message:'Fetched all pending reviews',data: allReviews})
+    }catch(error){
+        next(error);
+    }
+}
 //approve reviews
+export const approveReview = async (req:Request, res: Response, next: NextFunction) =>{
+    try{
+        const approveAReview = await reviewService.approve(req.params.id);
+        res.status(200).json({message:'Review approved', data: approveAReview})
+    }
+    catch(error){
+        next(error);
+    }
+}
 //delete a review
+export const deleteReview = async (req:Request, res: Response, next: NextFunction) =>{
+    try{
+        const deletedReview = await reviewService.delete(req.params.id);
+        res.status(200).json({message:'Review deleted',data: deletedReview});
+    }catch(error){
+        next(error)
+    }
+}

@@ -1,11 +1,7 @@
-import { User as AppUser } from '../../../common/types/types';
+declare namespace Express {
+  interface User extends Partial<import('../../common/types/types').User> { }
 
-declare global {
-  namespace Express {
-    interface User extends AppUser {}
-
-    interface Request {
-      user?: User;
-    }
+  interface Request {
+    user?: User;
   }
 }

@@ -1,6 +1,6 @@
 import express, { Request, Response } from "express";
 import {AccommodationService} from "../services/accommodation.service";
-import { Accommodation, CreateAccommodationDto } from "../../common/types/types";
+import { Accommodation, CreateAccommodationDto } from "../common/types/types";
 
 const accommodationService = new AccommodationService();
 
