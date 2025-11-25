@@ -4,6 +4,7 @@ import { Register } from '../pages/Register';
 import { LandingPage } from '../pages/LandingPage';
 import { BookingPage } from '../pages/BookingPage';
 import { FindPage } from '../pages/FindPage';
+import { ConfirmPayment } from '../pages/ConfirmPayment';
 
 export const AppRoutes = () => {
   return (
@@ -15,6 +16,7 @@ export const AppRoutes = () => {
         <Route path='/booking' element={<BookingPage/>}/>
         <Route path='/find' element={<FindPage/>}/>
         <Route path='/find' element={<FindPage/>}/>
+        <Route path='/confirm_payment' element={<ConfirmPayment/>}/>
       </Routes>
     </BrowserRouter>
   )
