@@ -1,51 +1,75 @@
-import { FaHotel, FaBed } from "react-icons/fa";
+import {  FaBed, FaBars } from "react-icons/fa";
 import { MdOutlineDateRange } from "react-icons/md";
 import { GoPeople } from "react-icons/go";
 import { IoPricetagOutline } from "react-icons/io5";
 import { VscGraph } from "react-icons/vsc";
 import { CiSettings } from "react-icons/ci";
 import logo from '../assets/logo2.png';
-import { type FC } from 'react';
-import { type IconType } from 'react-icons';
-
-// interface StatCardProps {
-//     title: string;
-//     value: string;
-//     icon: IconType;
-//     change: string;
-// }
-
+import {type FC, useState } from 'react';
+import {type IconType } from 'react-icons';
+import { Link, useLocation } from "react-router-dom";
 
 interface SidebarItemProps {
-    icon: IconType;
-    label: string;
+  icon: IconType;
+  label: string;
+  to: string;
 }
 
-const SidebarItem: FC<SidebarItemProps> = ({ icon: Icon, label }) => (
-    <div className='flex items-center gap-3 p-3 rounded cursor-pointer hover:bg-blue-50 transition'>
-        <Icon className='text-lg' />
-        <span>{label}</span>
-    </div>
-)
+const SidebarItem: FC<SidebarItemProps> = ({ icon: Icon, label, to }) => {
+  const location = useLocation();
+  const active = location.pathname === to;
+
+  return (
+    <Link
+      to={to}
+      className={`flex items-center gap-3 p-3 rounded transition 
+        ${active ? "bg-blue-500 text-white" : "hover:bg-blue-50"}
+      `}
+    >
+      <Icon className="text-lg" />
+      <span>{label}</span>
+    </Link>
+  );
+};
 
 export const SideBar: FC = () => {
+  const [isOpen, setIsOpen] = useState(true);
+
   return (
-    <div className='w-64 bg-white shadow-lg p-6'>
-      <div className='flex items-center gap-3 mb-8'>
-        <FaHotel className='text-blue-500 text-2xl' />
-        <img src={logo} alt="Logo" className='w-16' />
+    <>
+      {/* Toggle Button */} 
+      <button type="button" aria-label="submit"
+        onClick={() => setIsOpen(!isOpen)}
+        className="p-3 fixed top-4 left-4 z-50 bg-blue-500 text-white rounded-md shadow-md"
+      >
+        <FaBars />
+      </button>
+
+      {/* Sidebar */}
+      <div
+        className={`fixed top-0 left-0 h-screen bg-white shadow-lg p-6 w-64 transition-transform duration-300 
+          ${isOpen ? "translate-x-0" : "-translate-x-72"}
+        `}
+      >
+        {/* Logo */}
+        
+          {/* <FaHotel className="text-blue-500 text-2xl" /> */}
+          <img src={logo} alt="Logo" className="w-20 mt-0 ml-10" />
+        
+
+        <h1 className="text-lg font-bold mb-6">Admin Panel</h1>
+
+        {/* Navigation */}
+        <nav className="space-y-1">
+          <SidebarItem icon={MdOutlineDateRange} label="Dashboard" to="/" />
+          <SidebarItem icon={MdOutlineDateRange} label="Bookings" to="/bookings" />
+          <SidebarItem icon={FaBed} label="Rooms" to="/rooms" />
+          <SidebarItem icon={GoPeople} label="Customers" to="/customers" />
+          <SidebarItem icon={IoPricetagOutline} label="Deals" to="/deals" />
+          <SidebarItem icon={VscGraph} label="Analytics" to="/analytics" />
+          <SidebarItem icon={CiSettings} label="Settings" to="/settings" />
+        </nav>
       </div>
-      <h1 className='text-lg font-bold mb-6'>Admin Panel</h1>
-      
-      <nav className='space-y-1'>
-        <div className='bg-blue-500 text-white rounded p-3 font-semibold'>Dashboard</div>
-        <SidebarItem icon={MdOutlineDateRange} label="Bookings" />
-        <SidebarItem icon={FaBed} label="Rooms" />
-        <SidebarItem icon={GoPeople} label="Customers" />
-        <SidebarItem icon={IoPricetagOutline} label="Deals" />
-        <SidebarItem icon={VscGraph} label="Analytics" />
-        <SidebarItem icon={CiSettings} label="Settings" />
-      </nav>
-    </div>
+    </>
   );
 };

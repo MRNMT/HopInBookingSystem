@@ -6,6 +6,8 @@ import { type FC } from 'react';
 import { type IconType } from 'react-icons';
 import { SideBar } from "../components/SideBar";
 
+
+
 interface StatCardProps {
     title: string;
     value: string;
@@ -35,7 +37,7 @@ export const AdminDashboard = () => {
             {/* Main Content */}
             <div className='flex-1 p-8 overflow-auto'>
                 <div className='mb-8'>
-                    <h1 className='text-3xl font-bold mb-2'>Dashboard</h1>
+                    <h1 className='text-3xl font-bold mb-2 mt-10'>Dashboard</h1>
                     <p className='text-gray-600'>Welcome back! Here's what's happening today.</p>
                 </div>
 
