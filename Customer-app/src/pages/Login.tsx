@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import type { ChangeEvent, FormEvent } from 'react';
 import logo from '../assets/logo.jpg';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { auth } from '../utils/api';
 
 
 export const Login: React.FC = () => {
@@ -15,6 +16,7 @@ export const Login: React.FC = () => {
     );
     const [loading, setLoading] = useState(false);
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const navigate = useNavigate();
 
     const validate = () => {
         const next: { email?: string; password?: string } = {};
@@ -30,10 +32,13 @@ export const Login: React.FC = () => {
         if (!validate()) return;
         setLoading(true);
         try {
-            // Replace with real authentication call
-            await new Promise((res) => setTimeout(res, 800));
-            // on success: redirect or update app state
-            console.log('Signed in', { email, remember });
+            const response = await auth.login({ email, password });
+            if (response.data?.token) {
+                localStorage.setItem('token', response.data.token);
+                navigate('/'); // Redirect to home or dashboard
+            } else {
+                setErrors({ ...errors, password: response.message || 'Failed to sign in. Try again.' });
+            }
         } catch (error) {
             setErrors({ ...errors, password: 'Failed to sign in. Try again.' });
             console.log(error);
