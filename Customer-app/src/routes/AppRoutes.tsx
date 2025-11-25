@@ -5,17 +5,20 @@ import { LandingPage } from '../pages/LandingPage';
 import { BookingPage } from '../pages/BookingPage';
 import { FindPage } from '../pages/FindPage';
 
+import { AuthProvider } from '../context/AuthContext';
+import { SuperAdminDashboard } from '../pages/superadmin/SuperAdminDashboard';
+
 export const AppRoutes = () => {
   return (
     <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path='/booking' element={<BookingPage/>}/>
-        <Route path='/find' element={<FindPage/>}/>
-        <Route path='/find' element={<FindPage/>}/>
-      </Routes>
+      <AuthProvider>
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/superadmin" element={<SuperAdminDashboard />} />
+        </Routes>
+      </AuthProvider>
     </BrowserRouter>
   )
 }
