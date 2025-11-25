@@ -3,7 +3,10 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "ts-node src/test-db.ts && ts-node src/test-api.ts",
+    "setup": "ts-node src/scripts/setup-env.ts",
+    "seed:superadmin": "ts-node src/scripts/seed-superadmin.ts",
+    "dev": "ts-node src/server.ts"
   },
   "keywords": [],
   "author": "",
@@ -31,6 +34,7 @@
     "zod": "^4.1.12"
   },
   "devDependencies": {
-    "@types/bcryptjs": "^2.4.6"
+    "@types/bcryptjs": "^2.4.6",
+    "axios": "^1.13.2"
   }
 }

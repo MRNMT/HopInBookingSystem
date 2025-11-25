@@ -2,7 +2,9 @@ import React, { useState } from 'react';
 import type { ChangeEvent, FormEvent } from 'react';
 import logo from '../assets/logo.jpg';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import axios from 'axios';
+import { useAuth } from '../context/AuthContext';
 
 
 export const Login: React.FC = () => {
@@ -15,6 +17,9 @@ export const Login: React.FC = () => {
     );
     const [loading, setLoading] = useState(false);
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    const { login } = useAuth();
+    const navigate = useNavigate();
 
     const validate = () => {
         const next: { email?: string; password?: string } = {};
@@ -30,12 +35,28 @@ export const Login: React.FC = () => {
         if (!validate()) return;
         setLoading(true);
         try {
-            // Replace with real authentication call
-            await new Promise((res) => setTimeout(res, 800));
-            // on success: redirect or update app state
+            const response = await axios.post('http://localhost:5000/api/v1/auth/login', {
+                email,
+                password
+            });
+
+            const { token, user } = response.data.data;
+            login(token, user);
+
+            // Role-based redirection
+            if (user.role === 'superadmin') {
+                navigate('/superadmin');
+            } else if (user.role === 'admin') {
+                navigate('/admin');
+            } else {
+                navigate('/');
+            }
+
             console.log('Signed in', { email, remember });
-        } catch (err) {
-            setErrors({ ...errors, password: 'Failed to sign in. Try again.' });
+        } catch (err: any) {
+            console.error('Login failed:', err);
+            const errorMessage = err.response?.data?.message || 'Failed to sign in. Please check your credentials.';
+            setErrors({ ...errors, password: errorMessage });
         } finally {
             setLoading(false);
         }

@@ -30,23 +30,29 @@ npm install
 ```
 
 3. **Environment Configuration**
-
-Create a `.env` file in the `Backend` root directory:
-
-```env
-# Server
-PORT=5000
-NODE_ENV=development
-
-# Database (Supabase Transaction Pooler recommended for IPv4)
-DATABASE_URL="postgresql://[USER]:[PASSWORD]@[HOST]:[PORT]/[DB_NAME]?sslmode=no-verify"
-
-# Security
-JWT_SECRET="your-super-secret-key"
-
-# Frontend (For redirects)
-FRONTEND_URL="http://localhost:3000"
-```
+ 
+ **Quick Start:**
+ ```bash
+ npm run setup
+ ```
+ This will create a `.env` file from the template. You can then edit it with your specific values.
+ 
+ Alternatively, manually create a `.env` file in the `Backend` root directory:
+ 
+ ```env
+ # Server
+ PORT=5000
+ NODE_ENV=development
+ 
+ # Database (Supabase Transaction Pooler recommended for IPv4)
+ DATABASE_URL="postgresql://[USER]:[PASSWORD]@[HOST]:[PORT]/[DB_NAME]?sslmode=no-verify"
+ 
+ # Security
+ JWT_SECRET="your-super-secret-key"
+ 
+ # Frontend (For redirects)
+ FRONTEND_URL="http://localhost:3000"
+ ```
 
 4. **Database Initialization**
 
