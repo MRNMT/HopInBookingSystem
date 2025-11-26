@@ -36,7 +36,7 @@ export const Login: React.FC = () => {
         if (!validate()) return;
         setLoading(true);
         try {
-<<<<<<< HEAD:hopin_hotel_management/src/pages/Login.tsx
+
             const response = await axios.post('http://localhost:5000/api/v1/auth/login', {
                 email,
                 password
@@ -59,18 +59,7 @@ export const Login: React.FC = () => {
             console.error('Login failed:', err);
             const errorMessage = err.response?.data?.message || 'Failed to sign in. Please check your credentials.';
             setErrors({ ...errors, password: errorMessage });
-=======
-            const response = await auth.login({ email, password });
-            if (response.data?.token) {
-                localStorage.setItem('token', response.data.token);
-                navigate('/'); // Redirect to home or dashboard
-            } else {
-                setErrors({ ...errors, password: response.message || 'Failed to sign in. Try again.' });
-            }
-        } catch (error) {
-            setErrors({ ...errors, password: 'Failed to sign in. Try again.' });
-            console.log(error);
->>>>>>> 88aa7aee62985f5346c6fc22dff83ee47f21bf92:Customer-app/src/pages/Login.tsx
+
         } finally {
             setLoading(false);
         }
