@@ -66,7 +66,9 @@ export const SideBar: FC = () => {
           <SidebarItem icon={GoPeople} label="Customers" to="/customer-metrics" />
           <SidebarItem icon={VscGraph} label="Analytics" to="/analytics" />
           <SidebarItem icon={CiSettings} label="Settings" to="/settings" />
+          
         </nav>
+        <button className="bg-red-700 text-white mt-100">Logout</button>
       </div>
     </>
   );
