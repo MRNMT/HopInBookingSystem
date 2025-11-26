@@ -1,6 +1,6 @@
-import { Accommodation, CreateAccommodationDto } from "../../common/types/types"; // Fixed import path
-import { db } from "../config/db"; // Use the db helper
-import pool from "../config/db"; // Import pool for transactions
+import { Accommodation, CreateAccommodationDto } from "../../common/types/types"; 
+import { db } from "../config/db"; 
+import pool from "../config/db"; 
 import { QueryResult } from "pg";
 
 const BASE_QUERY = `

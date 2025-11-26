@@ -1,8 +1,12 @@
-
-export type UserRole = 'customer' | 'admin' | 'superadmin';
-export type BookingStatus = 'pending' | 'confirmed' | 'cancelled' | 'completed';
-export type PaymentStatus = 'pending' | 'paid' | 'refunded' | 'failed';
-export type NotificationType = 'booking_confirmation' | 'booking_update' | 'promotion' | 'review_reminder' | 'cancellation';
+export type UserRole = "customer" | "admin" | "superadmin";
+export type BookingStatus = "pending" | "confirmed" | "cancelled" | "completed";
+export type PaymentStatus = "pending" | "paid" | "refunded" | "failed";
+export type NotificationType =
+  | "booking_confirmation"
+  | "booking_update"
+  | "promotion"
+  | "review_reminder"
+  | "cancellation";
 
 // --- API Responses ---
 export interface ApiResponse<T> {
@@ -26,7 +30,7 @@ export interface User {
   role: UserRole;
   profile_image_url?: string;
   created_at: string;
-  
+
   //Backend-only fields (needed for AuthService logic)
   password_hash?: string;
   oauth_provider?: string;
@@ -81,7 +85,7 @@ export interface CreateRoomTypeDto {
   price_per_night: number;
   capacity: number;
   total_inventory: number;
-  images: AccommodationImage[]; 
+  images: AccommodationImage[];
 }
 
 export interface Accommodation {
@@ -98,12 +102,12 @@ export interface Accommodation {
   is_active: boolean;
   images: AccommodationImage[];
   facilities?: Facility[];
-  room_types?: RoomType[]; 
-  lowest_price?: number;   
+  room_types?: RoomType[];
+  lowest_price?: number;
   created_at: string;
   // Calculated fields
-  average_rating?: number; 
-  total_reviews?: number;  
+  average_rating?: number;
+  total_reviews?: number;
 }
 
 export interface SearchDto {
@@ -114,7 +118,7 @@ export interface SearchDto {
   min_price?: number;
   max_price?: number;
   rating?: number;
-  facilities?: string; 
+  facilities?: string;
 }
 
 export interface CreateAccommodationDto {
@@ -127,10 +131,10 @@ export interface CreateAccommodationDto {
   longitude?: number;
   star_rating?: number;
   policies?: string;
-  facilities: number[]; 
+  facilities: number[];
   images: AccommodationImage[];
   // Added this back so Admin can create rooms immediately
-  room_types: CreateRoomTypeDto[]; 
+  room_types: CreateRoomTypeDto[];
 }
 
 // --- Bookings ---
@@ -147,7 +151,7 @@ export interface Booking {
   payment_status: PaymentStatus;
   guest_name: string;
   created_at: string;
-  room_type?: RoomType; 
+  room_type?: RoomType;
   accommodation?: Accommodation;
 }
 
@@ -176,7 +180,7 @@ export interface Review {
   booking_id: string;
   rating: number;
   comment?: string;
-  user_name?: string; 
+  user_name?: string;
   created_at: string;
 }
 

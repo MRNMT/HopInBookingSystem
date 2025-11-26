@@ -2,6 +2,7 @@ import { db } from "../config/db";
 import { User, RegisterDto } from "../../common/types/types";
 import { AppError } from "../middleware/error.handler";
 import { hashPassword } from "../utils/password.utils";
+import { QueryResult } from "pg";
 
 
 export const createAdmin = async (data: RegisterDto) : Promise<User> => {
@@ -20,7 +21,7 @@ export const createAdmin = async (data: RegisterDto) : Promise<User> => {
     }
     const hashedPassword = await hashPassword(data.password)
 
-    const result = await db.query(`INSERT INTO users (email, password_hash, full_name, role)
+    const result: QueryResult<User>  = await db.query(`INSERT INTO users (email, password_hash, full_name, role)
                                     VALUES ($1, $2, $3, admin)
                                     RETURNING id, full_name, email, role, created_at`, [data.email, hashedPassword, data.fullName])
                                     
@@ -31,7 +32,7 @@ export const getAllAdmins = async (): Promise<User[] | null> => {
 
     const qString = `SELECT * FROM users WHERE role IN (admin, superadmin) ORDER BY created_at DESC`
 
-    const result = await db.query(qString)
+    const result: QueryResult<User> = await db.query(qString)
 
     if(result.rows.length == 0) return null
 
@@ -42,7 +43,7 @@ export const getAdminById = async (id: string): Promise<User | null> => {
 
     const qString = `SELECT * FROM users WHERE id = $1`
 
-    const result = await db.query(qString, [id])
+    const result: QueryResult<User> = await db.query(qString, [id])
 
     if(result.rows.length == 0) return null
 
@@ -53,11 +54,10 @@ export const deleteAdmin = async(id: string): Promise<User | null> => {
 
     const qString = `DELETE FROM users WHERE id = $1 RETURNING *`
 
-    const result = await db.query(qString, [id])
+    const result: QueryResult<User> = await db.query(qString, [id])
     
     if(result.rows.length == 0) return null
 
-    return result.rows[0]
-    
+    return result.rows[0]  
 } 
 
