@@ -2,20 +2,25 @@ import React, { useState } from 'react';
 import type { ChangeEvent, FormEvent } from 'react';
 import logo from '../assets/logo.jpg';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import axios from 'axios';
+import { useAuth } from '../context/AuthContext';
 
 
-export const Register: React.FC = () => {
-    const [full_name, setFullName] = useState('');
+export const Login: React.FC = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [remember, setRemember] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
-    const [loading, setLoading] = useState(false);
-    const [errors, setErrors] = useState<{ full_name?: string; email?: string; password?: string }>(
+    const [errors, setErrors] = useState<{ email?: string; password?: string }>(
         {}
     );
+    const [loading, setLoading] = useState(false);
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const navigate = useNavigate();
+
+    const { login } = useAuth();
+    const navigate = useNavigate();
 
     const validate = () => {
         const next: { email?: string; password?: string } = {};
@@ -31,12 +36,41 @@ export const Register: React.FC = () => {
         if (!validate()) return;
         setLoading(true);
         try {
-            // Replace with real authentication call
-            await new Promise((res) => setTimeout(res, 800));
-            // on success: redirect or update app state
+<<<<<<< HEAD:hopin_hotel_management/src/pages/Login.tsx
+            const response = await axios.post('http://localhost:5000/api/v1/auth/login', {
+                email,
+                password
+            });
+
+            const { token, user } = response.data.data;
+            login(token, user);
+
+            // Role-based redirection
+            if (user.role === 'superadmin') {
+                navigate('/superadmin');
+            } else if (user.role === 'admin') {
+                navigate('/admin');
+            } else {
+                navigate('/');
+            }
+
             console.log('Signed in', { email, remember });
-        } catch (err) {
+        } catch (err: any) {
+            console.error('Login failed:', err);
+            const errorMessage = err.response?.data?.message || 'Failed to sign in. Please check your credentials.';
+            setErrors({ ...errors, password: errorMessage });
+=======
+            const response = await auth.login({ email, password });
+            if (response.data?.token) {
+                localStorage.setItem('token', response.data.token);
+                navigate('/'); // Redirect to home or dashboard
+            } else {
+                setErrors({ ...errors, password: response.message || 'Failed to sign in. Try again.' });
+            }
+        } catch (error) {
             setErrors({ ...errors, password: 'Failed to sign in. Try again.' });
+            console.log(error);
+>>>>>>> 88aa7aee62985f5346c6fc22dff83ee47f21bf92:Customer-app/src/pages/Login.tsx
         } finally {
             setLoading(false);
         }
@@ -47,25 +81,15 @@ export const Register: React.FC = () => {
             <div className="w-full max-w-md bg-white rounded-lg shadow-md p-6">
                 <div className="text-center mb-6">
                     <img src={logo} alt="HopIn logo" className="mx-auto h-20 w-20 object-contain" />
-                    <h1 className="text-2xl font-semibold text-[#0088FF] mt-3">Welcome to HopIn Hotel Booking System</h1>
-                    <p className="text-sm text-gray-600 mt-1">Create an Account to get started</p>
+                    <h1 className="text-2xl font-semibold text-[#0088FF] mt-3">Welcome Back to HopIn</h1>
+                    <p className="text-sm text-gray-600 mt-1">Enter your email and password to continue</p>
                 </div>
 
                 <form onSubmit={handleSubmit} noValidate>
                     <div className="mb-4">
-                        <label htmlFor="fullName" className="block text-sm font-medium mb-1">Full Name:</label>
-                        <input
-                            id="fullName"
-                            type="text"
-                            value={full_name}
-                            onChange={(e: ChangeEvent<HTMLInputElement>) => setFullName(e.target.value)}
-                            placeholder="Enter your full name"
-                            aria-invalid={!!errors.full_name}
-                            aria-describedby={errors.full_name ? 'fullName-error' : undefined}
-                            className="w-full border rounded px-3 py-2"
-                        />
                         <label htmlFor="email" className="block text-sm font-medium mb-1">Email</label>
                         <input
+                         aria-hidden="true"
                             id="email"
                             type="email"
                             value={email}
@@ -86,6 +110,7 @@ export const Register: React.FC = () => {
                         <label htmlFor="password" className="block text-sm font-medium mb-1">Password</label>
                         <div className="flex items-center">
                             <input
+                            aria-hidden="true"
                                 id="password"
                                 type={showPassword ? 'text' : 'password'}
                                 value={password}
@@ -126,16 +151,15 @@ export const Register: React.FC = () => {
 
                     <div className="mb-4">
                         <button type="submit" disabled={loading} className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded">
-                            {loading ? 'Signing Up...' : 'Sign Up'}
+                            {loading ? 'Signing in...' : 'Sign In'}
                         </button>
                     </div>
 
                     <p className="text-center text-sm text-gray-600">
-                            Already have an account? 
-                            <Link to="/login" className="text-[#0088FF] hover:underline">
-                                Login
-                            </Link>
+                            Don't have an account? 
+                            <Link to="/register" className="text-[#0088FF] hover:underline"> Register</Link>
                             </p>
+
                 </form>
             </div>
         </div>

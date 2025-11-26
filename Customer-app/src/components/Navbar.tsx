@@ -14,21 +14,24 @@ export const Navbar = () => {
       </div>
 
       {/* Navigation Links */}
-      <ul className="hidden md:flex gap-8 text-gray-700 font-medium">
+      <ul className="hidden md:flex gap-8 text-gray-700 font-medium ">
         <li className="hover:text-[#0088FF] cursor-pointer">Hotels</li>
         <li className="hover:text-[#0088FF] cursor-pointer">Destinations</li>
         <li className="hover:text-[#0088FF] cursor-pointer">Deals</li>
         <li className="hover:text-[#0088FF] cursor-pointer">About</li>
       </ul>
+      
 
-      {/* Icons */}
-      <div className="flex items-center gap-4">
-        <Bell className="w-6 h-6 text-gray-700 hover:text-[#0088FF] cursor-pointer" />
-        <Heart className="w-6 h-6 text-gray-700 hover:text-[#0088FF] cursor-pointer" />
-      </div>
+      
 
       {/* Button */}
-      <div className="hidden md:block">
+      <div className="flex gap-1  ">
+        <div className="flex gap-2 mt-2 mr-4">
+            <Bell className="w-6 h-6 text-gray-700 hover:text-[#0088FF] cursor-pointer" />
+            <Heart className="w-6 h-6 text-gray-700 hover:text-[#0088FF] cursor-pointer" />
+
+        </div>
+        
         <Link to="/login">
           <Button variant="primary">Sign In</Button>
         </Link>

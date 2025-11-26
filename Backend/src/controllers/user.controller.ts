@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { UserService } from '../services/user.services';
 import { AppError } from '../middleware/error.handler';
-import { UpdateProfileDto } from '../../common/types/types';
+import { UpdateProfileDto } from '../common/types/types';
 
 const userService = new UserService();
 

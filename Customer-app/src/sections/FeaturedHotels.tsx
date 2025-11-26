@@ -2,7 +2,7 @@ import { FaArrowRight } from "react-icons/fa";
 import { FaLocationDot } from "react-icons/fa6";
 import { Button } from "../components/Button";
 import { FaRegHeart } from "react-icons/fa";
-
+import { Link } from "react-router-dom";
 import hotel1 from "../assets/hotel1.jpg";
 import hotel2 from "../assets/hotel2.jpg";
 import hotel3 from "../assets/hotel3.jpg";
@@ -48,7 +48,7 @@ export const FeaturedHotels = () => {
                 </span>
 
                 {/* Favorite Heart */}
-                <button className="absolute top-3 right-3 bg-white rounded-full p-2 shadow font-bold">
+                <button aria-label="Favorite" className="absolute top-3 right-3 bg-white rounded-full p-2 shadow font-bold">
                   <FaRegHeart className="text-gray-700 text-lg" />
                 </button>
               </div>
@@ -77,7 +77,9 @@ export const FeaturedHotels = () => {
                 </div>
 
                 {/* BUTTON */}
-                <Button variant="primary">Book Now</Button>
+                <Link to='/booking'>
+                  <Button variant="primary">Book Now</Button>
+                </Link>
               </div>
 
             </div>

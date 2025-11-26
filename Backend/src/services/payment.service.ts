@@ -1,5 +1,5 @@
 import { db } from '../config/db';
-import { PaymentStatus, Payment } from '../../common/types/types';
+import { PaymentStatus, Payment } from '../common/types/types';
 import { AppError } from '../middleware/error.handler';
 
 

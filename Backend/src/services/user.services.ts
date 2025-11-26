@@ -1,5 +1,5 @@
 import { db } from '../config/db';
-import { User, UpdateProfileDto, Booking, Accommodation } from '../../common/types/types';
+import { User, UpdateProfileDto, Booking, Accommodation } from '../common/types/types';
 import { AppError } from '../middleware/error.handler';
 
 export class UserService {

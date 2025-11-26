@@ -8,7 +8,7 @@ import {
 } from '../../controllers/auth.controller';
 import { validateRequest } from '../../middleware/validation.middleware';
 import { isAuthenticated } from '../../middleware/auth.middleware';
-import { registerSchema, loginSchema } from '../../../common/validation/schemas'
+import { registerSchema, loginSchema } from '../../common/validation/schemas'
 
 const authRouter = Router();
 

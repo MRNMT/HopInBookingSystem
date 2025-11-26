@@ -1,23 +1,26 @@
 import React, { useState } from 'react';
 import type { ChangeEvent, FormEvent } from 'react';
+import { useNavigate, Link } from "react-router-dom";
 import logo from '../assets/logo.jpg';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
-import { Link } from "react-router-dom";
+import { auth } from '../utils/api';
 
-
-export const Login: React.FC = () => {
+export const Register: React.FC = () => {
+    const [fullName, setFullName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [remember, setRemember] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
-    const [errors, setErrors] = useState<{ email?: string; password?: string }>(
+    const [loading, setLoading] = useState(false);
+    const [errors, setErrors] = useState<{ fullName?: string; email?: string; password?: string }>(
         {}
     );
-    const [loading, setLoading] = useState(false);
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const navigate = useNavigate();
 
     const validate = () => {
-        const next: { email?: string; password?: string } = {};
+        const next: { fullName?: string; email?: string; password?: string } = {};
+        if (!fullName) next.fullName = 'Full name is required';
         if (!email) next.email = 'Email is required';
         else if (!emailRegex.test(email)) next.email = 'Enter a valid email';
         if (!password) next.password = 'Password is required';
@@ -30,12 +33,16 @@ export const Login: React.FC = () => {
         if (!validate()) return;
         setLoading(true);
         try {
-            // Replace with real authentication call
-            await new Promise((res) => setTimeout(res, 800));
-            // on success: redirect or update app state
-            console.log('Signed in', { email, remember });
-        } catch (err) {
-            setErrors({ ...errors, password: 'Failed to sign in. Try again.' });
+            const response = await auth.register({ email, password, fullName });
+            if (response.data?.token) {
+                localStorage.setItem('token', response.data.token);
+                navigate('/'); // Redirect to home or dashboard
+            } else {
+                setErrors({ ...errors, password: response.message || 'Failed to sign up. Try again.' });
+            }
+        } catch (error) {
+            setErrors({ ...errors, password: 'Failed to sign up. Try again.' });
+            console.log(error);
         } finally {
             setLoading(false);
         }
@@ -46,12 +53,28 @@ export const Login: React.FC = () => {
             <div className="w-full max-w-md bg-white rounded-lg shadow-md p-6">
                 <div className="text-center mb-6">
                     <img src={logo} alt="HopIn logo" className="mx-auto h-20 w-20 object-contain" />
-                    <h1 className="text-2xl font-semibold text-[#0088FF] mt-3">Welcome Back to HopIn</h1>
-                    <p className="text-sm text-gray-600 mt-1">Enter your email and password to continue</p>
+                    <h1 className="text-2xl font-semibold text-[#0088FF] mt-3">Welcome to HopIn Hotel Booking System</h1>
+                    <p className="text-sm text-gray-600 mt-1">Create an Account to get started</p>
                 </div>
 
                 <form onSubmit={handleSubmit} noValidate>
                     <div className="mb-4">
+                        <label htmlFor="fullName" className="block text-sm font-medium mb-1">Full Name</label>
+                        <input
+                            id="fullName"
+                            type="text"
+                            value={fullName}
+                            onChange={(e: ChangeEvent<HTMLInputElement>) => setFullName(e.target.value)}
+                            placeholder="Enter your full name"
+                            aria-invalid={!!errors.fullName}
+                            aria-describedby={errors.fullName ? 'fullName-error' : undefined}
+                            className="w-full border rounded px-3 py-2"
+                        />
+                        {errors.fullName && (
+                            <p id="fullName-error" role="alert" className="text-sm text-red-600 mt-1">
+                                {errors.fullName}
+                            </p>
+                        )}
                         <label htmlFor="email" className="block text-sm font-medium mb-1">Email</label>
                         <input
                             id="email"
@@ -114,15 +137,16 @@ export const Login: React.FC = () => {
 
                     <div className="mb-4">
                         <button type="submit" disabled={loading} className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded">
-                            {loading ? 'Signing in...' : 'Sign In'}
+                            {loading ? 'Signing Up...' : 'Sign Up'}
                         </button>
                     </div>
 
                     <p className="text-center text-sm text-gray-600">
-                            Don't have an account? 
-                            <Link to="/register" className="text-[#0088FF] hover:underline"> Register</Link>
-                            </p>
-
+                        Already have an account? 
+                        <Link to="/login" className="text-[#0088FF] hover:underline">
+                            Login
+                        </Link>
+                    </p>
                 </form>
             </div>
         </div>
