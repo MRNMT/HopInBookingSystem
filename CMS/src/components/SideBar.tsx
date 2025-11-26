@@ -1,7 +1,6 @@
 import {  FaBed, FaBars } from "react-icons/fa";
 import { MdOutlineDateRange } from "react-icons/md";
 import { GoPeople } from "react-icons/go";
-import { IoPricetagOutline } from "react-icons/io5";
 import { VscGraph } from "react-icons/vsc";
 import { CiSettings } from "react-icons/ci";
 import logo from '../assets/logo2.png';
@@ -64,8 +63,7 @@ export const SideBar: FC = () => {
           <SidebarItem icon={MdOutlineDateRange} label="Dashboard" to="/" />
           <SidebarItem icon={MdOutlineDateRange} label="Bookings" to="/bookings" />
           <SidebarItem icon={FaBed} label="Rooms" to="/rooms" />
-          <SidebarItem icon={GoPeople} label="Customers" to="/customers" />
-          <SidebarItem icon={IoPricetagOutline} label="Deals" to="/deals" />
+          <SidebarItem icon={GoPeople} label="Customers" to="/customer-metrics" />
           <SidebarItem icon={VscGraph} label="Analytics" to="/analytics" />
           <SidebarItem icon={CiSettings} label="Settings" to="/settings" />
         </nav>
