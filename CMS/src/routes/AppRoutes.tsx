@@ -5,6 +5,7 @@ import { CustomerMetricsPage } from '../pages/CustomerMetricsPage';
 import { Analytics } from '../pages/Analytics';
 import { Settings } from '../pages/Settings';
 import { Bookings } from '../pages/Bookings';
+import { SuperAdmin } from '../pages/SuperAdmin';
 
 export const AppRoutes = () => {
   return (
@@ -16,6 +17,7 @@ export const AppRoutes = () => {
         <Route path='/analytics' element={<Analytics/>}/>
         <Route path='/settings' element={<Settings/>}/>
         <Route path='/bookings' element={<Bookings/>}/>
+         <Route path='/users' element={<SuperAdmin/>}/>
       </Routes>
     </BrowserRouter>
   )
