@@ -3,7 +3,8 @@ import type { ChangeEvent, FormEvent } from 'react';
 import logo from '../assets/logo.jpg';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import { Link, useNavigate } from "react-router-dom";
-import { auth } from '../utils/api';
+import axios from 'axios';
+import { useAuth } from '../context/AuthContext';
 
 
 export const Login: React.FC = () => {
@@ -16,6 +17,9 @@ export const Login: React.FC = () => {
     );
     const [loading, setLoading] = useState(false);
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const navigate = useNavigate();
+
+    const { login } = useAuth();
     const navigate = useNavigate();
 
     const validate = () => {
@@ -32,6 +36,30 @@ export const Login: React.FC = () => {
         if (!validate()) return;
         setLoading(true);
         try {
+<<<<<<< HEAD:hopin_hotel_management/src/pages/Login.tsx
+            const response = await axios.post('http://localhost:5000/api/v1/auth/login', {
+                email,
+                password
+            });
+
+            const { token, user } = response.data.data;
+            login(token, user);
+
+            // Role-based redirection
+            if (user.role === 'superadmin') {
+                navigate('/superadmin');
+            } else if (user.role === 'admin') {
+                navigate('/admin');
+            } else {
+                navigate('/');
+            }
+
+            console.log('Signed in', { email, remember });
+        } catch (err: any) {
+            console.error('Login failed:', err);
+            const errorMessage = err.response?.data?.message || 'Failed to sign in. Please check your credentials.';
+            setErrors({ ...errors, password: errorMessage });
+=======
             const response = await auth.login({ email, password });
             if (response.data?.token) {
                 localStorage.setItem('token', response.data.token);
@@ -42,6 +70,7 @@ export const Login: React.FC = () => {
         } catch (error) {
             setErrors({ ...errors, password: 'Failed to sign in. Try again.' });
             console.log(error);
+>>>>>>> 88aa7aee62985f5346c6fc22dff83ee47f21bf92:Customer-app/src/pages/Login.tsx
         } finally {
             setLoading(false);
         }

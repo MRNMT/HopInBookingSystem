@@ -6,6 +6,9 @@ import { BookingPage } from '../pages/BookingPage';
 import { FindPage } from '../pages/FindPage';
 import { ConfirmPayment } from '../pages/ConfirmPayment';
 
+import { AuthProvider } from '../context/AuthContext';
+import { SuperAdminDashboard } from '../pages/superadmin/SuperAdminDashboard';
+
 export const AppRoutes = () => {
   return (
     <BrowserRouter>
