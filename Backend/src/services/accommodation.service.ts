@@ -8,10 +8,13 @@ const BASE_QUERY = `
     a.*, 
     COALESCE(ai.images, '[]'::jsonb) as images,
     COALESCE(ROUND(AVG(r.rating), 1), 0)::float as average_rating,
-    COUNT(r.id)::int as total_reviews
+    COUNT(DISTINCT r.id)::int as total_reviews,
+    COALESCE(MIN(rt.price_per_night), 0) as min_price,
+    COALESCE(MAX(rt.capacity), 0) as max_capacity
   FROM accommodations a
   LEFT JOIN accommodation_images ai ON a.id = ai.accommodation_id
   LEFT JOIN reviews r ON a.id = r.accommodation_id AND r.is_approved = true
+  LEFT JOIN room_types rt ON a.id = rt.accommodation_id AND rt.is_available = true
 `;
 
 const GROUP_BY = `GROUP BY a.id, ai.accommodation_id`;
@@ -29,11 +32,38 @@ export class AccommodationService {
   }
 
   public async getById(id: string): Promise<Accommodation | null> {
-    const query = `${BASE_QUERY} WHERE a.id = $1 ${GROUP_BY}`;
-    const result: QueryResult<Accommodation> = await db.query(query, [id]);
+    try {
+      const query = `
+        SELECT 
+          a.*, 
+          COALESCE(ai.images, '[]'::jsonb) as images,
+          (
+            SELECT json_agg(json_build_object('id', f.id, 'name', f.name, 'icon', f.icon))
+            FROM accommodation_facilities af
+            JOIN facilities f ON af.facility_id = f.id
+            WHERE af.accommodation_id = a.id
+          ) as facilities,
+          COALESCE(ROUND(AVG(r.rating), 1), 0)::float as average_rating,
+          COUNT(r.id)::int as total_reviews
+        FROM accommodations a
+        LEFT JOIN accommodation_images ai ON a.id = ai.accommodation_id
+        LEFT JOIN reviews r ON a.id = r.accommodation_id AND r.is_approved = true
+        WHERE a.id = $1 AND a.is_active = true
+        GROUP BY a.id, ai.accommodation_id
+      `;
+      const result: QueryResult<Accommodation> = await db.query(query, [id]);
 
-    if (result.rows.length === 0) return null;
-    return result.rows[0];
+      if (result.rows.length === 0) {
+        console.log(`No accommodation found with ID: ${id}`);
+        return null;
+      }
+
+      console.log(`Found accommodation: ${result.rows[0].name}`);
+      return result.rows[0];
+    } catch (error) {
+      console.error('Error in getById:', error);
+      throw error;
+    }
   }
 
   public async getByCity(city: string): Promise<Accommodation[]> {
@@ -66,7 +96,7 @@ export class AccommodationService {
 
       const imagesJson = JSON.stringify(data.images || []);
       await client.query(
-        `INSERT INTO accommodation_images (accommodation_id, images) VALUES ($1, $2)`, 
+        `INSERT INTO accommodation_images (accommodation_id, images) VALUES ($1, $2)`,
         [newAccommodation.id, imagesJson]
       );
 

@@ -3,6 +3,10 @@ node_modules/
 *.log
 .env
 
+Backend/.env
+.env
+*.env
+
 Environment variables
 .env
 .env.local

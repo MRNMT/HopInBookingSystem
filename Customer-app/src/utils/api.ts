@@ -139,3 +139,23 @@ export const users = {
     return response.json();
   },
 };
+
+// Payments endpoints
+export const payments = {
+  createIntent: async (data: any) => {
+    const response = await fetch(`${API_BASE_URL}/payments/create-intent`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(data),
+    });
+    return response.json();
+  },
+  confirm: async (paymentIntentId: string) => {
+    const response = await fetch(`${API_BASE_URL}/payments/confirm`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ paymentIntentId }),
+    });
+    return response.json();
+  },
+};

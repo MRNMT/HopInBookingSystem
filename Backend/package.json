@@ -6,6 +6,7 @@
     "test": "ts-node src/test-db.ts && ts-node src/test-api.ts",
     "setup": "ts-node src/scripts/setup-env.ts",
     "seed:superadmin": "ts-node src/scripts/seed-superadmin.ts",
+    "seed:accommodations": "ts-node src/scripts/seed-accommodations.ts",
     "dev": "ts-node src/server.ts"
   },
   "keywords": [],

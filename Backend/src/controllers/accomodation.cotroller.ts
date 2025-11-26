@@ -1,5 +1,5 @@
 import express, { Request, Response } from "express";
-import {AccommodationService} from "../services/accommodation.service";
+import { AccommodationService } from "../services/accommodation.service";
 import { Accommodation, CreateAccommodationDto } from "../common/types/types";
 
 const accommodationService = new AccommodationService();
@@ -8,14 +8,14 @@ export const getAllAccommodations = async (req: Request, res: Response) => {
   try {
     const accommodations = await accommodationService.getAll();
 
-    if (accommodations == null) {
-      res.status(404).json({ message: "No accommodations found" });
+    if (accommodations == null || accommodations.length === 0) {
+      return res.status(404).json({ message: "No accommodations found", success: false });
     }
 
-    res.status(200).json(accommodations);
+    res.status(200).json({ data: accommodations, success: true });
   } catch (error) {
-    console.error("Error in fetching all accomodations", error);
-    res.status(500).json({ message: "Internal Server Error" });
+    console.error("Error in fetching all accommodations", error);
+    res.status(500).json({ message: "Internal Server Error", success: false });
   }
 };
 
@@ -24,10 +24,15 @@ export const getAccommodationById = async (req: Request, res: Response) => {
   try {
     const id = req.params.id;
     const accommodation = await accommodationService.getById(id);
-    res.status(200).json(accommodation);
+
+    if (!accommodation) {
+      return res.status(404).json({ message: "Accommodation not found", success: false });
+    }
+
+    res.status(200).json({ data: accommodation, success: true });
   } catch (error) {
     console.log("Getting accommodation error:", error);
-    res.status(404).json({ message: "Accomodation not Found" });
+    res.status(404).json({ message: "Accommodation not Found", success: false });
   }
 };
 
@@ -84,6 +89,6 @@ export const deleteAccommodation = async (req: Request, res: Response) => {
     return res.status(200).json(deleteAccommodation);
   } catch (error) {
     console.log("Error in Deleting accommodation", error);
-    res.status(404).json({message: "Could not find accommodation"})
+    res.status(404).json({ message: "Could not find accommodation" })
   }
 };

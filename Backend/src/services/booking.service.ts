@@ -1,10 +1,10 @@
 import { db } from '../config/db';
-import { 
-  CreateBookingDto, 
-  Booking, 
-  AdminUpdateBookingDto, 
-  BookingStatus, 
-  PaymentStatus 
+import {
+  CreateBookingDto,
+  Booking,
+  AdminUpdateBookingDto,
+  BookingStatus,
+  PaymentStatus
 } from '../common/types/types';
 import { AppError } from '../middleware/error.handler';
 import { NotificationService } from './notification.service';
@@ -57,8 +57,8 @@ export class BookingService {
         ) VALUES ($1, $2, $3, $4, $5, $6, $7, 'pending', 'pending', $8, $9, $10, $11)
         RETURNING id
       `, [
-        userId, room_type_id, check_in_date, check_out_date, 
-        num_rooms, num_guests, totalPrice, 
+        userId, room_type_id, check_in_date, check_out_date,
+        num_rooms, num_guests, totalPrice,
         guest_name, guest_email, guest_phone, special_requests
       ]);
       const bookingId = bookingRes.rows[0].id;
@@ -71,10 +71,10 @@ export class BookingService {
 
       await db.query('COMMIT');
 
-      return { 
-        bookingId, 
+      return {
+        bookingId,
         clientSecret: mockClientSecret,
-        totalPrice 
+        totalPrice
       };
 
     } catch (error) {
@@ -125,9 +125,9 @@ export class BookingService {
 
       if (userId) {
         await this.notifService.send(
-            userId, 
-            'booking_confirmation', 
-            'Payment received! Your booking is confirmed.'
+          userId,
+          'booking_confirmation',
+          'Payment received! Your booking is confirmed.'
         );
       }
 
@@ -137,11 +137,24 @@ export class BookingService {
     }
   }
 
-    public async getAllBookings():Promise<Booking[]> {
-      let query = `SELECT * from bookings`
-      const result = await db.query(query);
-      return result.rows
-    }
+  public async getAllBookings(): Promise<Booking[]> {
+    let query = `SELECT * from bookings`
+    const result = await db.query(query);
+    return result.rows
+  }
+
+  public async getUserBookings(userId: string): Promise<Booking[]> {
+    const query = `
+        SELECT b.*, r.type_name as room_type_name, a.name as accommodation_name
+        FROM bookings b
+        JOIN room_types r ON b.room_type_id = r.id
+        JOIN accommodations a ON r.accommodation_id = a.id
+        WHERE b.user_id = $1
+        ORDER BY b.created_at DESC
+      `;
+    const result = await db.query(query, [userId]);
+    return result.rows;
+  }
 
   public async getAllAdmin(filters: any): Promise<Booking[]> {
     const { status, date } = filters;
@@ -172,16 +185,16 @@ export class BookingService {
     let idx = 2;
 
     if (status) {
-        updates.push(`status = $${idx++}`);
-        values.push(status);
+      updates.push(`status = $${idx++}`);
+      values.push(status);
     }
     if (admin_notes) {
-        updates.push(`admin_notes = $${idx++}`);
-        values.push(admin_notes);
+      updates.push(`admin_notes = $${idx++}`);
+      values.push(admin_notes);
     }
 
     if (updates.length === 0) {
-        throw new AppError(400, 'No updates provided');
+      throw new AppError(400, 'No updates provided');
     }
 
     const query = `
@@ -194,16 +207,16 @@ export class BookingService {
     const result = await db.query(query, values);
 
     if (result.rows.length === 0) {
-        throw new AppError(404, 'Booking not found');
+      throw new AppError(404, 'Booking not found');
     }
 
     const booking = result.rows[0];
     if (status && ['confirmed', 'cancelled'].includes(status)) {
-        await this.notifService.send(
-            booking.user_id, 
-            'booking_update', 
-            `Your booking status has been updated to: ${status}`
-        );
+      await this.notifService.send(
+        booking.user_id,
+        'booking_update',
+        `Your booking status has been updated to: ${status}`
+      );
     }
 
     return booking;

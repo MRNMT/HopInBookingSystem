@@ -4,6 +4,8 @@ import { useNavigate, Link } from "react-router-dom";
 import logo from '../assets/logo.jpg';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import { auth } from '../utils/api';
+import { useDispatch } from 'react-redux';
+import { loginSuccess } from '../store/authSlice';
 
 export const Register: React.FC = () => {
     const [fullName, setFullName] = useState('');
@@ -17,6 +19,7 @@ export const Register: React.FC = () => {
     );
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const navigate = useNavigate();
+    const dispatch = useDispatch();
 
     const validate = () => {
         const next: { fullName?: string; email?: string; password?: string } = {};
@@ -35,7 +38,9 @@ export const Register: React.FC = () => {
         try {
             const response = await auth.register({ email, password, fullName });
             if (response.data?.token) {
-                localStorage.setItem('token', response.data.token);
+                const { token, user } = response.data;
+                localStorage.setItem('token', token);
+                dispatch(loginSuccess({ user, token }));
                 navigate('/'); // Redirect to home or dashboard
             } else {
                 setErrors({ ...errors, password: response.message || 'Failed to sign up. Try again.' });

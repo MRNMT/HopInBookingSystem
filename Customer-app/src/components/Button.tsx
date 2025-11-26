@@ -6,6 +6,7 @@ type ButtonProps = {
   variant?: "primary" | "secondary" | "outline" | "ghost";
   className?: string;
   disabled?: boolean;
+  type?: "button" | "submit" | "reset";
 };
 
 export const Button: React.FC<ButtonProps> = ({
@@ -14,6 +15,7 @@ export const Button: React.FC<ButtonProps> = ({
   variant = "primary",
   className = "",
   disabled = false,
+  type = "button",
 }) => {
   const baseStyles =
     "px-4 py-2 rounded-xl font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2";
@@ -30,6 +32,7 @@ export const Button: React.FC<ButtonProps> = ({
     <button
       onClick={onClick}
       disabled={disabled}
+      type={type}
       className={`${baseStyles} ${variants[variant]} ${
         disabled ? "opacity-50 cursor-not-allowed" : ""
       } ${className}`}

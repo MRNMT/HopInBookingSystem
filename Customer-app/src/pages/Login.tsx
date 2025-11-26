@@ -4,8 +4,8 @@ import logo from '../assets/logo.jpg';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import { Link, useNavigate } from "react-router-dom";
 import axios from 'axios';
-import { useAuth } from '../context/AuthContext';
-
+import { useDispatch } from 'react-redux';
+import { loginSuccess } from '../store/authSlice';
 
 export const Login: React.FC = () => {
     const [email, setEmail] = useState('');
@@ -18,8 +18,7 @@ export const Login: React.FC = () => {
     const [loading, setLoading] = useState(false);
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const navigate = useNavigate();
-
-    const { login } = useAuth();
+    const dispatch = useDispatch();
 
     const validate = () => {
         const next: { email?: string; password?: string } = {};
@@ -35,14 +34,13 @@ export const Login: React.FC = () => {
         if (!validate()) return;
         setLoading(true);
         try {
-
             const response = await axios.post('http://localhost:5000/api/v1/auth/login', {
                 email,
                 password
             });
 
             const { token, user } = response.data.data;
-            login(token, user);
+            dispatch(loginSuccess({ user, token }));
 
             // Role-based redirection
             if (user.role === 'superadmin') {
@@ -58,7 +56,6 @@ export const Login: React.FC = () => {
             console.error('Login failed:', err);
             const errorMessage = err.response?.data?.message || 'Failed to sign in. Please check your credentials.';
             setErrors({ ...errors, password: errorMessage });
-
         } finally {
             setLoading(false);
         }
