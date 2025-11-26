@@ -1,12 +1,6 @@
-<<<<<<< HEAD
-import { Accommodation, CreateAccommodationDto } from "../../common/types/types"; 
-import { db } from "../config/db"; 
-import pool from "../config/db"; 
-=======
 import { Accommodation, CreateAccommodationDto } from "../common/types/types"; // Fixed import path
 import { db } from "../config/db"; // Use the db helper
 import pool from "../config/db"; // Import pool for transactions
->>>>>>> 52271e94bf7bbd2e2542b1c5202ee7c08b3e70e2
 import { QueryResult } from "pg";
 
 const BASE_QUERY = `
