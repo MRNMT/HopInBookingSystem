@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import type { ChangeEvent, FormEvent } from 'react';
 import logo from '../assets/logo.jpg';
@@ -20,7 +21,6 @@ export const Login: React.FC = () => {
     const navigate = useNavigate();
 
     const { login } = useAuth();
-    const navigate = useNavigate();
 
     const validate = () => {
         const next: { email?: string; password?: string } = {};
@@ -78,7 +78,6 @@ export const Login: React.FC = () => {
                     <div className="mb-4">
                         <label htmlFor="email" className="block text-sm font-medium mb-1">Email</label>
                         <input
-                         aria-hidden="true"
                             id="email"
                             type="email"
                             value={email}
@@ -99,7 +98,6 @@ export const Login: React.FC = () => {
                         <label htmlFor="password" className="block text-sm font-medium mb-1">Password</label>
                         <div className="flex items-center">
                             <input
-                            aria-hidden="true"
                                 id="password"
                                 type={showPassword ? 'text' : 'password'}
                                 value={password}
@@ -135,7 +133,7 @@ export const Login: React.FC = () => {
                             />
                             Remember me
                         </label>
-                        <a href="#" className="text-sm text-blue-600 hover:underline">Forgot password?</a>
+                        <Link to="/forgot-password" className="text-sm text-blue-600 hover:underline">Forgot password?</Link>
                     </div>
 
                     <div className="mb-4">
@@ -145,9 +143,9 @@ export const Login: React.FC = () => {
                     </div>
 
                     <p className="text-center text-sm text-gray-600">
-                            Don't have an account? 
-                            <Link to="/register" className="text-[#0088FF] hover:underline"> Register</Link>
-                            </p>
+                        Don't have an account?
+                        <Link to="/register" className="text-[#0088FF] hover:underline"> Register</Link>
+                    </p>
 
                 </form>
             </div>
