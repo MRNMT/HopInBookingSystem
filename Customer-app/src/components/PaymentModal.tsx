@@ -41,7 +41,7 @@ const CheckoutForm = ({ amount, onSuccess, onClose }: { amount: number, onSucces
       elements,
       clientSecret: (elements as any)._commonOptions.clientSecret,
       confirmParams: {
-        return_url: window.location.origin + '/booking/success', 
+        return_url: window.location.origin + '/confirm_payment', 
       },
       redirect: 'if_required',
     });

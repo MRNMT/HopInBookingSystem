@@ -13,5 +13,6 @@ export interface RoomType {
 
 export const getRoomTypes = async (accommodationId: string) => {
     const response = await api.get(`/accommodations/${accommodationId}/room-types`);
-    return response.data;
+    return response.data.data;
 };
+

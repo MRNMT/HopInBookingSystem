@@ -1,48 +1,118 @@
 import React, { useState, useEffect } from 'react';
-import { FaUser, FaHistory, FaHeart, FaCalendarAlt, FaSignOutAlt } from 'react-icons/fa';
-
-// import { Link } from 'react-router-dom';
-import { getUserBookings, type Booking } from '../services/booking.service';
-// import { getFavorites } from '../services/favorites.service'; // Assuming this exists
-
-import { useSelector } from 'react-redux';
+import { FaUser, FaHistory, FaHeart, FaCalendarAlt, FaSignOutAlt, FaStar, FaMapMarkerAlt } from 'react-icons/fa';
+import { Link } from 'react-router-dom';
+import { users } from '../utils/api';
+import { useSelector, useDispatch } from 'react-redux';
 import { type RootState } from '../store/store';
+import { logout } from '../store/authSlice';
+import hotel from '../assets/hotel1.jpg';
 
 const ProfilePage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'profile' | 'bookings' | 'favorites'>('profile');
-  const [bookings, setBookings] = useState<Booking[]>([]);
+  const [bookings, setBookings] = useState<any[]>([]);
+  const [favorites, setFavorites] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    password: ''
+  });
   
   const { user } = useSelector((state: RootState) => state.auth);
+  const dispatch = useDispatch();
 
-  // Fallback if user is not loaded yet (though auth check should handle this)
-  const displayUser = user || {
-    name: 'Guest User',
-    email: 'guest@example.com',
-    phone: ''
-  };
+  useEffect(() => {
+    if (user) {
+      setFormData({
+        name: user.name || '',
+        email: user.email || '',
+        phone: user.phone || '',
+        password: ''
+      });
+    }
+  }, [user]);
 
   useEffect(() => {
     if (activeTab === 'bookings') {
       fetchBookings();
+    } else if (activeTab === 'favorites') {
+      fetchFavorites();
     }
   }, [activeTab]);
 
   const fetchBookings = async () => {
     setLoading(true);
     try {
-      const response = await getUserBookings();
-      setBookings(response.data);
+      const response = await users.getMyBookings();
+      console.log('📦 Bookings response:', response);
+      if (response.success && response.data) {
+        setBookings(response.data);
+      } else if (response.data) {
+        setBookings(response.data);
+      } else {
+        setBookings([]);
+      }
     } catch (error) {
       console.error('Error fetching bookings:', error);
+      setBookings([]);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleUpdateProfile = (e: React.FormEvent) => {
+  const fetchFavorites = async () => {
+    setLoading(true);
+    try {
+      console.log('🔍 Fetching favorites...');
+      const response = await users.getMyFavorites();
+      console.log('📦 Favorites API Response:', response);
+      console.log('✅ Response has data:', !!response.data);
+      console.log('📊 Data type:', Array.isArray(response.data) ? 'Array' : typeof response.data);
+      console.log('📏 Data length:', response.data?.length);
+      
+      // Handle the response based on backend structure
+      if (response.data && Array.isArray(response.data)) {
+        console.log('✅ Setting favorites:', response.data);
+        setFavorites(response.data);
+      } else if (response.success === false) {
+        console.log('⚠️ API returned success=false');
+        setFavorites([]);
+      } else {
+        console.log('⚠️ Unexpected response structure');
+        setFavorites([]);
+      }
+    } catch (error: any) {
+      console.error('❌ Error fetching favorites:', error);
+      console.error('Error details:', error.message);
+      setFavorites([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
-    alert('Profile updated successfully!');
+    try {
+      const response = await users.updateProfile(formData);
+      if (response.success) {
+        alert('Profile updated successfully!');
+      } else {
+        alert('Failed to update profile');
+      }
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      alert('An error occurred while updating profile');
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+        dispatch(logout());
+        window.location.href = '/';
+    } catch (error) {
+        console.error('Logout failed', error);
+    }
   };
 
   const renderProfile = () => (
@@ -53,31 +123,42 @@ const ProfilePage: React.FC = () => {
           <label className="block text-gray-700 mb-2">Full Name</label>
           <input
             type="text"
-            value={displayUser.name || ''}
-            readOnly
-            className="w-full p-2 border rounded-lg focus:outline-none bg-gray-100"
+            value={formData.name}
+            onChange={(e) => setFormData({...formData, name: e.target.value})}
+            className="w-full p-2 border rounded-lg focus:outline-none focus:border-blue-500"
           />
         </div>
         <div>
           <label className="block text-gray-700 mb-2">Email</label>
           <input
             type="email"
-            value={displayUser.email || ''}
+            value={formData.email}
             readOnly
-            className="w-full p-2 border rounded-lg focus:outline-none bg-gray-100"
+            className="w-full p-2 border rounded-lg focus:outline-none bg-gray-100 cursor-not-allowed"
           />
         </div>
         <div>
           <label className="block text-gray-700 mb-2">Phone</label>
           <input
             type="tel"
-            value={displayUser.phone || ''}
-            readOnly
-            className="w-full p-2 border rounded-lg focus:outline-none bg-gray-100"
+            value={formData.phone}
+            onChange={(e) => setFormData({...formData, phone: e.target.value})}
+            className="w-full p-2 border rounded-lg focus:outline-none focus:border-blue-500"
           />
         </div>
-        {/* <Button type="submit" className="mt-4">Update Profile</Button> */}
-        <p className="text-sm text-gray-500 mt-2">Profile updates are currently disabled.</p>
+        <div>
+            <label className="block text-gray-700 mb-2">New Password (leave blank to keep current)</label>
+            <input
+                type="password"
+                value={formData.password}
+                onChange={(e) => setFormData({...formData, password: e.target.value})}
+                className="w-full p-2 border rounded-lg focus:outline-none focus:border-blue-500"
+                placeholder="********"
+            />
+        </div>
+        <button type="submit" className="mt-4 bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+            Update Profile
+        </button>
       </form>
     </div>
   );
@@ -87,61 +168,72 @@ const ProfilePage: React.FC = () => {
       <h2 className="text-2xl font-bold mb-4">My Bookings</h2>
       
       {loading ? (
-        <p>Loading bookings...</p>
+        <div className="text-center py-8">Loading bookings...</div>
       ) : bookings.length === 0 ? (
-        <p>No bookings found.</p>
+        <div className="text-center py-8 text-gray-500">No bookings found.</div>
       ) : (
         <>
           <div className="bg-white p-6 rounded-lg shadow-md mb-6">
             <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
               <FaCalendarAlt className="text-blue-500" /> Current & Upcoming
             </h3>
-            {bookings.filter(b => b.status === 'confirmed' || b.status === 'pending').map(booking => (
-              <div key={booking.id} className="border-b last:border-0 py-4">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <h4 className="font-bold text-lg">{booking.accommodation_name}</h4>
-                    <p className="text-gray-600">{booking.room_type_name}</p>
-                    <p className="text-sm text-gray-500">
-                      {booking.check_in_date} - {booking.check_out_date}
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <span className="inline-block px-3 py-1 rounded-full text-sm font-semibold bg-green-100 text-green-800 mb-2">
-                      {booking.status.toUpperCase()}
-                    </span>
-                    <p className="font-bold text-blue-600">R {booking.total_price}</p>
-                  </div>
+            {bookings.filter(b => b.status === 'confirmed' || b.status === 'pending').length > 0 ? (
+                bookings.filter(b => b.status === 'confirmed' || b.status === 'pending').map(booking => (
+                <div key={booking.id} className="border-b last:border-0 py-4">
+                    <div className="flex justify-between items-start">
+                    <div>
+                        <h4 className="font-bold text-lg">{booking.accommodation_name || 'Accommodation Name'}</h4>
+                        <p className="text-gray-600">{booking.room_type_name || 'Room Type'}</p>
+                        <p className="text-sm text-gray-500">
+                        {new Date(booking.check_in_date).toLocaleDateString()} - {new Date(booking.check_out_date).toLocaleDateString()}
+                        </p>
+                        <p className="text-sm text-gray-500 mt-1">Guests: {booking.num_guests} | Rooms: {booking.num_rooms}</p>
+                    </div>
+                    <div className="text-right">
+                        <span className={`inline-block px-3 py-1 rounded-full text-sm font-semibold mb-2 ${
+                            booking.status === 'confirmed' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+                        }`}>
+                        {booking.status.toUpperCase()}
+                        </span>
+                        <p className="font-bold text-blue-600">R {booking.total_price}</p>
+                    </div>
+                    </div>
                 </div>
-              </div>
-            ))}
+                ))
+            ) : (
+                <p className="text-gray-500 italic">No upcoming bookings.</p>
+            )}
           </div>
 
           <div className="bg-white p-6 rounded-lg shadow-md">
             <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
               <FaHistory className="text-gray-500" /> Past Bookings
             </h3>
-            {bookings.filter(b => b.status === 'completed' || b.status === 'cancelled').map(booking => (
-              <div key={booking.id} className="border-b last:border-0 py-4 opacity-75">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <h4 className="font-bold text-lg">{booking.accommodation_name}</h4>
-                    <p className="text-gray-600">{booking.room_type_name}</p>
-                    <p className="text-sm text-gray-500">
-                      {booking.check_in_date} - {booking.check_out_date}
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <span className={`inline-block px-3 py-1 rounded-full text-sm font-semibold mb-2 ${
-                      booking.status === 'completed' ? 'bg-gray-100 text-gray-800' : 'bg-red-100 text-red-800'
-                    }`}>
-                      {booking.status.toUpperCase()}
-                    </span>
-                    <p className="font-bold text-gray-600">R {booking.total_price}</p>
-                  </div>
+            {bookings.filter(b => b.status === 'completed' || b.status === 'cancelled').length > 0 ? (
+                bookings.filter(b => b.status === 'completed' || b.status === 'cancelled').map(booking => (
+                <div key={booking.id} className="border-b last:border-0 py-4 opacity-75">
+                    <div className="flex justify-between items-start">
+                    <div>
+                        <h4 className="font-bold text-lg">{booking.accommodation_name || 'Accommodation Name'}</h4>
+                        <p className="text-gray-600">{booking.room_type_name || 'Room Type'}</p>
+                        <p className="text-sm text-gray-500">
+                        {new Date(booking.check_in_date).toLocaleDateString()} - {new Date(booking.check_out_date).toLocaleDateString()}
+                        </p>
+                    </div>
+                    <div className="text-right">
+                        <span className={`inline-block px-3 py-1 rounded-full text-sm font-semibold mb-2 ${
+                        booking.status === 'completed' ? 'bg-gray-100 text-gray-800' : 'bg-red-100 text-red-800'
+                        }`}>
+                        {booking.status.toUpperCase()}
+                        </span>
+                        <p className="font-bold text-gray-600">R {booking.total_price}</p>
+                    </div>
+                    </div>
                 </div>
-              </div>
-            ))}
+                ))
+            ) : (
+                <p className="text-gray-500 italic">No past bookings.</p>
+            )}
           </div>
         </>
       )}
@@ -151,10 +243,76 @@ const ProfilePage: React.FC = () => {
   const renderFavorites = () => (
     <div className="bg-white p-6 rounded-lg shadow-md">
       <h2 className="text-2xl font-bold mb-6">My Favorites</h2>
-      <p className="text-gray-500">Your favorite accommodations will appear here.</p>
-      {/* Map through favorites here */}
+      
+      {loading ? (
+        <div className="text-center py-8">Loading favorites...</div>
+      ) : favorites.length === 0 ? (
+        <div className="text-center py-12">
+            <FaHeart className="text-gray-300 text-5xl mx-auto mb-4" />
+            <p className="text-gray-500 text-lg">You haven't added any favorites yet.</p>
+            <Link to="/find" className="text-blue-600 hover:underline mt-2 inline-block">
+                Browse Accommodations
+            </Link>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {favorites.map((fav: any) => (
+                <div key={fav.id} className="border rounded-lg overflow-hidden hover:shadow-lg transition-shadow">
+                    <div className="h-48 relative">
+                        <img 
+                            src={fav.images?.[0] || hotel} 
+                            alt={fav.name} 
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                                (e.target as HTMLImageElement).src = hotel;
+                            }}
+                        />
+                        <div className="absolute top-2 right-2 bg-white px-2 py-1 rounded-full text-xs font-bold shadow flex items-center gap-1">
+                            <FaStar className="text-yellow-400" /> {fav.star_rating || 'N/A'}
+                        </div>
+                    </div>
+                    <div className="p-4">
+                        <h3 className="font-bold text-lg mb-1">{fav.name}</h3>
+                        <div className="flex items-center gap-1 text-gray-500 text-sm mb-3">
+                            <FaMapMarkerAlt /> {fav.city}, {fav.country}
+                        </div>
+                        <div className="flex justify-between items-center">
+                             <Link to={`/booking?accommodation=${fav.id}`} className="text-blue-600 font-medium hover:underline">
+                                View Details
+                             </Link>
+                             <button 
+                                onClick={async () => {
+                                    if(confirm('Remove from favorites?')) {
+                                        await users.removeFavorite(fav.id);
+                                        fetchFavorites();
+                                    }
+                                }}
+                                className="text-red-500 hover:text-red-700 text-sm"
+                             >
+                                Remove
+                             </button>
+                        </div>
+                    </div>
+                </div>
+            ))}
+        </div>
+      )}
     </div>
   );
+
+  if (!user) {
+      return (
+          <div className="min-h-screen flex items-center justify-center bg-gray-50">
+              <div className="text-center">
+                  <h2 className="text-2xl font-bold mb-4">Please Log In</h2>
+                  <p className="text-gray-600 mb-6">You need to be logged in to view your profile.</p>
+                  <Link to="/login" className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700">
+                      Go to Login
+                  </Link>
+              </div>
+          </div>
+      );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 pt-20 pb-10">
@@ -167,8 +325,8 @@ const ProfilePage: React.FC = () => {
                 <div className="w-20 h-20 bg-white rounded-full mx-auto mb-4 flex items-center justify-center text-blue-600 text-3xl">
                   <FaUser />
                 </div>
-                <h3 className="font-bold text-lg">{displayUser.name}</h3>
-                <p className="text-blue-100 text-sm">{displayUser.email}</p>
+                <h3 className="font-bold text-lg">{user.name}</h3>
+                <p className="text-blue-100 text-sm">{user.email}</p>
               </div>
               <nav className="p-4 space-y-2">
                 <button
@@ -196,7 +354,10 @@ const ProfilePage: React.FC = () => {
                   <FaHeart /> Favorites
                 </button>
                 <hr className="my-2" />
-                <button className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-red-600 hover:bg-red-50 transition-colors">
+                <button 
+                    onClick={handleLogout}
+                    className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-red-600 hover:bg-red-50 transition-colors"
+                >
                   <FaSignOutAlt /> Sign Out
                 </button>
               </nav>

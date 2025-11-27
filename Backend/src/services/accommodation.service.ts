@@ -38,7 +38,7 @@ export class AccommodationService {
           a.*, 
           COALESCE(ai.images, '[]'::jsonb) as images,
           (
-            SELECT json_agg(json_build_object('id', f.id, 'name', f.name, 'icon', f.icon))
+            SELECT json_agg(json_build_object('id', f.id, 'name', f.name, 'icon', f.icon_name))
             FROM accommodation_facilities af
             JOIN facilities f ON af.facility_id = f.id
             WHERE af.accommodation_id = a.id

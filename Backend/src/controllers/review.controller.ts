@@ -13,9 +13,22 @@ export const createReview = async (req: Request, res: Response, next: NextFuncti
     const userId = req.user.id;
     const reviewData: CreateReviewDto = req.body;
     await reviewService.create(userId, reviewData);
-    
-    res.status(201).json({ 
-      message: 'Review submitted successfully. It is now pending moderation.' 
+
+    res.status(201).json({
+      message: 'Review submitted successfully. It is now pending moderation.'
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getReviewsByAccommodation = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { accommodationId } = req.params;
+    const reviews = await reviewService.getByAccommodation(accommodationId);
+    res.status(200).json({
+      success: true,
+      data: reviews
     });
   } catch (error) {
     next(error);

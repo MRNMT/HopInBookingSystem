@@ -56,7 +56,7 @@ export class ReviewService {
 
   public async approve(reviewId: string): Promise<void> {
     const result = await db.query(
-      'UPDATE reviews SET is_approved = true WHERE id = $1 RETURNING user_id', 
+      'UPDATE reviews SET is_approved = true WHERE id = $1 RETURNING user_id',
       [reviewId]
     );
 
@@ -66,17 +66,29 @@ export class ReviewService {
 
     const userId = result.rows[0].user_id;
     await this.notifService.send(
-        userId, 
-        'booking_update', 
-        'Your review has been approved and is now live!'
+      userId,
+      'booking_update',
+      'Your review has been approved and is now live!'
     );
   }
 
   public async delete(reviewId: string): Promise<void> {
     const result = await db.query('DELETE FROM reviews WHERE id = $1', [reviewId]);
-    
+
     if (result.rowCount === 0) {
       throw new AppError(404, 'Review not found.');
     }
+  }
+
+  public async getByAccommodation(accommodationId: string): Promise<Review[]> {
+    const query = `
+      SELECT r.*, u.full_name as user_name
+      FROM reviews r
+      JOIN users u ON r.user_id = u.id
+      WHERE r.accommodation_id = $1 AND r.is_approved = true
+      ORDER BY r.created_at DESC
+    `;
+    const result = await db.query(query, [accommodationId]);
+    return result.rows;
   }
 }

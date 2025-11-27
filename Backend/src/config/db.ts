@@ -7,14 +7,10 @@ if (!process.env.DATABASE_URL) {
   throw new Error('FATAL ERROR: DATABASE_URL is missing in .env file');
 }
 
-if (process.env.NODE_ENV !== 'production') {
-  process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
-}
-
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: {
-    rejectUnauthorized: false,
+    rejectUnauthorized: false
   },
 });
 

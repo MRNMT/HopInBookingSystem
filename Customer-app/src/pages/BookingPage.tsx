@@ -21,10 +21,10 @@ export const BookingPage = () => {
     const accommodationId = searchParams.get('accommodation');
 
     const [accommodation, setAccommodation] = useState<any>(null);
-    const [roomTypes, setRoomTypes] = useState<RoomType[]>([]);
+    const [roomTypes, setRoomTypes] = useState<RoomType[]>([]); // Initialize as empty array
     const [selectedRoomType, setSelectedRoomType] = useState<string>('');
-    const [reviews, setReviews] = useState<any[]>([]);
-    const [images, setImages] = useState<string[]>([]);
+    const [reviews, setReviews] = useState<any[]>([]); // Initialize as empty array
+    const [images, setImages] = useState<string[]>([room]); // Initialize with default image
     
     const [checkIn, setCheckIn] = useState('');
     const [checkOut, setCheckOut] = useState('');
@@ -38,42 +38,90 @@ export const BookingPage = () => {
     const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         const fetchData = async () => {
-            if (!accommodationId) return;
+            if (!accommodationId) {
+                setError('No accommodation ID provided');
+                setLoading(false);
+                return;
+            }
+
             try {
+                setLoading(true);
+                setError(null);
+
+                // Fetch accommodation data
                 const accData = await getAccommodationById(accommodationId);
+                if (!accData) {
+                    throw new Error('Accommodation not found');
+                }
                 setAccommodation(accData);
                 
-                // Fetch images if not present
-                if (accData.images && accData.images.length > 0) {
-                    setImages(accData.images);
-                } else {
-                    const unsplashImages = await getHotelImages(accData.city, accData.country);
-                    setImages(unsplashImages.length > 0 ? unsplashImages : [room]);
+                // Fetch images
+                try {
+                    if (accData.images && Array.isArray(accData.images) && accData.images.length > 0) {
+                        setImages(accData.images);
+                    } else {
+                        const unsplashImages = await getHotelImages(accData.city, accData.country);
+                        setImages(unsplashImages.length > 0 ? unsplashImages : [room]);
+                    }
+                } catch (imgError) {
+                    console.warn('Error fetching images, using default:', imgError);
+                    setImages([room]);
                 }
 
-                const roomsData = await getRoomTypes(accommodationId);
-                setRoomTypes(roomsData);
-                if (roomsData.length > 0) {
-                    setSelectedRoomType(roomsData[0].id);
+                // Fetch room types
+                try {
+                    const roomsData = await getRoomTypes(accommodationId);
+                    // Ensure roomsData is an array
+                    if (Array.isArray(roomsData) && roomsData.length > 0) {
+                        setRoomTypes(roomsData);
+                        setSelectedRoomType(roomsData[0].id);
+                    } else {
+                        console.warn('No room types available');
+                        setRoomTypes([]);
+                    }
+                } catch (roomError) {
+                    console.error('Error fetching room types:', roomError);
+                    setRoomTypes([]);
                 }
 
-                const reviewsData = await reviewsApi.getForAccommodation(accommodationId);
-                if (reviewsData.success) {
-                    setReviews(reviewsData.data);
+                // Fetch reviews - handle 404 gracefully
+                try {
+                    const reviewsData = await reviewsApi.getForAccommodation(accommodationId);
+                    if (reviewsData && reviewsData.success && Array.isArray(reviewsData.data)) {
+                        setReviews(reviewsData.data);
+                    } else {
+                        setReviews([]);
+                    }
+                } catch (reviewError: any) {
+                    // Check if it's a 404 or other error
+                    if (reviewError.message?.includes('404') || reviewError.status === 404) {
+                        console.log('Reviews endpoint not available (404), using empty reviews');
+                        setReviews([]);
+                    } else {
+                        console.error('Error fetching reviews:', reviewError);
+                        setReviews([]);
+                    }
                 }
-            } catch (error) {
+
+            } catch (error: any) {
                 console.error('Error fetching booking data:', error);
+                setError(error.message || 'Failed to load booking information. Please try again.');
             } finally {
                 setLoading(false);
             }
         };
+
         fetchData();
     }, [accommodationId]);
 
-    const selectedRoom = roomTypes.find(r => r.id === selectedRoomType);
+    // Safely get selected room with type guard
+    const selectedRoom = Array.isArray(roomTypes) && roomTypes.length > 0 
+        ? roomTypes.find(r => r.id === selectedRoomType) 
+        : null;
 
     const calculateNights = () => {
         if (!checkIn || !checkOut) return 0;
@@ -125,7 +173,8 @@ export const BookingPage = () => {
 
     const isFormValid = () => {
         return checkIn && checkOut && nights > 0 &&
-               guestName.trim() && guestEmail.trim() && guestPhone.trim();
+               guestName.trim() && guestEmail.trim() && guestPhone.trim() &&
+               roomTypes.length > 0 && selectedRoomType;
     };
 
     const getFacilityIcon = (name: string) => {
@@ -139,12 +188,58 @@ export const BookingPage = () => {
         return <FaPlateWheat />;
     };
 
+    // Loading state
     if (loading) {
-        return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-gray-50">
+                <div className="text-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+                    <p className="text-gray-600">Loading booking details...</p>
+                </div>
+            </div>
+        );
     }
 
-    if (!accommodation) {
-        return <div className="min-h-screen flex items-center justify-center">Accommodation not found</div>;
+    // Error state
+    if (error || !accommodation) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-gray-50">
+                <div className="text-center max-w-md">
+                    <div className="text-red-500 text-5xl mb-4">⚠️</div>
+                    <h2 className="text-2xl font-bold text-gray-800 mb-2">Unable to Load Booking</h2>
+                    <p className="text-gray-600 mb-6">{error || 'Accommodation not found'}</p>
+                    <Link to="/find">
+                        <Button variant="primary">Back to Search</Button>
+                    </Link>
+                </div>
+            </div>
+        );
+    }
+
+    // No room types available
+    if (roomTypes.length === 0) {
+        return (
+            <div className="min-h-screen bg-gray-50">
+                <div className='flex justify-between items-center p-4 bg-white shadow-sm'>
+                    <img src={logo} alt="logo" className='h-10' />
+                    <span className='flex'>
+                        <FaRegUser className='text-2xl text-[#0088FF]' />
+                    </span>
+                </div>
+                <div className="flex items-center justify-center min-h-[70vh]">
+                    <div className="text-center max-w-md">
+                        <div className="text-yellow-500 text-5xl mb-4">🏨</div>
+                        <h2 className="text-2xl font-bold text-gray-800 mb-2">No Rooms Available</h2>
+                        <p className="text-gray-600 mb-6">
+                            This accommodation doesn't have any room types configured yet.
+                        </p>
+                        <Link to="/find">
+                            <Button variant="primary">Browse Other Properties</Button>
+                        </Link>
+                    </div>
+                </div>
+            </div>
+        );
     }
 
     return (
@@ -169,10 +264,12 @@ export const BookingPage = () => {
                         <div className="flex items-center gap-2 text-gray-600 mb-4">
                             <MdLocationOn className="text-blue-500" />
                             <span>{accommodation.address}, {accommodation.city}, {accommodation.country}</span>
-                            <div className="flex items-center ml-4">
-                                <FaStar className="text-yellow-400 mr-1" />
-                                <span>{accommodation.average_rating} ({accommodation.total_reviews} reviews)</span>
-                            </div>
+                            {accommodation.average_rating && (
+                                <div className="flex items-center ml-4">
+                                    <FaStar className="text-yellow-400 mr-1" />
+                                    <span>{accommodation.average_rating} ({accommodation.total_reviews || 0} reviews)</span>
+                                </div>
+                            )}
                         </div>
                         
                         <div className="grid grid-cols-2 gap-2 h-96 rounded-xl overflow-hidden">
@@ -188,14 +285,14 @@ export const BookingPage = () => {
                     {/* Description */}
                     <div className="bg-white p-6 rounded-lg shadow-sm">
                         <h2 className="text-xl font-bold mb-4">About this place</h2>
-                        <p className="text-gray-700 leading-relaxed">{accommodation.description}</p>
+                        <p className="text-gray-700 leading-relaxed">{accommodation.description || 'No description available.'}</p>
                     </div>
 
                     {/* Facilities */}
                     <div className="bg-white p-6 rounded-lg shadow-sm">
                         <h2 className="text-xl font-bold mb-4">Facilities</h2>
                         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                            {accommodation.facilities && accommodation.facilities.length > 0 ? (
+                            {accommodation.facilities && Array.isArray(accommodation.facilities) && accommodation.facilities.length > 0 ? (
                                 accommodation.facilities.map((fac: any) => (
                                     <div key={fac.id} className="flex items-center gap-3 text-gray-700">
                                         <span className="text-blue-500 text-xl">{getFacilityIcon(fac.name)}</span>
@@ -209,21 +306,19 @@ export const BookingPage = () => {
                     </div>
 
                     {/* Policies */}
-                    <div className="bg-white p-6 rounded-lg shadow-sm">
-                        <h2 className="text-xl font-bold mb-4">Policies</h2>
-                        <div className="space-y-2 text-gray-700">
-                            {accommodation.policies ? (
-                                Object.entries(accommodation.policies).map(([key, value]: [string, any]) => (
+                    {accommodation.policies && (
+                        <div className="bg-white p-6 rounded-lg shadow-sm">
+                            <h2 className="text-xl font-bold mb-4">Policies</h2>
+                            <div className="space-y-2 text-gray-700">
+                                {Object.entries(accommodation.policies).map(([key, value]: [string, any]) => (
                                     <div key={key} className="flex justify-between border-b py-2 last:border-0">
                                         <span className="font-medium capitalize">{key.replace(/_/g, ' ')}</span>
                                         <span>{String(value)}</span>
                                     </div>
-                                ))
-                            ) : (
-                                <p className="text-gray-500">No specific policies listed.</p>
-                            )}
+                                ))}
+                            </div>
                         </div>
-                    </div>
+                    )}
 
                     {/* Reviews */}
                     <div className="bg-white p-6 rounded-lg shadow-sm">
@@ -245,11 +340,12 @@ export const BookingPage = () => {
                                 ))}
                             </div>
                         ) : (
-                            <p className="text-gray-500">No reviews yet.</p>
+                            <div className="text-center py-8">
+                                <p className="text-gray-500 mb-2">No reviews yet</p>
+                                <p className="text-sm text-gray-400">Be the first to review this property!</p>
+                            </div>
                         )}
                     </div>
-
-                    {/* Booking Form (Mobile/Tablet moved here or kept in sidebar) */}
                 </div>
 
                 {/* Sidebar Booking Form */}
@@ -273,9 +369,9 @@ export const BookingPage = () => {
                                     ))}
                                 </select>
                                 {selectedRoom && (
-                                    <div className="mt-2 text-sm text-gray-600">
-                                        <p>Capacity: {selectedRoom.capacity} guests</p>
-                                        <p>{selectedRoom.description}</p>
+                                    <div className="mt-2 text-sm text-gray-600 bg-blue-50 p-3 rounded">
+                                        <p><strong>Capacity:</strong> {selectedRoom.capacity} guests</p>
+                                        {selectedRoom.description && <p className="mt-1">{selectedRoom.description}</p>}
                                     </div>
                                 )}
                             </div>
@@ -288,8 +384,9 @@ export const BookingPage = () => {
                                         value={checkIn}
                                         onChange={(e) => setCheckIn(e.target.value)}
                                         min={new Date().toISOString().split('T')[0]}
-                                        className='w-full border rounded px-3 py-2 text-sm'
+                                        className={`w-full border rounded px-3 py-2 text-sm ${errors.checkIn ? 'border-red-500' : ''}`}
                                     />
+                                    {errors.checkIn && <p className="text-red-500 text-xs mt-1">{errors.checkIn}</p>}
                                 </div>
                                 <div>
                                     <label className='block text-sm font-medium mb-1'>Check-out</label>
@@ -298,10 +395,15 @@ export const BookingPage = () => {
                                         value={checkOut}
                                         onChange={(e) => setCheckOut(e.target.value)}
                                         min={checkIn || new Date().toISOString().split('T')[0]}
-                                        className='w-full border rounded px-3 py-2 text-sm'
+                                        className={`w-full border rounded px-3 py-2 text-sm ${errors.checkOut ? 'border-red-500' : ''}`}
                                     />
+                                    {errors.checkOut && <p className="text-red-500 text-xs mt-1">{errors.checkOut}</p>}
                                 </div>
                             </div>
+
+                            {errors.dates && (
+                                <p className="text-red-500 text-sm -mt-3">{errors.dates}</p>
+                            )}
 
                             <div className='grid grid-cols-2 gap-4'>
                                 <div>
@@ -329,30 +431,55 @@ export const BookingPage = () => {
                                 </div>
                             </div>
 
+                            {selectedRoom && numberOfGuests > (selectedRoom.capacity * numberOfRooms) && (
+                                <div className="bg-yellow-50 border border-yellow-200 rounded p-3 text-sm text-yellow-800">
+                                    ⚠️ Number of guests exceeds room capacity
+                                </div>
+                            )}
+
                             <div className='space-y-4 pt-4 border-t'>
                                 <h3 className='font-semibold'>Guest Details</h3>
-                                <input 
-                                    type="text" 
-                                    value={guestName}
-                                    onChange={(e) => setGuestName(e.target.value)}
-                                    placeholder='Full Name' 
-                                    className={`w-full border rounded px-3 py-2 ${errors.guestName ? 'border-red-500' : ''}`}
-                                />
-                                <input 
-                                    type="email" 
-                                    value={guestEmail}
-                                    onChange={(e) => setGuestEmail(e.target.value)}
-                                    placeholder='Email' 
-                                    className={`w-full border rounded px-3 py-2 ${errors.guestEmail ? 'border-red-500' : ''}`}
-                                />
-                                <input 
-                                    type="tel" 
-                                    value={guestPhone}
-                                    onChange={(e) => setGuestPhone(e.target.value)}
-                                    placeholder='Phone' 
-                                    className={`w-full border rounded px-3 py-2 ${errors.guestPhone ? 'border-red-500' : ''}`}
-                                />
+                                <div>
+                                    <input 
+                                        type="text" 
+                                        value={guestName}
+                                        onChange={(e) => setGuestName(e.target.value)}
+                                        placeholder='Full Name *' 
+                                        className={`w-full border rounded px-3 py-2 ${errors.guestName ? 'border-red-500' : ''}`}
+                                    />
+                                    {errors.guestName && <p className="text-red-500 text-xs mt-1">{errors.guestName}</p>}
+                                </div>
+                                <div>
+                                    <input 
+                                        type="email" 
+                                        value={guestEmail}
+                                        onChange={(e) => setGuestEmail(e.target.value)}
+                                        placeholder='Email *' 
+                                        className={`w-full border rounded px-3 py-2 ${errors.guestEmail ? 'border-red-500' : ''}`}
+                                    />
+                                    {errors.guestEmail && <p className="text-red-500 text-xs mt-1">{errors.guestEmail}</p>}
+                                </div>
+                                <div>
+                                    <input 
+                                        type="tel" 
+                                        value={guestPhone}
+                                        onChange={(e) => setGuestPhone(e.target.value)}
+                                        placeholder='Phone *' 
+                                        className={`w-full border rounded px-3 py-2 ${errors.guestPhone ? 'border-red-500' : ''}`}
+                                    />
+                                    {errors.guestPhone && <p className="text-red-500 text-xs mt-1">{errors.guestPhone}</p>}
+                                </div>
                             </div>
+
+                            {nights > 0 && selectedRoom && (
+                                <div className="bg-blue-50 p-4 rounded-lg">
+                                    <div className="text-sm text-gray-600 space-y-1">
+                                        <div className="flex justify-between">
+                                            <span>R{selectedRoom.price_per_night} × {nights} nights × {numberOfRooms} room(s)</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
 
                             <div className='border-t pt-4 space-y-2'>
                                 <div className='flex justify-between font-bold text-lg'>
@@ -375,23 +502,25 @@ export const BookingPage = () => {
                 </div>
             </div>
 
-            <PaymentModal 
-                isOpen={isPaymentModalOpen}
-                onClose={() => setIsPaymentModalOpen(false)}
-                amount={total}
-                bookingData={{
-                    accommodationId: accommodationId!,
-                    roomTypeId: selectedRoomType,
-                    checkIn,
-                    checkOut,
-                    numberOfRooms,
-                    numberOfGuests,
-                    guestName,
-                    guestEmail,
-                    guestPhone
-                }}
-                onSuccess={handlePaymentSuccess}
-            />
+            {selectedRoomType && (
+                <PaymentModal 
+                    isOpen={isPaymentModalOpen}
+                    onClose={() => setIsPaymentModalOpen(false)}
+                    amount={total}
+                    bookingData={{
+                        accommodationId: accommodationId!,
+                        roomTypeId: selectedRoomType,
+                        checkIn,
+                        checkOut,
+                        numberOfRooms,
+                        numberOfGuests,
+                        guestName,
+                        guestEmail,
+                        guestPhone
+                    }}
+                    onSuccess={handlePaymentSuccess}
+                />
+            )}
         </div>
     );
 };

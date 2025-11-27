@@ -1,6 +1,0 @@
-- [x] Start the backend server using ts-node
-- [x] Start the Customer-app dev server
-- [x] Start the CMS dev server
-- [x] Test backend by launching browser to localhost:5000
-- [x] Test Customer-app by launching browser to its dev port (likely 5173)
-- [x] Test CMS by launching browser to its dev port (likely 5174 or next available)
