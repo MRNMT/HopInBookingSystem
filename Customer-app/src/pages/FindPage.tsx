@@ -1,5 +1,4 @@
 import { Button } from "../components/Button";
-import { CiLocationOn } from "react-icons/ci";
 import { FaArrowLeft, FaStar, FaHeart, FaRegHeart, FaMapMarkerAlt, FaUser } from "react-icons/fa";
 import { FaLocationDot } from "react-icons/fa6";
 import hotel from '../assets/hotel1.jpg';
@@ -193,70 +192,8 @@ export const FindPage = () => {
         </Link>
       </div>
 
-      {/* SEARCH BAR */}
-      <div className="w-full flex justify-center -mt-10 px-4 mb-8">
-        <div className="bg-white rounded-xl shadow-lg p-6 grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4 w-full max-w-7xl">
-          {/* City */}
-          <div className="flex flex-col">
-            <label className="text-gray-600 font-semibold text-sm mb-2">City</label>
-            <div className="flex items-center gap-2 border-b pb-2">
-              <CiLocationOn className="text-xl text-gray-500" />
-              <input 
-                type="text"
-                name="city" 
-                value={filters.city} 
-                onChange={handleFilterChange} 
-                placeholder="Enter city..."
-                className="outline-none flex-1 bg-transparent"
-              />
-            </div>
-          </div>
-
-          {/* Check-in */}
-          <div className="flex flex-col">
-            <label className="text-gray-600 font-semibold text-sm mb-2">Check-in</label>
-            <input type="date" name="checkIn" value={filters.checkIn} onChange={handleFilterChange} className="outline-none border-b pb-2" />
-          </div>
-
-          {/* Check-out */}
-          <div className="flex flex-col">
-            <label className="text-gray-600 font-semibold text-sm mb-2">Check-out</label>
-            <input type="date" name="checkOut" value={filters.checkOut} onChange={handleFilterChange} className="outline-none border-b pb-2" />
-          </div>
-
-          {/* Guests */}
-          <div className="flex flex-col">
-            <label className="text-gray-600 font-semibold text-sm mb-2">Guests</label>
-            <select name="guests" value={filters.guests} onChange={handleFilterChange} className="outline-none bg-transparent border-b pb-2">
-              <option value="1">1 guest</option>
-              <option value="2">2 guests</option>
-              <option value="3">3 guests</option>
-              <option value="4">4 guests</option>
-              <option value="5">5 guests</option>
-              <option value="6">6+ guests</option>
-            </select>
-          </div>
-
-          {/* Rooms */}
-          <div className="flex flex-col">
-            <label className="text-gray-600 font-semibold text-sm mb-2">Rooms</label>
-            <select name="rooms" value={filters.rooms} onChange={handleFilterChange} className="outline-none bg-transparent border-b pb-2">
-              <option value="1">1 room</option>
-              <option value="2">2 rooms</option>
-              <option value="3">3 rooms</option>
-              <option value="4">4 rooms</option>
-            </select>
-          </div>
-
-          {/* Search Button */}
-          <div className="flex items-end">
-            <Button variant="primary" onClick={handleSearch} className="w-full">Search</Button>
-          </div>
-        </div>
-      </div>
-
       {/* RESULTS IN 4x3 GRID */}
-      <div className="w-full flex justify-center px-4 pb-12">
+      <div className="w-full flex justify-center px-4 pb-12 mt-8">
         <div className="w-full max-w-7xl">
           <h2 className="text-2xl font-bold mb-6">
             {filteredAccommodations.length} of {accommodations.length} Results

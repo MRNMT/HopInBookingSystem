@@ -15,7 +15,7 @@ interface PaymentModalProps {
   onSuccess: (paymentIntent: any) => void;
 }
 
-const CheckoutForm = ({ amount, onSuccess, onClose }: { amount: number, onSuccess: (pi: any) => void, onClose: () => void }) => {
+const CheckoutForm = ({ amount, onSuccess, onClose, clientSecret }: { amount: number, onSuccess: (pi: any) => void, onClose: () => void, clientSecret: string }) => {
   const stripe = useStripe();
   const elements = useElements();
   const [error, setError] = useState<string | null>(null);
@@ -37,11 +37,16 @@ const CheckoutForm = ({ amount, onSuccess, onClose }: { amount: number, onSucces
       return;
     }
 
+    // Ensure we have a valid return URL
+    const returnUrl = window.location.origin 
+      ? `${window.location.origin}/confirm_payment`
+      : `${window.location.protocol}//${window.location.host}/confirm_payment`;
+
     const { error, paymentIntent } = await stripe.confirmPayment({
       elements,
-      clientSecret: (elements as any)._commonOptions.clientSecret,
+      clientSecret: clientSecret,
       confirmParams: {
-        return_url: window.location.origin + '/confirm_payment', 
+        return_url: returnUrl, 
       },
       redirect: 'if_required',
     });
@@ -52,11 +57,17 @@ const CheckoutForm = ({ amount, onSuccess, onClose }: { amount: number, onSucces
     } else if (paymentIntent && paymentIntent.status === 'succeeded') {
       try {
         // Confirm payment on backend
-        await payments.confirm(paymentIntent.id);
-        onSuccess(paymentIntent);
-      } catch (err) {
+        const confirmResponse = await payments.confirm(paymentIntent.id);
+        if (confirmResponse.success) {
+          onSuccess(paymentIntent);
+        } else {
+          setError(confirmResponse.message || 'Payment succeeded but failed to confirm booking. Please contact support.');
+        }
+      } catch (err: any) {
         console.error('Error confirming payment on backend:', err);
-        setError('Payment succeeded but failed to confirm booking. Please contact support.');
+        const errorMessage = err.message || 'Payment succeeded but failed to confirm booking. Please contact support.';
+        setError(errorMessage);
+        // Don't set processing to false here - let user see the error and decide what to do
       } finally {
         setProcessing(false);
       }
@@ -85,12 +96,21 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, amo
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showTestCards, setShowTestCards] = useState(false);
 
   useEffect(() => {
     if (isOpen && amount > 0) {
       const createIntent = async () => {
         setLoading(true);
         setError(null);
+        
+        const token = localStorage.getItem('token');
+        if (!token) {
+          setError('Please log in to make a payment.');
+          setLoading(false);
+          return;
+        }
+        
         try {
           const response = await payments.createIntent({
             amount,
@@ -98,14 +118,43 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, amo
             bookingData
           });
           
-          if (response.success) {
-             setClientSecret(response.data.clientSecret);
+          if (response.success && response.data?.clientSecret) {
+             // Validate clientSecret is a string
+             const secret = typeof response.data.clientSecret === 'string' 
+               ? response.data.clientSecret 
+               : response.data.clientSecret?.clientSecret || response.data.clientSecret;
+             
+             if (!secret || typeof secret !== 'string') {
+               setError('Invalid payment configuration. Please try again.');
+               return;
+             }
+             
+             setClientSecret(secret);
           } else {
-             setError(response.message || 'Failed to initialize payment');
+             // Handle specific error messages from backend
+             if (response.message?.includes('Authentication') || response.message?.includes('Unauthorized')) {
+               setError('Your session has expired. Please log in again.');
+             } else {
+               setError(response.message || 'Failed to initialize payment');
+             }
           }
         } catch (err: any) {
           console.error('Error creating payment intent:', err);
-          setError('Failed to initialize payment. Please try again.');
+          
+          // Prioritize authentication errors
+          if (err.status === 401 || err.status === 403) {
+            setError('Your session has expired. Please log in again.');
+            localStorage.removeItem('token');
+          } else if (err.message?.includes('401') || err.message?.includes('403') ||
+              err.message?.includes('Authentication') || err.message?.includes('Unauthorized') ||
+              err.message?.includes('Invalid or expired token') || err.message?.includes('Access token required')) {
+            setError('Your session has expired. Please log in again.');
+            localStorage.removeItem('token');
+          } else if (err.message?.includes('Invalid API Key') || err.message?.includes('Stripe')) {
+            setError('Payment service configuration error. Please contact support.');
+          } else {
+            setError(err.message || 'Failed to initialize payment. Please try again.');
+          }
         } finally {
           setLoading(false);
         }
@@ -113,7 +162,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, amo
       
       createIntent();
     }
-  }, [isOpen, amount]);
+  }, [isOpen, amount, bookingData]);
 
   if (!isOpen) return null;
 
@@ -132,9 +181,62 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, amo
             <Button variant="secondary" onClick={onClose}>Close</Button>
           </div>
         ) : clientSecret ? (
-          <Elements stripe={stripePromise} options={{ clientSecret }}>
-            <CheckoutForm amount={amount} onSuccess={onSuccess} onClose={onClose} />
-          </Elements>
+          <>
+            {/* Test Card Information - Only show in development */}
+            {import.meta.env.DEV && (
+              <div className="mb-4 border border-yellow-200 bg-yellow-50 rounded-lg p-3">
+                <button
+                  type="button"
+                  onClick={() => setShowTestCards(!showTestCards)}
+                  className="w-full text-left flex items-center justify-between text-sm font-semibold text-yellow-800"
+                >
+                  <span>🧪 Test Card Details (Development Only)</span>
+                  <span>{showTestCards ? '▼' : '▶'}</span>
+                </button>
+                {showTestCards && (
+                  <div className="mt-3 text-xs text-yellow-700 space-y-2">
+                    <div>
+                      <strong>Success:</strong> 4242 4242 4242 4242
+                      <br />
+                      <span className="text-gray-600">Any future expiry date, any CVC</span>
+                    </div>
+                    <div>
+                      <strong>Decline:</strong> 4000 0000 0000 0002
+                      <br />
+                      <span className="text-gray-600">Card declined</span>
+                    </div>
+                    <div>
+                      <strong>Insufficient Funds:</strong> 4000 0000 0000 9995
+                      <br />
+                      <span className="text-gray-600">Insufficient funds</span>
+                    </div>
+                    <div>
+                      <strong>3D Secure:</strong> 4000 0025 0000 3155
+                      <br />
+                      <span className="text-gray-600">Requires authentication</span>
+                    </div>
+                    <div className="pt-2 border-t border-yellow-300">
+                      <strong>Note:</strong> Use any future expiry date (e.g., 12/34) and any 3-digit CVC
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+            <Elements 
+              stripe={stripePromise} 
+              options={{ 
+                clientSecret,
+                appearance: {
+                  theme: 'stripe' as const,
+                  variables: {
+                    colorPrimary: '#0088FF',
+                  },
+                },
+              }}
+            >
+              <CheckoutForm amount={amount} onSuccess={onSuccess} onClose={onClose} clientSecret={clientSecret} />
+            </Elements>
+          </>
         ) : null}
       </div>
     </div>

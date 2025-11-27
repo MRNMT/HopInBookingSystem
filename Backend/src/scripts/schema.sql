@@ -117,6 +117,7 @@ CREATE TABLE IF NOT EXISTS bookings (
     num_guests SMALLINT NOT NULL,
     total_price DECIMAL(10, 2) NOT NULL,
     status VARCHAR(20) NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'confirmed', 'cancelled', 'completed')),
+    payment_status VARCHAR(20) NOT NULL DEFAULT 'pending' CHECK (payment_status IN ('pending', 'paid', 'refunded', 'failed')),
     guest_name VARCHAR(255) NOT NULL,
     guest_email VARCHAR(255) NOT NULL,
     guest_phone VARCHAR(50) NULL,

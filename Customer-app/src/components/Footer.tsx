@@ -5,14 +5,18 @@ import { FaXTwitter } from "react-icons/fa6"
 import { FiFacebook } from "react-icons/fi"
 import { FaInstagram } from "react-icons/fa6"
 import { Link } from "react-router-dom"
+import { useSelector } from "react-redux"
+import { type RootState } from "../store/store"
 
 export const Footer: React.FC = () => {
   const year = new Date().getFullYear()
   const [status] = useState<null | "idle" | "error" | "success">(null)
+  const { isAuthenticated } = useSelector((state: RootState) => state.auth)
 
 
   return (
     <footer className="w-full text-gray-100">
+      {!isAuthenticated && (
       <div className="bg-[#0088FF]">
         <div className="max-w-7xl mx-auto text-center py-12 px-6">
           <h2 className="text-2xl md:text-3xl font-semibold">Ready to start your journey?</h2>
@@ -44,6 +48,8 @@ export const Footer: React.FC = () => {
          
         </div>
       </div>
+      )}
+
 
       <div className="bg-gray-200 px-6 py-12">
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8">

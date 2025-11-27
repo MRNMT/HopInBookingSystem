@@ -8,9 +8,13 @@ import {
 } from '../common/types/types';
 import { AppError } from '../middleware/error.handler';
 import { NotificationService } from './notification.service';
+import { StripeService } from './stripe.service';
 
 export class BookingService {
   private notifService = new NotificationService();
+
+  // We need the StripeService helper to process actual refunds with the gateway
+  private stripeService = new StripeService();
 
   public async createBooking(userId: string, data: CreateBookingDto): Promise<{ bookingId: string, clientSecret: string, totalPrice: number }> {
     const { room_type_id, check_in_date, check_out_date, num_rooms, num_guests, guest_name, guest_email, guest_phone, special_requests } = data;
@@ -43,12 +47,10 @@ export class BookingService {
     const nights = Math.round(Math.abs((checkOut.getTime() - checkIn.getTime()) / oneDay));
     const totalPrice = Number(room.price_per_night) * nights * num_rooms;
 
-    const mockPaymentIntentId = `pi_mock_${Math.random().toString(36).substring(7)}`;
-    const mockClientSecret = `${mockPaymentIntentId}_secret_12345`;
-
     try {
       await db.query('BEGIN');
 
+      // 1. Create the booking first (pending status)
       const bookingRes = await db.query(`
         INSERT INTO bookings (
           user_id, room_type_id, check_in_date, check_out_date, 
@@ -63,17 +65,29 @@ export class BookingService {
       ]);
       const bookingId = bookingRes.rows[0].id;
 
+      // 2. Create Stripe Payment Intent with bookingId in metadata
+      const paymentIntent = await this.stripeService.createPaymentIntent(
+        totalPrice,
+        'ZAR', // Default currency
+        {
+          userId,
+          bookingId,
+          bookingData: JSON.stringify({ bookingId, ...data }) // Keep for backward compatibility
+        }
+      );
+
+      // 3. Save payment record with the real transaction ID
       await db.query(`
         INSERT INTO payments (
           booking_id, user_id, amount, currency, provider, status, transaction_id
-        ) VALUES ($1, $2, $3, 'USD', 'stripe', 'pending', $4)
-      `, [bookingId, userId, totalPrice, mockPaymentIntentId]);
+        ) VALUES ($1, $2, $3, 'ZAR', 'stripe', 'pending', $4)
+      `, [bookingId, userId, totalPrice, paymentIntent.id]);
 
       await db.query('COMMIT');
 
       return {
         bookingId,
-        clientSecret: mockClientSecret,
+        clientSecret: paymentIntent.client_secret!,
         totalPrice
       };
 

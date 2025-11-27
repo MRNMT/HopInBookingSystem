@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FaUser, FaHistory, FaHeart, FaCalendarAlt, FaSignOutAlt, FaStar, FaMapMarkerAlt } from 'react-icons/fa';
+import { FaUser, FaHistory, FaHeart, FaCalendarAlt, FaSignOutAlt, FaStar, FaMapMarkerAlt, FaArrowLeft } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import { users } from '../utils/api';
 import { useSelector, useDispatch } from 'react-redux';
@@ -315,8 +315,22 @@ const ProfilePage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 pt-20 pb-10">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <div className="bg-white shadow-sm sticky top-0 z-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <Link to="/">
+                <button className="flex items-center gap-2 text-gray-600 hover:text-blue-600 transition-colors font-medium">
+                    <FaArrowLeft /> Back to Home
+                </button>
+            </Link>
+            <Link to="/" className="text-xl font-bold text-blue-600">
+                HopIn
+            </Link>
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex flex-col md:flex-row gap-8">
           {/* Sidebar */}
           <div className="w-full md:w-64 flex-shrink-0">
