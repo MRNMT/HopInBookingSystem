@@ -137,11 +137,23 @@ export class BookingService {
 
       await db.query('COMMIT');
 
+      const bookingRes = await db.query(`
+        SELECT b.*, a.name as hotel_name, r.type_name
+        FROM bookings b
+        JOIN room_types r ON b.room_type_id = r.id
+        JOIN accommodations a ON r.accommodation_id = a.id
+        WHERE b.id = $1
+      `, [payment.booking_id]);
+
+      const bookingDetails = bookingRes.rows[0];
+      const checkIn = new Date(bookingDetails.check_in_date).toLocaleDateString();
+      const checkOut = new Date(bookingDetails.check_out_date).toLocaleDateString();
+
       if (userId) {
         await this.notifService.send(
           userId,
           'booking_confirmation',
-          'Payment received! Your booking is confirmed.'
+          `Receipt: Confirmed stay at ${bookingDetails.hotel_name}. ${checkIn} - ${checkOut}. Total: R${bookingDetails.total_price}.`
         );
       }
 

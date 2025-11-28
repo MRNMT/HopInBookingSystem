@@ -4,11 +4,10 @@ import { FaRegUser, FaStar } from "react-icons/fa";
 import { Button } from '../components/Button';
 import { FaArrowLeft } from "react-icons/fa";
 import { CiCalendar } from "react-icons/ci";
-
 import { MdLocationOn } from "react-icons/md";
 import { FaWifi, FaParking, FaSwimmingPool, FaUtensils, FaDumbbell, FaSpa } from "react-icons/fa";
 import { FaPlateWheat } from "react-icons/fa6";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useSearchParams, useNavigate } from "react-router-dom";
 import { useState, useEffect } from 'react';
 import { getAccommodationById } from '../services/accommodation.service';
 import { getRoomTypes, type RoomType } from '../services/roomTypes.service';
@@ -16,15 +15,28 @@ import { PaymentModal } from '../components/PaymentModal';
 import { reviews as reviewsApi } from '../utils/api';
 import { getHotelImages } from '../services/unsplash.service';
 
+const getFacilityIcon = (name: string) => {
+    const lowerName = name.toLowerCase();
+    if (lowerName.includes('wifi') || lowerName.includes('internet')) return <FaWifi />;
+    if (lowerName.includes('parking')) return <FaParking />;
+    if (lowerName.includes('pool') || lowerName.includes('swimming')) return <FaSwimmingPool />;
+    if (lowerName.includes('restaurant') || lowerName.includes('dining')) return <FaUtensils />;
+    if (lowerName.includes('gym') || lowerName.includes('fitness')) return <FaDumbbell />;
+    if (lowerName.includes('spa') || lowerName.includes('wellness')) return <FaSpa />;
+    if (lowerName.includes('breakfast')) return <FaPlateWheat />;
+    return <FaPlateWheat />;
+};
+
 export const BookingPage = () => {
     const [searchParams] = useSearchParams();
+    const navigate = useNavigate();
     const accommodationId = searchParams.get('accommodation');
 
     const [accommodation, setAccommodation] = useState<any>(null);
-    const [roomTypes, setRoomTypes] = useState<RoomType[]>([]); // Initialize as empty array
+    const [roomTypes, setRoomTypes] = useState<RoomType[]>([]);
     const [selectedRoomType, setSelectedRoomType] = useState<string>('');
-    const [reviews, setReviews] = useState<any[]>([]); // Initialize as empty array
-    const [images, setImages] = useState<string[]>([room]); // Initialize with default image
+    const [reviews, setReviews] = useState<any[]>([]);
+    const [images, setImages] = useState<string[]>([room]);
     
     const [checkIn, setCheckIn] = useState('');
     const [checkOut, setCheckOut] = useState('');
@@ -75,7 +87,6 @@ export const BookingPage = () => {
                 // Fetch room types
                 try {
                     const roomsData = await getRoomTypes(accommodationId);
-                    // Ensure roomsData is an array
                     if (Array.isArray(roomsData) && roomsData.length > 0) {
                         setRoomTypes(roomsData);
                         setSelectedRoomType(roomsData[0].id);
@@ -88,7 +99,7 @@ export const BookingPage = () => {
                     setRoomTypes([]);
                 }
 
-                // Fetch reviews - handle 404 gracefully
+                // Fetch reviews
                 try {
                     const reviewsData = await reviewsApi.getForAccommodation(accommodationId);
                     if (reviewsData && reviewsData.success && Array.isArray(reviewsData.data)) {
@@ -97,7 +108,6 @@ export const BookingPage = () => {
                         setReviews([]);
                     }
                 } catch (reviewError: any) {
-                    // Check if it's a 404 or other error
                     if (reviewError.message?.includes('404') || reviewError.status === 404) {
                         console.log('Reviews endpoint not available (404), using empty reviews');
                         setReviews([]);
@@ -118,7 +128,6 @@ export const BookingPage = () => {
         fetchData();
     }, [accommodationId]);
 
-    // Safely get selected room with type guard
     const selectedRoom = Array.isArray(roomTypes) && roomTypes.length > 0 
         ? roomTypes.find(r => r.id === selectedRoomType) 
         : null;
@@ -154,38 +163,77 @@ export const BookingPage = () => {
         return Object.keys(newErrors).length === 0;
     };
 
+    const isFormValid = (): boolean => {
+        return (
+            checkIn !== '' &&
+            checkOut !== '' &&
+            nights > 0 &&
+            guestName.trim() !== '' &&
+            guestEmail.trim() !== '' &&
+            guestPhone.trim() !== '' &&
+            /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(guestEmail)
+        );
+    };
+
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         
-        if (!validateForm()) {
-            alert('Please fill in all required fields correctly.');
-            return;
+        if (validateForm()) {
+            setIsPaymentModalOpen(true);
         }
-
-        setIsPaymentModalOpen(true);
     };
 
-    const handlePaymentSuccess = (paymentIntent: any) => {
+    const handlePaymentSuccess = () => {
+        // Close the payment modal
         setIsPaymentModalOpen(false);
-        alert(`Booking confirmed! Payment ID: ${paymentIntent.id}`);
-        window.location.href = '/profile';
-    };
-
-    const isFormValid = () => {
-        return checkIn && checkOut && nights > 0 &&
-               guestName.trim() && guestEmail.trim() && guestPhone.trim() &&
-               roomTypes.length > 0 && selectedRoomType;
-    };
-
-    const getFacilityIcon = (name: string) => {
-        const lower = name.toLowerCase();
-        if (lower.includes('wifi')) return <FaWifi />;
-        if (lower.includes('parking')) return <FaParking />;
-        if (lower.includes('pool')) return <FaSwimmingPool />;
-        if (lower.includes('restaurant') || lower.includes('food')) return <FaUtensils />;
-        if (lower.includes('gym') || lower.includes('fitness')) return <FaDumbbell />;
-        if (lower.includes('spa')) return <FaSpa />;
-        return <FaPlateWheat />;
+        
+        // Create receipt object with all booking details
+        const receipt = {
+            bookingId: `BK-${Date.now()}`,
+            bookingDate: new Date().toLocaleString(),
+            accommodation: {
+                name: accommodation.name,
+                address: accommodation.address,
+                city: accommodation.city,
+                country: accommodation.country
+            },
+            roomDetails: {
+                roomType: selectedRoom?.type_name,
+                capacity: selectedRoom?.capacity,
+                pricePerNight: selectedRoom?.price_per_night,
+                numberOfRooms: numberOfRooms
+            },
+            stayDetails: {
+                checkIn: checkIn,
+                checkOut: checkOut,
+                numberOfNights: nights,
+                numberOfGuests: numberOfGuests
+            },
+            guestInformation: {
+                name: guestName,
+                email: guestEmail,
+                phone: guestPhone
+            },
+            payment: {
+                subtotal: selectedRoom ? selectedRoom.price_per_night * nights * numberOfRooms : 0,
+                total: total,
+                currency: 'ZAR',
+                status: 'PAID'
+            }
+        };
+        
+        // Log receipt to console
+        console.log('═══════════════════════════════════════════════');
+        console.log('           BOOKING RECEIPT');
+        console.log('═══════════════════════════════════════════════');
+        console.log(JSON.stringify(receipt, null, 2));
+        console.log('═══════════════════════════════════════════════');
+        console.log('Payment successful! Redirecting to home...');
+        
+        // Redirect to home page after a short delay
+        setTimeout(() => {
+            navigate('/');
+        }, 1500);
     };
 
     // Loading state
