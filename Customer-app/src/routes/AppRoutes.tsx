@@ -8,6 +8,7 @@ import { ProfilePage } from '../pages/ProfilePage';
 import { ConfirmPayment } from '../pages/ConfirmPayment';
 import { SuperAdminDashboard } from '../pages/superadmin/SuperAdminDashboard';
 import { AdminManagement } from '../pages/superadmin/AdminManagement';
+import { SuperAdminProfile } from '../pages/superadmin/SuperAdminProfile';
 import { AboutPage } from '../pages/AboutPage';
 import { ProtectedRoute } from '../components/ProtectedRoute';
 
@@ -38,6 +39,14 @@ export const AppRoutes = () => {
           element={
             <ProtectedRoute requiredRole="superadmin">
               <AdminManagement />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/superadmin/profile" 
+          element={
+            <ProtectedRoute requiredRole="superadmin">
+              <SuperAdminProfile />
             </ProtectedRoute>
           } 
         />
