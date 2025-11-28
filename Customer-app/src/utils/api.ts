@@ -1,6 +1,6 @@
 // API utility for Customer-app
 
-const API_BASE_URL = 'http://localhost:5000/api/v1';
+const API_BASE_URL = 'https://vercel.com/mrnmts-projects/hopein/68P7dzGcBn4AdFhYt4XkmSpDwSHL';
 
 // Helper function to get auth headers
 const getAuthHeaders = () => {
