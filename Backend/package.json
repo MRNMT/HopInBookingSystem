@@ -7,7 +7,9 @@
     "setup": "ts-node src/scripts/setup-env.ts",
     "seed:superadmin": "ts-node src/scripts/seed-superadmin.ts",
     "seed:accommodations": "ts-node src/scripts/seed-accommodations.ts",
-    "dev": "ts-node src/server.ts"
+    "dev": "ts-node src/server.ts",
+    "build": "tsc",
+    "start": "node dist/server.js"
   },
   "keywords": [],
   "author": "",
