@@ -1,33 +1,13 @@
 import { Request, Response } from 'express';
-import { db } from '../config/db';
+import { AccommodationService } from '../services/accommodation.service';
 
-// Simple in-memory cache
-let accommodationsCache: { data: any[], timestamp: number } | null = null;
-const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+const accommodationService = new AccommodationService();
 
 // Get all accommodations
 export const getAllAccommodations = async (req: Request, res: Response) => {
     try {
-        // Check cache
-        if (accommodationsCache && (Date.now() - accommodationsCache.timestamp < CACHE_DURATION)) {
-            console.log('⚡ Serving accommodations from cache');
-            return res.json({ data: accommodationsCache.data, success: true });
-        }
-
-        const result = await db.query(
-            `SELECT * FROM accommodations 
-       WHERE is_active = true 
-       ORDER BY created_at DESC`
-        );
-
-        // Update cache
-        accommodationsCache = {
-            data: result.rows,
-            timestamp: Date.now()
-        };
-        console.log('💾 Caching accommodations data');
-
-        res.json({ data: result.rows, success: true });
+        const accommodations = await accommodationService.getAll();
+        res.json({ data: accommodations, success: true });
     } catch (error) {
         console.error('Error getting accommodations:', error);
         res.status(500).json({ message: 'Failed to get accommodations' });
@@ -38,17 +18,13 @@ export const getAllAccommodations = async (req: Request, res: Response) => {
 export const getAccommodationById = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
+        const accommodation = await accommodationService.getById(id);
 
-        const result = await db.query(
-            'SELECT * FROM accommodations WHERE id = $1 AND is_active = true',
-            [id]
-        );
-
-        if (result.rows.length === 0) {
+        if (!accommodation) {
             return res.status(404).json({ message: 'Accommodation not found' });
         }
 
-        res.json({ data: result.rows[0], success: true });
+        res.json({ data: accommodation, success: true });
     } catch (error) {
         console.error('Error getting accommodation:', error);
         res.status(500).json({ message: 'Failed to get accommodation' });
@@ -58,29 +34,9 @@ export const getAccommodationById = async (req: Request, res: Response) => {
 // Search accommodations
 export const searchAccommodations = async (req: Request, res: Response) => {
     try {
-        const { city, country, checkIn, checkOut, guests, rooms } = req.query;
-
-        let query = 'SELECT * FROM accommodations WHERE is_active = true';
-        const params: any[] = [];
-        let paramCount = 1;
-
-        if (city) {
-            query += ` AND LOWER(city) = LOWER($${paramCount})`;
-            params.push(city);
-            paramCount++;
-        }
-
-        if (country) {
-            query += ` AND LOWER(country) = LOWER($${paramCount})`;
-            params.push(country);
-            paramCount++;
-        }
-
-        query += ' ORDER BY created_at DESC';
-
-        const result = await db.query(query, params);
-
-        res.json({ data: result.rows, success: true });
+        const filters = req.query;
+        const accommodations = await accommodationService.search(filters);
+        res.json({ data: accommodations, success: true });
     } catch (error) {
         console.error('Error searching accommodations:', error);
         res.status(500).json({ message: 'Failed to search accommodations' });
@@ -88,6 +44,12 @@ export const searchAccommodations = async (req: Request, res: Response) => {
 };
 
 // Get room types for accommodation
+// Note: This might still need to be in the controller if it's not in the service, 
+// but looking at the service file, it doesn't seem to have getRoomTypes. 
+// Let's keep the raw query for now or move it to service if needed.
+// For now, I'll keep the raw query for room types as it wasn't the issue.
+import { db } from '../config/db';
+
 export const getRoomTypes = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;

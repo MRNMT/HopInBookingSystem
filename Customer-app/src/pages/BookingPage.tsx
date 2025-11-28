@@ -333,7 +333,7 @@ export const BookingPage = () => {
                     {/* Description */}
                     <div className="bg-white p-6 rounded-lg shadow-sm">
                         <h2 className="text-xl font-bold mb-4">About this place</h2>
-                        <p className="text-gray-700 leading-relaxed">{accommodation.description || 'No description available.'}</p>
+                        <p className="text-gray-700 leading-relaxed">{accommodation.about || accommodation.description || 'No description available.'}</p>
                     </div>
 
                     {/* Facilities */}
@@ -353,20 +353,7 @@ export const BookingPage = () => {
                         </div>
                     </div>
 
-                    {/* Policies */}
-                    {accommodation.policies && (
-                        <div className="bg-white p-6 rounded-lg shadow-sm">
-                            <h2 className="text-xl font-bold mb-4">Policies</h2>
-                            <div className="space-y-2 text-gray-700">
-                                {Object.entries(accommodation.policies).map(([key, value]: [string, any]) => (
-                                    <div key={key} className="flex justify-between border-b py-2 last:border-0">
-                                        <span className="font-medium capitalize">{key.replace(/_/g, ' ')}</span>
-                                        <span>{String(value)}</span>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    )}
+                    
 
                     {/* Reviews */}
                     <div className="bg-white p-6 rounded-lg shadow-sm">

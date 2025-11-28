@@ -7,6 +7,12 @@ const BASE_QUERY = `
   SELECT 
     a.*, 
     COALESCE(ai.images, '[]'::jsonb) as images,
+    (
+      SELECT json_agg(json_build_object('id', f.id, 'name', f.name, 'icon', f.icon_name))
+      FROM accommodation_facilities af
+      JOIN facilities f ON af.facility_id = f.id
+      WHERE af.accommodation_id = a.id
+    ) as facilities,
     COALESCE(ROUND(AVG(r.rating), 1), 0)::float as average_rating,
     COUNT(DISTINCT r.id)::int as total_reviews,
     COALESCE(MIN(rt.price_per_night), 0) as min_price,
@@ -24,7 +30,25 @@ export class AccommodationService {
   public async getAll(): Promise<Accommodation[]> {
     const query = `${BASE_QUERY} WHERE a.is_active = true ${GROUP_BY} ORDER BY a.created_at DESC`;
     const result: QueryResult<Accommodation> = await db.query(query);
-    return result.rows;
+
+    const aboutMessages = [
+      "Experience luxury and comfort in this beautifully appointed accommodation. Perfect for both business and leisure travelers.",
+      "Discover a haven of tranquility with modern amenities and exceptional service. Your home away from home awaits.",
+      "Immerse yourself in elegance and style. This property offers the perfect blend of comfort and sophistication.",
+      "Enjoy a memorable stay with world-class facilities and warm hospitality. Every detail has been carefully considered for your comfort.",
+      "Relax and unwind in this stunning property. Designed with your comfort in mind, offering all the amenities you need.",
+      "A perfect retreat for travelers seeking comfort and convenience. Experience hospitality at its finest.",
+      "Step into a world of comfort and luxury. This accommodation promises an unforgettable stay experience.",
+      "Your perfect getaway destination. Combining modern comfort with exceptional service and attention to detail."
+    ];
+
+    const accommodations = result.rows.map(acc => ({
+      ...acc,
+      about: aboutMessages[Math.floor(Math.random() * aboutMessages.length)]
+    }));
+
+
+    return accommodations;
   }
 
   public async search(filters: any): Promise<Accommodation[]> {
@@ -58,8 +82,25 @@ export class AccommodationService {
         return null;
       }
 
-      console.log(`Found accommodation: ${result.rows[0].name}`);
-      return result.rows[0];
+      const aboutMessages = [
+        "Experience luxury and comfort in this beautifully appointed accommodation. Perfect for both business and leisure travelers.",
+        "Discover a haven of tranquility with modern amenities and exceptional service. Your home away from home awaits.",
+        "Immerse yourself in elegance and style. This property offers the perfect blend of comfort and sophistication.",
+        "Enjoy a memorable stay with world-class facilities and warm hospitality. Every detail has been carefully considered for your comfort.",
+        "Relax and unwind in this stunning property. Designed with your comfort in mind, offering all the amenities you need.",
+        "A perfect retreat for travelers seeking comfort and convenience. Experience hospitality at its finest.",
+        "Step into a world of comfort and luxury. This accommodation promises an unforgettable stay experience.",
+        "Your perfect getaway destination. Combining modern comfort with exceptional service and attention to detail."
+      ];
+
+      const accommodation = {
+        ...result.rows[0],
+        about: aboutMessages[Math.floor(Math.random() * aboutMessages.length)]
+      };
+
+      console.log(`Found accommodation: ${accommodation.name}`);
+      console.log('Facilities:', accommodation.facilities);
+      return accommodation;
     } catch (error) {
       console.error('Error in getById:', error);
       throw error;

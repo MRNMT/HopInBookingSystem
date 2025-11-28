@@ -25,11 +25,12 @@ export const HeroSection = () => {
             <Link to="/find">
               <Button variant="primary">View Rooms</Button>
             </Link>
+            <Link to="/about">
             <Button variant="secondary">Learn More</Button>
+            </Link>
           </div>
         </div>
       </div>
-
     </>
   );
 };

@@ -4,6 +4,7 @@ export interface Accommodation {
     id: string;
     name: string;
     description: string;
+    about?: string; // Added about field
     address: string;
     city: string;
     country: string;
@@ -13,6 +14,8 @@ export interface Accommodation {
     policies: string;
     is_active: boolean;
     created_at: string;
+    facilities?: any[]; // Added facilities field
+    images?: string[];
 }
 
 export interface RoomType {
@@ -28,12 +31,12 @@ export interface RoomType {
 
 export const getAllAccommodations = async () => {
     const response = await api.get('/accommodations');
-    return response.data;
+    return response.data.data; // Unwrap data
 };
 
 export const getAccommodationById = async (id: string) => {
     const response = await api.get(`/accommodations/${id}`);
-    return response.data;
+    return response.data.data; // Unwrap data
 };
 
 export const searchAccommodations = async (filters: {
@@ -44,10 +47,10 @@ export const searchAccommodations = async (filters: {
     rooms?: number;
 }) => {
     const response = await api.get('/accommodations/search', { params: filters });
-    return response.data;
+    return response.data.data; // Unwrap data
 };
 
 export const getRoomTypes = async (accommodationId: string) => {
     const response = await api.get(`/accommodations/${accommodationId}/room-types`);
-    return response.data;
+    return response.data.data; // Unwrap data
 };

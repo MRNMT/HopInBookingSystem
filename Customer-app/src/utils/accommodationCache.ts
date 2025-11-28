@@ -45,7 +45,7 @@ export const getAccommodationsFromCache = (): any[] | null => {
             return null;
         }
 
-        console.log(`⚡ Retrieved ${cache.data.length} accommodations from cache (age: ${Math.round(age / 1000)}s)`);
+        console.log(` Retrieved ${cache.data.length} accommodations from cache (age: ${Math.round(age / 1000)}s)`);
         return cache.data;
     } catch (error) {
         console.error('Error reading accommodations from localStorage:', error);

@@ -7,6 +7,7 @@ import { FindPage } from '../pages/FindPage';
 import { ProfilePage } from '../pages/ProfilePage';
 import { ConfirmPayment } from '../pages/ConfirmPayment';
 import { SuperAdminDashboard } from '../pages/superadmin/SuperAdminDashboard';
+import { AboutPage } from '../pages/AboutPage';
 
 export const AppRoutes = () => {
   return (
@@ -18,6 +19,7 @@ export const AppRoutes = () => {
         <Route path="/booking" element={<BookingPage />} />
         <Route path="/find" element={<FindPage />} />
         <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/about" element={<AboutPage />} />
         <Route path="/confirm_payment" element={<ConfirmPayment />} />
         <Route path="/superadmin" element={<SuperAdminDashboard />} />
       </Routes>

@@ -27,14 +27,13 @@ export const Navbar = () => {
       {/* Logo */}
       <div className="flex items-center cursor-pointer" onClick={() => navigate('/')}>
         <img src={logo} alt="Logo" className="h-12 w-12 rounded-full object-cover" />
-        <span className="ml-2 font-bold text-xl text-blue-600 hidden sm:block">HopIn</span>
       </div>
 
       {/* Navigation Links */}
       <ul className="hidden md:flex gap-8 text-gray-700 font-medium ">
+        <li className="hover:text-[#0088FF] cursor-pointer" onClick={() => navigate('/')}>Home</li>
         <li className="hover:text-[#0088FF] cursor-pointer" onClick={() => navigate('/find')}>Find Stays</li>
-        <li className="hover:text-[#0088FF] cursor-pointer">Destinations</li>
-        <li className="hover:text-[#0088FF] cursor-pointer">About</li>
+        <li className="hover:text-[#0088FF] cursor-pointer" onClick={() => navigate('/about')}>About</li>
       </ul>
       
 
