@@ -1,27 +1,33 @@
 {
   "compilerOptions": {
-    /* Language and Environment */
+    /* Language */
     "target": "es2016",
+
+    /* Module Type */
     "module": "commonjs",
-    /* FIX: Change rootDir from "./src" to "." 
-      This allows TypeScript to compile files outside of 'src' (like your 'common' folder) 
-    */
-    "rootDir": ".",
-    "outDir": "./dist",
+
+    /* Allow ANY folders (src, common, middleware, api, etc.) */
+    "rootDir": "src",
+    "outDir": "dist",
+
+    /* Allow default import (import express from 'express') */
     "esModuleInterop": true,
+
+    /* Safety and strictness */
     "forceConsistentCasingInFileNames": true,
     "strict": true,
     "skipLibCheck": true,
+
+    /* Load types */
     "typeRoots": [
       "./node_modules/@types",
       "./src/types"
     ]
   },
-  "include": [
-    "src/**/*",
-    "src/common/**/*"
-  ],
-  "exclude": [
-    "node_modules"
-  ]
+
+  /* Only compile TypeScript files in src */
+  "include": ["src/**/*"],
+
+  /* Exclude node_modules */
+  "exclude": ["node_modules"]
 }
