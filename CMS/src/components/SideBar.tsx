@@ -7,6 +7,10 @@ import logo from '../assets/logo2.png';
 import {type FC, useState } from 'react';
 import {type IconType } from 'react-icons';
 import { Link, useLocation } from "react-router-dom";
+import { CgLogOut } from "react-icons/cg";
+import { FaUsers } from "react-icons/fa";
+
+
 
 interface SidebarItemProps {
   icon: IconType;
@@ -66,9 +70,9 @@ export const SideBar: FC = () => {
           <SidebarItem icon={GoPeople} label="Customers" to="/customer-metrics" />
           <SidebarItem icon={VscGraph} label="Analytics" to="/analytics" />
           <SidebarItem icon={CiSettings} label="Settings" to="/settings" />
-          
+          <SidebarItem icon={FaUsers} label="Users" to="/users" />
+          <SidebarItem  icon={CgLogOut} label="Logout" to="/logout" />
         </nav>
-        <button className="bg-red-700 text-white mt-100">Logout</button>
       </div>
     </>
   );

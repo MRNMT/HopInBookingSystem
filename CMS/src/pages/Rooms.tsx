@@ -1,12 +1,15 @@
 import { useState } from "react";
-import { SideBar } from '../components/SideBar';
-import { Button } from '../components/Button';
+import { SideBar } from "../components/SideBar";
+import { Button } from "../components/Button";
 import { FaEllipsisH } from "react-icons/fa";
 import { ActionMenu } from "../components/ActionMenu";
+import { AddRoomModal } from "../components/AddRoomModal";
 
 export const Rooms = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
+
+  const [modalOpen, setModalOpen] = useState(false);
 
   const openMenu = (e: any) => {
     const rect = e.target.getBoundingClientRect();
@@ -27,7 +30,9 @@ export const Rooms = () => {
             <p className="text-gray-500">Manage hotel rooms and availability</p>
           </div>
 
-          <Button variant="secondary">Add Room</Button>
+          <Button variant="secondary" onClick={() => setModalOpen(true)}>
+            Add Room
+          </Button>
         </div>
 
         {/* Table */}
@@ -109,13 +114,17 @@ export const Rooms = () => {
           </table>
         </div>
 
-        {/* Action Menu Component */}
+        {/* Action Menu */}
         <ActionMenu
           isOpen={menuOpen}
           onClose={() => setMenuOpen(false)}
           position={menuPosition}
         />
 
+        {/* Add Room Modal */}
+        {modalOpen && (
+          <AddRoomModal onClose={() => setModalOpen(false)} />
+        )}
       </div>
     </div>
   );
