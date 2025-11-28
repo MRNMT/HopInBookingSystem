@@ -72,3 +72,19 @@ export const isAdminOrSuperAdmin = (req: Request, res: Response, next: NextFunct
 
   next();
 };
+
+/**
+ * Middleware to restrict access to Super Admins only.
+ */
+export const isSuperAdmin = (req: Request, res: Response, next: NextFunction) => {
+  // Requires isAuthenticated to run first
+  if (!req.user) {
+    return next(new AppError(401, 'Authentication required.'));
+  }
+
+  if (req.user.role !== 'superadmin') {
+    return next(new AppError(403, 'Super admin access required.'));
+  }
+
+  next();
+};

@@ -1,8 +1,6 @@
 # Stripe Test Card Details
 
-Use these test card numbers when testing payments in **test mode** (when using `sk_test_` and `pk_test_` keys).
-
-## ✅ Successful Payment Cards
+## Successful Payment Cards
 
 ### Standard Success Card
 - **Card Number:** `4242 4242 4242 4242`
@@ -29,7 +27,7 @@ Use these test card numbers when testing payments in **test mode** (when using `
 - **CVC:** Any 4 digits (Amex uses 4-digit CVC)
 - **Result:** Payment succeeds
 
-## ❌ Declined Payment Cards
+## Declined Payment Cards
 
 ### Generic Decline
 - **Card Number:** `4000 0000 0000 0002`
@@ -55,7 +53,7 @@ Use these test card numbers when testing payments in **test mode** (when using `
 - **CVC:** Any 3 digits
 - **Result:** Card declined (stolen card)
 
-## 🔐 3D Secure Authentication Cards
+##  3D Secure Authentication Cards
 
 ### 3D Secure Required (Authentication Required)
 - **Card Number:** `4000 0025 0000 3155`
@@ -70,7 +68,7 @@ Use these test card numbers when testing payments in **test mode** (when using `
 - **CVC:** Any 3 digits
 - **Result:** 3D Secure authentication fails
 
-## 🌍 International Cards
+##  International Cards
 
 ### UK Card
 - **Card Number:** `4000 0082 6000 0000`
@@ -84,7 +82,7 @@ Use these test card numbers when testing payments in **test mode** (when using `
 - **CVC:** Any 3 digits
 - **Result:** Payment succeeds
 
-## 💳 Other Test Scenarios
+##  Other Test Scenarios
 
 ### Processing Error
 - **Card Number:** `4000 0000 0000 0119`
@@ -104,7 +102,7 @@ Use these test card numbers when testing payments in **test mode** (when using `
 - **CVC:** Any 3 digits
 - **Result:** Expired card error
 
-## 📝 Important Notes
+## Important Notes
 
 1. **Test Mode Only:** These cards only work with Stripe test API keys (`sk_test_` and `pk_test_`)
 
@@ -120,7 +118,7 @@ Use these test card numbers when testing payments in **test mode** (when using `
 
 6. **Currency:** These cards work with any currency (ZAR, USD, EUR, etc.)
 
-## 🚀 Quick Reference
+##  Quick Reference
 
 **Most Common Test Card:**
 ```
@@ -137,7 +135,7 @@ Expiry: 12/34
 CVC: 123
 ```
 
-## 🔗 Resources
+##  Resources
 
 - [Stripe Testing Documentation](https://stripe.com/docs/testing)
 - [Stripe Test Cards Reference](https://stripe.com/docs/testing#cards)

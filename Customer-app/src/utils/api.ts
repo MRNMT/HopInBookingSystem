@@ -1,10 +1,6 @@
 // API utility for Customer-app
 
-<<<<<<< Updated upstream
-const API_BASE_URL = 'https://vercel.com/mrnmts-projects/hopein/68P7dzGcBn4AdFhYt4XkmSpDwSHL';
-=======
-const API_BASE_URL = 'https://hopinbookingsystem-1.onrender.com/'
->>>>>>> Stashed changes
+export const API_BASE_URL = 'https://hopinbookingsystem-1.onrender.com'
 
 // Helper function to get auth headers
 const getAuthHeaders = () => {

@@ -1,56 +1,87 @@
-import { Response, Request } from "express";
-import * as superAdminService from '../services/superadmin.service'
-import { RegisterDto } from "../common/types/types";
+import { Request, Response, NextFunction } from 'express';
+import { SuperAdminService } from '../services/superadmin.service'; // 1. Import the Class
+import { RegisterDto } from '../common/types/types';
 
-export const createAdmin = async (req: Request, res: Response) => {
-    
-    const data: RegisterDto = req.body
+// 2. INSTANTIATE the Class (This was missing or done incorrectly)
+const superAdminService = new SuperAdminService();
 
-    try{
-        const created = await superAdminService.createAdmin(data)
-        res.status(201).json(data)
-    }catch(error){
-        console.log("Error in creading an admin", error)
-        res.status(400).json({message: "Something went wrong"})
+/**
+ * Creates a new Admin user.
+ * POST /api/v1/superadmin/admins
+ */
+export const createAdmin = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const adminData: RegisterDto = req.body;
+
+        // 3. Call methods on the INSTANCE
+        const newAdmin = await superAdminService.createAdmin(adminData);
+
+        res.status(201).json({
+            message: 'Admin account created successfully',
+            data: newAdmin
+        });
+    } catch (error) {
+        next(error);
     }
-}
+};
 
-export const getAllAdmins = async (req: Request, res: Response) => {
-    
-    const data: RegisterDto = req.body
+/**
+ * Gets a list of all admin users.
+ * GET /api/v1/superadmin/admins
+ */
+export const getAllAdmins = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const admins = await superAdminService.getAllAdmins();
 
-    try{
-        const admins = await superAdminService.getAllAdmins()
-        res.status(200).json(admins)
-    }catch(error){
-        console.log("Error in error in fetching admins", error)
-        res.status(404).json({message: "NO admins where found"})
-        res.status(500).json({message: "unexpected error on our end"})
+        res.status(200).json({
+            message: 'Admin list retrieved successfully',
+            data: admins
+        });
+    } catch (error) {
+        next(error);
     }
-}
+};
 
-export const getAdminById = async (req: Request, res: Response) => {
-    
-    const id = req.params.id
+/**
+ * Gets a specific admin by ID.
+ * GET /api/v1/superadmin/admins/:id
+ */
+export const getAdminById = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { id } = req.params;
+        const admin = await superAdminService.getAdminById(id);
 
-    try{
-        const admin = await superAdminService.getAdminById(id)
-        res.status(200).json(admin)
-    }catch(error){
-        console.log("Error in getting admin", error)
-        res.status(404).json({message: "User not found"})
+        if (!admin) {
+            return res.status(404).json({ message: "Admin not found" });
+        }
+
+        res.status(200).json({
+            message: 'Admin details retrieved',
+            data: admin
+        });
+    } catch (error) {
+        next(error);
     }
-}
+};
 
-export const deleteAdmin = async (res: Response, req: Request) => {
+/**
+ * Deletes an admin.
+ * DELETE /api/v1/superadmin/admins/:id
+ */
+export const deleteAdmin = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { id } = req.params;
+        const deleted = await superAdminService.deleteAdmin(id);
 
-    const id = req.params.id
+        if (!deleted) {
+            return res.status(404).json({ message: "Admin not found or could not be deleted" });
+        }
 
-    try{
-        const admin = await superAdminService.deleteAdmin(id)
-        res.status(200).json(admin)
-    }catch(error){
-        console.log("Error in deleting admin", error)
-        res.status(404).json({message: "The admin could not be found, therefore delete was unsuccessful"})
+        res.status(200).json({
+            message: 'Admin deleted successfully',
+            data: deleted
+        });
+    } catch (error) {
+        next(error);
     }
-}
+};

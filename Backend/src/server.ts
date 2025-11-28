@@ -14,8 +14,8 @@ const startServer = async () => {
     console.log(' Database connected successfully:', dbTest.rows[0].now);
 
     app.listen(PORT, () => {
-      console.log(`Server is running on http://localhost:${PORT}`);
-      console.log(`API Documentation available at http://localhost:${PORT}/api/v1`);
+      console.log(`Server is running on https://hopinbookingsystem-1.onrender.com/`);
+      console.log(`API Documentation available at https://hopinbookingsystem-1.onrender.com/api/v1`);
     });
 
   } catch (error) {
