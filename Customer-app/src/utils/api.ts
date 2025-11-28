@@ -1,6 +1,10 @@
 // API utility for Customer-app
 
+<<<<<<< Updated upstream
 const API_BASE_URL = 'https://vercel.com/mrnmts-projects/hopein/68P7dzGcBn4AdFhYt4XkmSpDwSHL';
+=======
+const API_BASE_URL = 'https://hopinbookingsystem-1.onrender.com/'
+>>>>>>> Stashed changes
 
 // Helper function to get auth headers
 const getAuthHeaders = () => {
@@ -14,7 +18,7 @@ const getAuthHeaders = () => {
 // Auth endpoints
 export const auth = {
   register: async (data: { email: string; password: string; fullName: string }) => {
-    const response = await fetch(`http://localhost:5000/api/v1/auth/register`, {
+    const response = await fetch(`${API_BASE_URL}/api/v1/auth/register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
@@ -22,7 +26,7 @@ export const auth = {
     return response.json();
   },
   login: async (data: { email: string; password: string }) => {
-    const response = await fetch(`http://localhost:5000/api/v1/auth/login`, {
+    const response = await fetch(`${API_BASE_URL}/api/v1/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
@@ -30,14 +34,14 @@ export const auth = {
     return response.json();
   },
   logout: async () => {
-    const response = await fetch(`http://localhost:5000/api/v1/auth/logout`, {
+    const response = await fetch(`${API_BASE_URL}/api/v1/auth/logout`, {
       method: 'POST',
       headers: getAuthHeaders(),
     });
     return response.json();
   },
   getMe: async () => {
-    const response = await fetch(`http://localhost:5000/api/v1/auth/me`, {
+    const response = await fetch(`${API_BASE_URL}/api/v1/auth/me`, {
       headers: getAuthHeaders(),
     });
     return response.json();
@@ -47,15 +51,15 @@ export const auth = {
 // Accommodations endpoints
 export const accommodations = {
   getAll: async () => {
-    const response = await fetch(`http://localhost:5000/api/v1/accommodations`);
+    const response = await fetch(`${API_BASE_URL}/api/v1/accommodations`);
     return response.json();
   },
   getById: async (id: string) => {
-    const response = await fetch(`http://localhost:5000/api/v1/accommodations/${id}`);
+    const response = await fetch(`${API_BASE_URL}/api/v1/accommodations/${id}`);
     return response.json();
   },
   getByCity: async (city: string) => {
-    const response = await fetch(`http://localhost:5000/api/v1/accommodations/city/${city}`);
+    const response = await fetch(`${API_BASE_URL}/api/v1/accommodations/city/${city}`);
     return response.json();
   },
 };
@@ -63,7 +67,7 @@ export const accommodations = {
 // Bookings endpoints
 export const bookings = {
   create: async (data: any) => {
-    const response = await fetch(`http://localhost:5000/api/v1/bookings`, {
+    const response = await fetch(`${API_BASE_URL}/api/v1/bookings`, {
       method: 'POST',
       headers: getAuthHeaders(),
       body: JSON.stringify(data),
@@ -71,7 +75,7 @@ export const bookings = {
     return response.json();
   },
   cancel: async (id: string) => {
-    const response = await fetch(`http://localhost:5000/api/v1/bookings/${id}/cancel`, {
+    const response = await fetch(`${API_BASE_URL}/api/v1/bookings/${id}/cancel`, {
       method: 'POST',
       headers: getAuthHeaders(),
     });
@@ -82,7 +86,7 @@ export const bookings = {
 // Reviews endpoints
 export const reviews = {
   create: async (data: any) => {
-    const response = await fetch(`http://localhost:5000/api/v1/reviews`, {
+    const response = await fetch(`${API_BASE_URL}/api/v1/reviews`, {
       method: 'POST',
       headers: getAuthHeaders(),
       body: JSON.stringify(data),
@@ -90,7 +94,7 @@ export const reviews = {
     return response.json();
   },
   getForAccommodation: async (accommodationId: string) => {
-    const response = await fetch(`http://localhost:5000/api/v1/reviews/${accommodationId}`);
+    const response = await fetch(`${API_BASE_URL}/api/v1/reviews/${accommodationId}`);
     return response.json();
   },
 };
@@ -98,13 +102,13 @@ export const reviews = {
 // Users endpoints
 export const users = {
   getProfile: async () => {
-    const response = await fetch(`http://localhost:5000/api/v1/users/profile`, {
+    const response = await fetch(`${API_BASE_URL}/api/v1/users/profile`, {
       headers: getAuthHeaders(),
     });
     return response.json();
   },
   updateProfile: async (data: any) => {
-    const response = await fetch(`http://localhost:5000/api/v1/users/profile`, {
+    const response = await fetch(`${API_BASE_URL}/api/v1/users/profile`, {
       method: 'PUT',
       headers: getAuthHeaders(),
       body: JSON.stringify(data),
@@ -112,19 +116,19 @@ export const users = {
     return response.json();
   },
   getMyBookings: async () => {
-    const response = await fetch(`http://localhost:5000/api/v1/users/bookings`, {
+    const response = await fetch(`${API_BASE_URL}/api/v1/users/bookings`, {
       headers: getAuthHeaders(),
     });
     return response.json();
   },
   getMyFavorites: async () => {
-    const response = await fetch(`http://localhost:5000/api/v1/users/favorites`, {
+    const response = await fetch(`${API_BASE_URL}/api/v1/users/favorites`, {
       headers: getAuthHeaders(),
     });
     return response.json();
   },
   addFavorite: async (data: any) => {
-    const response = await fetch(`http://localhost:5000/api/v1/users/favorites`, {
+    const response = await fetch(`${API_BASE_URL}/api/v1/users/favorites`, {
       method: 'POST',
       headers: getAuthHeaders(),
       body: JSON.stringify(data),
@@ -132,7 +136,7 @@ export const users = {
     return response.json();
   },
   removeFavorite: async (id: string) => {
-    const response = await fetch(`http://localhost:5000/api/v1/users/favorites/${id}`, {
+    const response = await fetch(`${API_BASE_URL}/api/v1/users/favorites/${id}`, {
       method: 'DELETE',
       headers: getAuthHeaders(),
     });
@@ -143,12 +147,12 @@ export const users = {
 // Payments endpoints
 export const payments = {
   createIntent: async (data: any) => {
-    const response = await fetch(`http://localhost:5000/api/v1/payments/create-intent`, {
+    const response = await fetch(`${API_BASE_URL}/api/v1/payments/create-intent`, {
       method: 'POST',
       headers: getAuthHeaders(),
       body: JSON.stringify(data),
     });
-    
+
     // Check if response is OK before parsing JSON
     if (!response.ok) {
       let errorMessage = `Request failed with status ${response.status}`;
@@ -163,16 +167,16 @@ export const payments = {
       error.status = response.status;
       throw error;
     }
-    
+
     return response.json();
   },
   confirm: async (paymentIntentId: string) => {
-    const response = await fetch(`http://localhost:5000/api/v1/payments/confirm`, {
+    const response = await fetch(`${API_BASE_URL}/api/v1/payments/confirm`, {
       method: 'POST',
       headers: getAuthHeaders(),
       body: JSON.stringify({ paymentIntentId }),
     });
-    
+
     // Check if response is OK before parsing JSON
     if (!response.ok) {
       let errorMessage = `Request failed with status ${response.status}`;
@@ -187,7 +191,7 @@ export const payments = {
       error.status = response.status;
       throw error;
     }
-    
+
     return response.json();
   },
 };
@@ -195,13 +199,13 @@ export const payments = {
 // Notifications endpoints
 export const notifications = {
   getAll: async () => {
-    const response = await fetch(`http://localhost:5000/api/v1/notifications`, {
+    const response = await fetch(`${API_BASE_URL}/api/v1/notifications`, {
       headers: getAuthHeaders(),
     });
     return response.json();
   },
   create: async (data: any) => {
-    const response = await fetch(`http://localhost:5000/api/v1/notifications`, {
+    const response = await fetch(`${API_BASE_URL}/api/v1/notifications`, {
       method: 'POST',
       headers: getAuthHeaders(),
       body: JSON.stringify(data),
@@ -209,14 +213,14 @@ export const notifications = {
     return response.json();
   },
   markAsRead: async (id: string) => {
-    const response = await fetch(`http://localhost:5000/api/v1/notifications/${id}/read`, {
+    const response = await fetch(`${API_BASE_URL}/api/v1/notifications/${id}/read`, {
       method: 'PATCH',
       headers: getAuthHeaders(),
     });
     return response.json();
   },
   markAllAsRead: async () => {
-    const response = await fetch(`http://localhost:5000/api/v1/notifications/read-all`, {
+    const response = await fetch(`${API_BASE_URL}/api/v1/notifications/read-all`, {
       method: 'PATCH',
       headers: getAuthHeaders(),
     });
