@@ -51,7 +51,7 @@ export const FindPage = () => {
   useEffect(() => {
     const loadData = async () => {
       try {
-        console.log('Loading accommodations...');
+        //console.log('Loading accommodations...');
         
         const cachedAccommodations = getAccommodationsFromCache();
         
@@ -84,12 +84,8 @@ export const FindPage = () => {
           accommodationsList = accomData.data;
         }
 
-        //console.log('Total accommodations:', accommodationsList.length);
-
-        //console.log('Fetching images from Unsplash...');
         const accommodationsWithImages = await Promise.all(
           accommodationsList.map(async (accom: any) => {
-            //console.log(`Fetching image for: ${accom.name} (${accom.city}, ${accom.country})`);
             const images = await getHotelImages(accom.city, accom.country);
             return {
               ...accom,

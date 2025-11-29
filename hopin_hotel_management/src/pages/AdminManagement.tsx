@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { type RootState } from '../../store/store';
-import { logout } from '../../store/authSlice';
+import { type RootState } from '../store/store';
+import { logout } from '../store/authSlice';
 import { Search, UserPlus, Trash2, ArrowLeft, Shield, User, LogOut, ChevronDown } from 'lucide-react';
-import { superAdminService } from '../../services/superadmin.service';
-import { CreateAdminModal } from '../../../src/components/CreateAdminModal'
-import { DeleteConfirmationModal } from '../../components/DeleteConfirmationModal';
+import { superAdminService } from '../services/superadmin.service';
+import { CreateAdminModal } from '../components/CreateAdminModal'
+import { DeleteConfirmationModal } from '../components/DeleteConfirmationModal';
 
 interface Admin {
   id: string;
@@ -24,6 +24,7 @@ export const AdminManagement: React.FC = () => {
   const [filteredAdmins, setFilteredAdmins] = useState<Admin[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedAdmin, setSelectedAdmin] = useState<Admin | null>(null);
@@ -52,11 +53,17 @@ export const AdminManagement: React.FC = () => {
   const loadAdmins = async () => {
     try {
       setLoading(true);
+      setError(null);
       const data = await superAdminService.getAllAdmins();
-      setAdmins(data);
-      setFilteredAdmins(data);
-    } catch (error) {
+      // Filter to only include admin and superadmin users
+      const adminUsers = data.filter(
+        (user) => user.role === 'admin' || user.role === 'superadmin'
+      ) as Admin[];
+      setAdmins(adminUsers);
+      setFilteredAdmins(adminUsers);
+    } catch (error: any) {
       console.error('Failed to load admins:', error);
+      setError(error.message || 'Failed to load admins');
     } finally {
       setLoading(false);
     }
@@ -102,38 +109,40 @@ export const AdminManagement: React.FC = () => {
 
   return (
     <>
-      <div className="min-h-screen bg-white">
+      <div className="min-h-screen bg-gray-50">
         {/* Header with Profile & Logout */}
-        <div className="bg-black text-white border-b border-gray-800">
+        <div className="bg-white text-gray-800 border-b border-gray-200 shadow-sm">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center h-16">
               <div className="flex items-center gap-3">
-                <Shield className="w-6 h-6" />
-                <h1 className="text-xl font-light">Super Admin</h1>
+                <div className="p-2 bg-blue-50 rounded-lg">
+                  <Shield className="w-6 h-6 text-blue-600" />
+                </div>
+                <h1 className="text-xl font-semibold text-gray-900">Super Admin</h1>
               </div>
               
               {/* Profile Dropdown */}
               <div className="relative">
                 <button
                   onClick={() => setShowDropdown(!showDropdown)}
-                  className="flex items-center gap-2 px-3 py-2 hover:bg-gray-800 transition-colors"
+                  className="flex items-center gap-2 px-3 py-2 hover:bg-gray-50 rounded-lg transition-colors"
                 >
-                  <div className="w-8 h-8 bg-white text-black flex items-center justify-center font-light">
+                  <div className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-medium shadow-sm">
                     {user?.name?.charAt(0).toUpperCase()}
                   </div>
-                  <span className="font-light">{user?.name}</span>
-                  <ChevronDown className="w-4 h-4" />
+                  <span className="font-medium text-gray-700">{user?.name}</span>
+                  <ChevronDown className="w-4 h-4 text-gray-500" />
                 </button>
 
                 {showDropdown && (
-                  <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-300 shadow-lg z-50">
+                  <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-100 rounded-xl shadow-lg z-50 overflow-hidden">
                     <div className="py-1">
                       <button
                         onClick={() => {
                           setShowDropdown(false);
                           navigate('/superadmin/profile');
                         }}
-                        className="w-full text-left px-4 py-2 text-black hover:bg-gray-100 flex items-center gap-2 font-light"
+                        className="w-full text-left px-4 py-2.5 text-gray-700 hover:bg-blue-50 hover:text-blue-600 flex items-center gap-2 font-medium transition-colors"
                       >
                         <User className="w-4 h-4" />
                         Profile
@@ -143,7 +152,7 @@ export const AdminManagement: React.FC = () => {
                           setShowDropdown(false);
                           handleLogout();
                         }}
-                        className="w-full text-left px-4 py-2 text-black hover:bg-gray-100 flex items-center gap-2 font-light"
+                        className="w-full text-left px-4 py-2.5 text-gray-700 hover:bg-red-50 hover:text-red-600 flex items-center gap-2 font-medium transition-colors"
                       >
                         <LogOut className="w-4 h-4" />
                         Logout
@@ -160,20 +169,20 @@ export const AdminManagement: React.FC = () => {
           <div className="mb-8">
             <button
               onClick={() => navigate('/superadmin')}
-              className="flex items-center gap-2 text-black hover:text-gray-600 mb-4 transition-colors font-light"
+              className="flex items-center gap-2 text-gray-600 hover:text-blue-600 mb-4 transition-colors font-medium"
             >
               <ArrowLeft className="w-5 h-5" />
-              <span className="font-light">Back to Dashboard</span>
+              <span>Back to Dashboard</span>
             </button>
             
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-gray-200 pb-6">
               <div>
-                <h1 className="text-4xl font-light text-black mb-2">Admin Management</h1>
-                <p className="text-gray-500 font-light">Manage system administrators and their access</p>
+                <h1 className="text-3xl font-bold text-gray-900 mb-2">Admin Management</h1>
+                <p className="text-gray-500 font-medium">Manage system administrators and their access</p>
               </div>
               <button
                 onClick={() => setShowCreateModal(true)}
-                className="flex items-center gap-2 px-6 py-3 bg-black text-white hover:bg-gray-800 transition-colors font-light"
+                className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white hover:bg-blue-700 rounded-lg transition-colors font-medium shadow-sm hover:shadow-md"
               >
                 <UserPlus className="w-5 h-5" />
                 Create Admin
@@ -181,7 +190,7 @@ export const AdminManagement: React.FC = () => {
             </div>
           </div>
 
-          <div className="bg-white border border-gray-200 p-4 mb-6">
+          <div className="bg-white border border-gray-200 p-4 mb-6 rounded-xl shadow-sm">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
               <input
@@ -189,19 +198,29 @@ export const AdminManagement: React.FC = () => {
                 placeholder="Search by name or email..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 focus:outline-none focus:border-black transition-colors font-light"
+                className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
               />
             </div>
           </div>
 
-          <div className="bg-white border border-gray-200 overflow-hidden">
+          <div className="bg-white border border-gray-200 overflow-hidden rounded-xl shadow-sm">
             {loading ? (
+              <div className="flex justify-center py-12">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+              </div>
+            ) : error ? (
               <div className="p-12 text-center">
-                <p className="text-gray-400 font-light">Loading admins...</p>
+                <p className="text-red-500 text-lg font-medium mb-2">{error}</p>
+                <button 
+                  onClick={loadAdmins}
+                  className="text-blue-600 hover:text-blue-700 font-medium underline"
+                >
+                  Try Again
+                </button>
               </div>
             ) : filteredAdmins.length === 0 ? (
               <div className="p-12 text-center">
-                <p className="text-gray-400 text-lg font-light">
+                <p className="text-gray-400 text-lg font-medium">
                   {searchQuery ? 'No admins match your search' : 'No admins found'}
                 </p>
               </div>
@@ -210,47 +229,49 @@ export const AdminManagement: React.FC = () => {
                 <table className="w-full">
                   <thead className="bg-gray-50 border-b border-gray-200">
                     <tr>
-                      <th className="text-left py-4 px-6 text-sm font-normal text-gray-600">Admin</th>
-                      <th className="text-left py-4 px-6 text-sm font-normal text-gray-600">Email</th>
-                      <th className="text-left py-4 px-6 text-sm font-normal text-gray-600">Role</th>
-                      <th className="text-left py-4 px-6 text-sm font-normal text-gray-600">Created</th>
-                      <th className="text-right py-4 px-6 text-sm font-normal text-gray-600">Actions</th>
+                      <th className="text-left py-4 px-6 text-xs font-semibold text-gray-500 uppercase tracking-wider">Admin</th>
+                      <th className="text-left py-4 px-6 text-xs font-semibold text-gray-500 uppercase tracking-wider">Email</th>
+                      <th className="text-left py-4 px-6 text-xs font-semibold text-gray-500 uppercase tracking-wider">Role</th>
+                      <th className="text-left py-4 px-6 text-xs font-semibold text-gray-500 uppercase tracking-wider">Created</th>
+                      <th className="text-right py-4 px-6 text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
                     {filteredAdmins.map((admin) => (
-                      <tr key={admin.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                      <tr key={admin.id} className="border-b border-gray-100 hover:bg-blue-50/50 transition-colors">
                         <td className="py-4 px-6">
                           <div className="flex items-center gap-3">
-                            <div className={`w-10 h-10 border ${
-                              admin.role === 'superadmin' ? 'border-black bg-black text-white' : 'border-gray-400 bg-white text-black'
-                            } flex items-center justify-center font-light`}>
+                            <div className={`w-10 h-10 rounded-full flex items-center justify-center font-medium text-sm ${
+                              admin.role === 'superadmin' ? 'bg-indigo-100 text-indigo-700' : 'bg-blue-100 text-blue-700'
+                            }`}>
                               {admin.full_name.charAt(0).toUpperCase()}
                             </div>
                             <div>
-                              <p className="font-light text-black">{admin.full_name}</p>
-                              {admin.id === user?.id && (<span className="text-xs text-gray-500 font-light">(You)</span>)}
+                              <p className="font-medium text-gray-900">{admin.full_name}</p>
+                              {admin.id === user?.id && (<span className="text-xs text-blue-600 font-medium">(You)</span>)}
                             </div>
                           </div>
                         </td>
-                        <td className="py-4 px-6 text-gray-600 font-light">{admin.email}</td>
+                        <td className="py-4 px-6 text-gray-600 font-medium">{admin.email}</td>
                         <td className="py-4 px-6">
-                          <span className={`inline-flex items-center gap-1.5 px-3 py-1 text-sm font-light border ${
-                            admin.role === 'superadmin' ? 'border-black text-black' : 'border-gray-400 text-gray-700'
+                          <span className={`inline-flex items-center gap-1.5 px-3 py-1 text-xs font-medium rounded-full ${
+                            admin.role === 'superadmin' 
+                              ? 'bg-indigo-100 text-indigo-800' 
+                              : 'bg-blue-100 text-blue-800'
                           }`}>
-                            {admin.role === 'superadmin' ? <Shield className="w-4 h-4" /> : <User className="w-4 h-4" />}
-                            {admin.role}
+                            {admin.role === 'superadmin' ? <Shield className="w-3 h-3" /> : <User className="w-3 h-3" />}
+                            {admin.role === 'superadmin' ? 'Super Admin' : 'Admin'}
                           </span>
                         </td>
-                        <td className="py-4 px-6 text-gray-600 text-sm font-light">{formatDate(admin.created_at)}</td>
+                        <td className="py-4 px-6 text-gray-500 text-sm font-medium">{formatDate(admin.created_at)}</td>
                         <td className="py-4 px-6 text-right">
                           <button
                             onClick={() => handleDeleteClick(admin)}
                             disabled={admin.id === user?.id}
-                            className={`inline-flex items-center gap-2 px-3 py-1.5 text-sm font-light transition-colors ${
+                            className={`inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-lg transition-colors ${
                               admin.id === user?.id
                                 ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                                : 'border border-black text-black hover:bg-black hover:text-white'
+                                : 'text-red-600 hover:bg-red-50'
                             }`}
                           >
                             <Trash2 className="w-4 h-4" />
@@ -265,7 +286,7 @@ export const AdminManagement: React.FC = () => {
             )}
           </div>
 
-          <div className="mt-6 text-center text-gray-500 font-light">
+          <div className="mt-6 text-center text-gray-500 font-medium text-sm">
             <p>Showing {filteredAdmins.length} of {admins.length} admin{admins.length !== 1 ? 's' : ''}</p>
           </div>
         </div>

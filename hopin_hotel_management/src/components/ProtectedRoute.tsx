@@ -5,7 +5,7 @@ import { type RootState } from '../store/store';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
-  requiredRole?: 'customer';
+  requiredRole?: 'customer' | 'admin' | 'superadmin';
 }
 
 export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ 
@@ -21,8 +21,8 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 
   // Check role if required
   if (requiredRole && user?.role !== requiredRole) {
-    // Redirect to home if user doesn't have required role
-    return <Navigate to="/" replace />;
+    // Redirect to login if user doesn't have required role
+    return <Navigate to="/login" replace />;
   }
 
   return <>{children}</>;

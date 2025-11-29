@@ -89,36 +89,36 @@ export const CreateAdminModal: React.FC<CreateAdminModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white border-2 border-black max-w-md w-full max-h-[90vh] overflow-y-auto">
-        <div className="bg-black text-white p-6 flex justify-between items-center">
-          <h2 className="text-2xl font-light">Create Admin Account</h2>
-          <button onClick={handleClose} className="hover:bg-gray-800 p-1 transition-colors">
-            <X className="w-6 h-6" />
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+        <div className="bg-white border-b border-gray-100 p-6 flex justify-between items-center sticky top-0 z-10">
+          <h2 className="text-xl font-bold text-gray-900">Create Admin Account</h2>
+          <button onClick={handleClose} className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 p-2 rounded-full transition-all">
+            <X className="w-5 h-5" />
           </button>
         </div>
 
         {successMessage && (
-          <div className="mx-6 mt-6 p-4 bg-gray-100 border border-black flex items-center gap-3">
-            <CheckCircle className="w-5 h-5 text-black flex-shrink-0" />
-            <p className="text-black font-light">{successMessage}</p>
+          <div className="mx-6 mt-6 p-4 bg-green-50 border border-green-100 rounded-lg flex items-center gap-3">
+            <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
+            <p className="text-green-700 font-medium">{successMessage}</p>
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+        <form onSubmit={handleSubmit} className="p-6 space-y-5">
           <div>
-            <label className="block text-sm font-light text-black mb-2">Full Name</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1.5">Full Name</label>
             <input
               type="text"
               value={formData.fullName}
               onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-              className={`w-full px-4 py-2 border ${
-                errors.fullName ? 'border-red-500' : 'border-gray-300'
-              } focus:outline-none focus:border-black transition-colors font-light`}
+              className={`w-full px-4 py-2.5 border rounded-lg ${
+                errors.fullName ? 'border-red-300 focus:ring-red-200' : 'border-gray-300 focus:border-blue-500 focus:ring-blue-200'
+              } focus:outline-none focus:ring-4 transition-all`}
               placeholder="John Doe"
             />
             {errors.fullName && (
-              <p className="mt-1 text-sm text-red-600 flex items-center gap-1 font-light">
+              <p className="mt-1.5 text-sm text-red-600 flex items-center gap-1 font-medium">
                 <AlertCircle className="w-4 h-4" />
                 {errors.fullName}
               </p>
@@ -126,18 +126,18 @@ export const CreateAdminModal: React.FC<CreateAdminModalProps> = ({
           </div>
 
           <div>
-            <label className="block text-sm font-light text-black mb-2">Email Address</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1.5">Email Address</label>
             <input
               type="email"
               value={formData.email}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              className={`w-full px-4 py-2 border ${
-                errors.email ? 'border-red-500' : 'border-gray-300'
-              } focus:outline-none focus:border-black transition-colors font-light`}
+              className={`w-full px-4 py-2.5 border rounded-lg ${
+                errors.email ? 'border-red-300 focus:ring-red-200' : 'border-gray-300 focus:border-blue-500 focus:ring-blue-200'
+              } focus:outline-none focus:ring-4 transition-all`}
               placeholder="admin@hopinAdmin.email"
             />
             {errors.email && (
-              <p className="mt-1 text-sm text-red-600 flex items-center gap-1 font-light">
+              <p className="mt-1.5 text-sm text-red-600 flex items-center gap-1 font-medium">
                 <AlertCircle className="w-4 h-4" />
                 {errors.email}
               </p>
@@ -145,18 +145,18 @@ export const CreateAdminModal: React.FC<CreateAdminModalProps> = ({
           </div>
 
           <div>
-            <label className="block text-sm font-light text-black mb-2">Password</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1.5">Password</label>
             <input
               type="password"
               value={formData.password}
               onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-              className={`w-full px-4 py-2 border ${
-                errors.password ? 'border-red-500' : 'border-gray-300'
-              } focus:outline-none focus:border-black transition-colors font-light`}
+              className={`w-full px-4 py-2.5 border rounded-lg ${
+                errors.password ? 'border-red-300 focus:ring-red-200' : 'border-gray-300 focus:border-blue-500 focus:ring-blue-200'
+              } focus:outline-none focus:ring-4 transition-all`}
               placeholder="••••••••"
             />
             {errors.password && (
-              <p className="mt-1 text-sm text-red-600 flex items-center gap-1 font-light">
+              <p className="mt-1.5 text-sm text-red-600 flex items-center gap-1 font-medium">
                 <AlertCircle className="w-4 h-4" />
                 {errors.password}
               </p>
@@ -164,18 +164,18 @@ export const CreateAdminModal: React.FC<CreateAdminModalProps> = ({
           </div>
 
           <div>
-            <label className="block text-sm font-light text-black mb-2">Confirm Password</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1.5">Confirm Password</label>
             <input
               type="password"
               value={formData.confirmPassword}
               onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-              className={`w-full px-4 py-2 border ${
-                errors.confirmPassword ? 'border-red-500' : 'border-gray-300'
-              } focus:outline-none focus:border-black transition-colors font-light`}
+              className={`w-full px-4 py-2.5 border rounded-lg ${
+                errors.confirmPassword ? 'border-red-300 focus:ring-red-200' : 'border-gray-300 focus:border-blue-500 focus:ring-blue-200'
+              } focus:outline-none focus:ring-4 transition-all`}
               placeholder="••••••••"
             />
             {errors.confirmPassword && (
-              <p className="mt-1 text-sm text-red-600 flex items-center gap-1 font-light">
+              <p className="mt-1.5 text-sm text-red-600 flex items-center gap-1 font-medium">
                 <AlertCircle className="w-4 h-4" />
                 {errors.confirmPassword}
               </p>
@@ -183,8 +183,8 @@ export const CreateAdminModal: React.FC<CreateAdminModalProps> = ({
           </div>
 
           {errors.submit && (
-            <div className="p-3 bg-red-50 border border-red-500">
-              <p className="text-red-800 text-sm flex items-center gap-2 font-light">
+            <div className="p-4 bg-red-50 border border-red-100 rounded-lg">
+              <p className="text-red-700 text-sm flex items-center gap-2 font-medium">
                 <AlertCircle className="w-4 h-4" />
                 {errors.submit}
               </p>
@@ -195,14 +195,14 @@ export const CreateAdminModal: React.FC<CreateAdminModalProps> = ({
             <button
               type="button"
               onClick={handleClose}
-              className="flex-1 px-4 py-2 border border-black text-black hover:bg-gray-100 transition-colors font-light"
+              className="flex-1 px-4 py-2.5 border border-gray-300 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors font-medium"
               disabled={loading}
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="flex-1 px-4 py-2 bg-black text-white hover:bg-gray-800 transition-colors font-light"
+              className="flex-1 px-4 py-2.5 bg-blue-600 text-white hover:bg-blue-700 rounded-lg transition-colors font-medium shadow-sm hover:shadow-md disabled:opacity-70 disabled:cursor-not-allowed"
               disabled={loading}
             >
               {loading ? 'Creating...' : 'Create Admin'}

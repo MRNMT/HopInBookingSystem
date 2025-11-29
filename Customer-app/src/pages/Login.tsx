@@ -3,7 +3,7 @@ import type { ChangeEvent, FormEvent } from 'react';
 import logo from '../assets/logo.jpg';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import { Link, useNavigate } from "react-router-dom";
-import axios from 'axios';
+import { auth } from '../utils/api';
 import { useDispatch } from 'react-redux';
 import { loginSuccess } from '../store/authSlice';
 
@@ -34,27 +34,32 @@ export const Login: React.FC = () => {
         if (!validate()) return;
         setLoading(true);
         try {
-            const response = await axios.post('http://localhost:5000/api/v1/auth/login', {
+            const response = await auth.login({
                 email,
                 password
             });
 
-            const { token, user } = response.data.data;
-            dispatch(loginSuccess({ user, token }));
+            if (response.data && response.data.token) {
+                const { token, user } = response.data;
+                dispatch(loginSuccess({ user, token }));
 
-            // Role-based redirection
-            if (user.role === 'superadmin') {
-                navigate('/superadmin');
-            } else if (user.role === 'admin') {
-                navigate('/admin');
+                // Role-based redirection
+                if (user.role === 'superadmin' || user.role === 'admin') {
+                    // Redirect to the Admin Panel app
+                    const adminUrl = import.meta.env.VITE_ADMIN_URL || 'http://localhost:5176/superadmin';
+                    window.location.href = adminUrl;
+                } else {
+                    navigate('/');
+                }
+
+                console.log('Signed in', { email, remember });
             } else {
-                navigate('/');
+                const errorMessage = response.message || 'Failed to sign in. Please check your credentials.';
+                setErrors({ ...errors, password: errorMessage });
             }
-
-            console.log('Signed in', { email, remember });
         } catch (err: any) {
             console.error('Login failed:', err);
-            const errorMessage = err.response?.data?.message || 'Failed to sign in. Please check your credentials.';
+            const errorMessage = err.message || 'Failed to sign in. Please check your credentials.';
             setErrors({ ...errors, password: errorMessage });
         } finally {
             setLoading(false);

@@ -30,6 +30,7 @@
   },
   "include": [
     "src",
-    "../hopin_hotel_management/src/superadmin"
+    "../hopin_hotel_management/src/superadmin",
+    "../hopin_hotel_management/src/pages/superadmin/superadmin"
   ]
 }
