@@ -3,7 +3,6 @@ import room from '../assets/hotel1.jpg';
 import { FaRegUser, FaStar } from "react-icons/fa";
 import { Button } from '../components/Button';
 import { FaArrowLeft } from "react-icons/fa";
-import { CiCalendar } from "react-icons/ci";
 import { MdLocationOn } from "react-icons/md";
 import { FaWifi, FaParking, FaSwimmingPool, FaUtensils, FaDumbbell, FaSpa } from "react-icons/fa";
 import { FaPlateWheat } from "react-icons/fa6";
