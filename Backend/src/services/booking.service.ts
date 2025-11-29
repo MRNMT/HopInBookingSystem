@@ -164,9 +164,19 @@ export class BookingService {
   }
 
   public async getAllBookings(): Promise<Booking[]> {
-    let query = `SELECT * from bookings`
+    const query = `
+      SELECT 
+        b.*, 
+        json_build_object('full_name', u.full_name, 'email', u.email) as user,
+        json_build_object('name', a.name, 'city', a.city) as accommodation
+      FROM bookings b
+      LEFT JOIN users u ON b.user_id = u.id
+      LEFT JOIN room_types r ON b.room_type_id = r.id
+      LEFT JOIN accommodations a ON r.accommodation_id = a.id
+      ORDER BY b.created_at DESC
+    `;
     const result = await db.query(query);
-    return result.rows
+    return result.rows;
   }
 
   public async getUserBookings(userId: string): Promise<Booking[]> {

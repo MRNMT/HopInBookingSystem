@@ -1,7 +1,43 @@
 import { Button } from "./Button";
 import logo from '../assets/logo.jpg'
+import { useState } from "react";
+import { adminService } from "../services/admin.service";
 
 export const AddRoomModal = ({ onClose }: { onClose: () => void }) => {
+  const [formData, setFormData] = useState({
+    name: "",
+    city: "Polokwane",
+    description: "New room",
+    address: "123 Main St", // Default for now
+    country: "South Africa", // Default
+    star_rating: 3,
+    policies: {},
+    images: []
+  });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleChange = (e: any) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+
+    try {
+      await adminService.createAccommodation(formData);
+      onClose();
+      // Trigger refresh in parent if possible, or just close
+      window.location.reload(); // Simple reload to show new data
+    } catch (err: any) {
+      setError(err.response?.data?.message || "Failed to create room");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
 
@@ -10,59 +46,62 @@ export const AddRoomModal = ({ onClose }: { onClose: () => void }) => {
 
         <h1 className="text-2xl font-bold text-blue-500 mb-2">Add New Room</h1>
         <p className="text-gray-500 mb-6">
-          Create a new room in your hotel . Fill in all the details below.
+          Create a new accommodation.
         </p>
 
-        <form className="space-y-4">
+        {error && (
+          <div className="bg-red-50 text-red-600 p-3 rounded mb-4 text-sm">
+            {error}
+          </div>
+        )}
+
+        <form className="space-y-4" onSubmit={handleSubmit}>
+          
           <div>
-            <label className="font-semibold">Room Picture</label>
-            <input aria-label="room picture" className="w-full border p-2 rounded mt-1" type="file" />
+            <label className="font-semibold">Room Name / Type</label>
+            <input 
+              className="w-full border p-2 rounded mt-1" 
+              type="text" 
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              placeholder="e.g., Deluxe Suite" 
+              required
+            />
           </div>
 
           <div>
-            <label className="font-semibold">Room ID</label>
-            <input className="w-full border p-2 rounded mt-1" type="text" placeholder="e.g., R111" />
-          </div>
-
-          <div>
-            <label className="font-semibold">Room Type</label>
-            <input className="w-full border p-2 rounded mt-1" type="text" placeholder="e.g., Deluxe Suite" />
-          </div>
-
-          <div>
-            <label className="font-semibold">Room Location</label>
-            <select aria-label="location"  className="w-full border p-2 rounded mt-1">
-              <option>Polokwane</option>
-              <option>Pretoria</option>
-              <option>Cape Town</option>
-              <option>Mbombela</option>
-              <option>Giyani</option>
+            <label className="font-semibold">Location (City)</label>
+            <select 
+              name="city"
+              value={formData.city}
+              onChange={handleChange}
+              className="w-full border p-2 rounded mt-1"
+            >
+              <option value="Polokwane">Polokwane</option>
+              <option value="Pretoria">Pretoria</option>
+              <option value="Cape Town">Cape Town</option>
+              <option value="Mbombela">Mbombela</option>
+              <option value="Giyani">Giyani</option>
             </select>
           </div>
 
-          <div className="flex gap-4">
-            <div className="flex-1">
-              <label className="font-semibold">Capacity</label>
-              <input className="w-full border p-2 rounded mt-1" type="text" placeholder="Enter Capacity" />
-            </div>
-
-            <div className="flex-1">
-              <label className="font-semibold">Price/Night</label>
-              <input className="w-full border p-2 rounded mt-1" type="text" placeholder="Enter Price" />
-            </div>
-          </div>
-
           <div>
-            <label className="font-semibold">Status</label>
-            <select aria-label="status"  id="status" className="w-full border p-2 rounded mt-1">
-              <option>Available</option>
-              <option>Occupied</option>
-            </select>
+            <label className="font-semibold">Description</label>
+            <textarea 
+              className="w-full border p-2 rounded mt-1" 
+              name="description"
+              value={formData.description}
+              onChange={handleChange}
+              placeholder="Room description..." 
+            />
           </div>
 
           <div className="flex justify-end gap-4 mt-6">
-            <Button variant="secondary" onClick={onClose}>Cancel</Button>
-            <Button variant="primary">Add</Button>
+            <Button variant="secondary" onClick={onClose} type="button">Cancel</Button>
+            <Button variant="primary" type="submit" disabled={loading}>
+              {loading ? "Adding..." : "Add"}
+            </Button>
           </div>
         </form>
       </div>

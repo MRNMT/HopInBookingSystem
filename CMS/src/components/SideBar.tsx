@@ -9,6 +9,9 @@ import {type IconType } from 'react-icons';
 import { Link, useLocation } from "react-router-dom";
 import { CgLogOut } from "react-icons/cg";
 import { FaUsers } from "react-icons/fa";
+import { useDispatch } from 'react-redux';
+import { logout } from '../store/authSlice';
+import { useNavigate } from 'react-router-dom';
 
 
 
@@ -35,8 +38,17 @@ const SidebarItem: FC<SidebarItemProps> = ({ icon: Icon, label, to }) => {
   );
 };
 
+// ... (imports remain)
+
 export const SideBar: FC = () => {
   const [isOpen, setIsOpen] = useState(true);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    dispatch(logout());
+    navigate('/login');
+  };
 
   return (
     <>
@@ -66,12 +78,19 @@ export const SideBar: FC = () => {
         <nav className="space-y-1">
           <SidebarItem icon={MdOutlineDateRange} label="Dashboard" to="/" />
           <SidebarItem icon={MdOutlineDateRange} label="Bookings" to="/bookings" />
-          <SidebarItem icon={FaBed} label="Rooms" to="/rooms" />
+          <SidebarItem icon={FaBed} label="Accommodations" to="/rooms" />
           <SidebarItem icon={GoPeople} label="Customers" to="/customer-metrics" />
           <SidebarItem icon={VscGraph} label="Analytics" to="/analytics" />
           <SidebarItem icon={CiSettings} label="Settings" to="/settings" />
           <SidebarItem icon={FaUsers} label="Users" to="/users" />
-          <SidebarItem  icon={CgLogOut} label="Logout" to="/logout" />
+          
+          <button
+            onClick={handleLogout}
+            className="flex w-full items-center gap-3 p-3 rounded transition hover:bg-red-50 text-red-600"
+          >
+            <CgLogOut className="text-lg" />
+            <span>Logout</span>
+          </button>
         </nav>
       </div>
     </>

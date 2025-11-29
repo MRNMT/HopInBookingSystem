@@ -6,8 +6,39 @@ import { GoPersonAdd } from "react-icons/go";
 import { CiSearch } from "react-icons/ci";
 import { FaEllipsisH } from "react-icons/fa";
 import { Button } from "../components/Button";
+import { useEffect, useState } from "react";
+import { superAdminService, type AdminUser } from "../services/superadmin.service";
+import { AddUserModal } from "../components/AddUserModal";
 
 export const SuperAdmin = () => {
+  const [admins, setAdmins] = useState<AdminUser[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [modalOpen, setModalOpen] = useState(false);
+
+  useEffect(() => {
+    fetchAdmins();
+  }, []);
+
+  const fetchAdmins = async () => {
+    try {
+      const response = await superAdminService.getAllAdmins();
+      setAdmins(response.data || response);
+    } catch (error) {
+      console.error("Failed to fetch admins", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const filteredAdmins = admins.filter(admin => 
+    admin.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    admin.email?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const superAdminCount = admins.filter(a => a.role === 'superadmin').length;
+  const adminCount = admins.filter(a => a.role === 'admin').length;
+
   return (
     <div className="flex h-screen bg-gray-100">
       {/* Sidebar */}
@@ -23,7 +54,7 @@ export const SuperAdmin = () => {
             <p className="text-gray-500">Manage admin users, roles, and permissions</p>
           </div>
 
-          <Button variant="primary" className="gap-2 flex items-center">
+          <Button variant="primary" className="gap-2 flex items-center" onClick={() => setModalOpen(true)}>
             <GoPersonAdd size={18} />
             Add New User
           </Button>
@@ -34,7 +65,7 @@ export const SuperAdmin = () => {
           <div className="bg-white shadow-md p-6 rounded-xl flex justify-between items-center">
             <div>
               <h3 className="text-gray-600">Total Users</h3>
-              <p className="text-3xl font-bold">24</p>
+              <p className="text-3xl font-bold">{admins.length}</p>
             </div>
             <FiUsers size={35} className="text-blue-500" />
           </div>
@@ -42,15 +73,15 @@ export const SuperAdmin = () => {
           <div className="bg-white shadow-md p-6 rounded-xl flex justify-between items-center">
             <div>
               <h3 className="text-gray-600">Super Admins</h3>
-              <p className="text-3xl font-bold">3</p>
+              <p className="text-3xl font-bold">{superAdminCount}</p>
             </div>
             <RiVipCrownLine size={35} className="text-blue-500" />
           </div>
 
           <div className="bg-white shadow-md p-6 rounded-xl flex justify-between items-center">
             <div>
-              <h3 className="text-gray-600">Active Today</h3>
-              <p className="text-3xl font-bold">18</p>
+              <h3 className="text-gray-600">Admins</h3>
+              <p className="text-3xl font-bold">{adminCount}</p>
             </div>
             <IoShieldOutline size={35} className="text-blue-500" />
           </div>
@@ -58,7 +89,7 @@ export const SuperAdmin = () => {
           <div className="bg-white shadow-md p-6 rounded-xl flex justify-between items-center">
             <div>
               <h3 className="text-gray-600">Pending Invites</h3>
-              <p className="text-3xl font-bold">2</p>
+              <p className="text-3xl font-bold">0</p>
             </div>
             <GoPersonAdd size={35} className="text-blue-500" />
           </div>
@@ -70,6 +101,8 @@ export const SuperAdmin = () => {
           <input
             type="text"
             placeholder="Search by name or email"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full pl-10 pr-4 py-2 border rounded-lg shadow-sm focus:ring-2 focus:ring-blue-400 focus:outline-none"
           />
         </div>
@@ -80,56 +113,47 @@ export const SuperAdmin = () => {
             <thead className="bg-gray-200 text-gray-700">
               <tr>
                 <th className="p-4">User</th>
+                <th className="p-4">Email</th>
                 <th className="p-4">Role</th>
-                <th className="p-4">Location</th>
-                <th className="p-4">Status</th>
-                <th className="p-4">Last Active</th>
+                <th className="p-4">Joined</th>
                 <th className="p-4 text-right">Actions</th>
               </tr>
             </thead>
             <tbody>
-              {[
-                {
-                  name: "Karabo",
-                  role: "Super Admin",
-                  location: "All Locations",
-                  status: "Active",
-                  last: "2025-01-11",
-                },
-                {
-                  name: "Sara",
-                  role: "Admin",
-                  location: "Polokwane",
-                  status: "Active",
-                  last: "2025-01-11",
-                },
-                {
-                  name: "Thabo",
-                  role: "Admin",
-                  location: "Free State",
-                  status: "Active",
-                  last: "2025-01-11",
-                },
-              ].map((user, index) => (
-                <tr
-                  key={index}
-                  className="border-b hover:bg-gray-50 transition"
-                >
-                  <td className="p-4 font-medium">{user.name}</td>
-                  <td className="p-4">{user.role}</td>
-                  <td className="p-4">{user.location}</td>
-                  <td className="p-4 text-blue-500 font-semibold">
-                    {user.status}
-                  </td>
-                  <td className="p-4">{user.last}</td>
-                  <td className="p-4 text-right">
-                    <FaEllipsisH className="text-blue-500 cursor-pointer" />
-                  </td>
+              {loading ? (
+                <tr>
+                  <td colSpan={5} className="text-center py-8">Loading admins...</td>
                 </tr>
-              ))}
+              ) : filteredAdmins.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="text-center py-8">No admins found.</td>
+                </tr>
+              ) : (
+                filteredAdmins.map((user, index) => (
+                  <tr
+                    key={index}
+                    className="border-b hover:bg-gray-50 transition"
+                  >
+                    <td className="p-4 font-medium">{user.full_name}</td>
+                    <td className="p-4">{user.email}</td>
+                    <td className="p-4 capitalize">{user.role}</td>
+                    <td className="p-4">{new Date(user.created_at).toLocaleDateString()}</td>
+                    <td className="p-4 text-right">
+                      <FaEllipsisH className="text-blue-500 cursor-pointer" />
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
+
+        {modalOpen && (
+          <AddUserModal onClose={() => setModalOpen(false)} onSuccess={() => {
+            setModalOpen(false);
+            fetchAdmins();
+          }} />
+        )}
 
       </div>
     </div>

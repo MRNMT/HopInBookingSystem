@@ -1,8 +1,34 @@
 import { SideBar } from "../components/SideBar";
 import { FaSearch } from "react-icons/fa";
 import { FaEllipsisH } from "react-icons/fa";
+import { useEffect, useState } from "react";
+import { adminService, type User } from "../services/admin.service";
 
 export const CustomerMetricsPage = () => {
+  const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const response = await adminService.getAllUsers();
+        setUsers(response.data || response);
+      } catch (error) {
+        console.error("Failed to fetch users", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUsers();
+  }, []);
+
+  const filteredUsers = users.filter(user => 
+    user.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    user.email?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
     <div className="flex bg-gray-50 min-h-screen">
       <SideBar />
@@ -15,7 +41,7 @@ export const CustomerMetricsPage = () => {
         <div className="grid grid-cols-4 gap-6 mt-6">
           <div className="bg-white p-6 rounded-2xl shadow">
             <h2 className="text-lg font-semibold text-gray-700">Total Customers</h2>
-            <span className="text-3xl font-bold text-gray-900">1,142</span><br />
+            <span className="text-3xl font-bold text-gray-900">{users.length}</span><br />
             <span className="text-green-500 text-sm">↑ 12% from last month</span>
           </div>
 
@@ -47,6 +73,8 @@ export const CustomerMetricsPage = () => {
               name="search"
               id="search"
               placeholder="Search Customers"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
               className="outline-none flex-1"
             />
           </div>
@@ -57,25 +85,33 @@ export const CustomerMetricsPage = () => {
                 <th className="p-3">Customer ID</th>
                 <th className="p-3">Name</th>
                 <th className="p-3">Contact</th>
-                <th className="p-3">Location</th>
-                <th className="p-3">Bookings</th>
-                <th className="p-3">Total Spent</th>
-                <th className="p-3">Status</th>
+                <th className="p-3">Role</th>
+                <th className="p-3">Joined</th>
                 <th className="p-3">Action</th>
               </tr>
             </thead>
 
             <tbody>
-              <tr className="border-b hover:bg-gray-50">
-                <td className="p-3">C001</td>
-                <td className="p-3">Karabo</td>
-                <td className="p-3">karabo@example.com</td>
-                <td className="p-3">New York</td>
-                <td className="p-3">15</td>
-                <td className="p-3">R1,200</td>
-                <td className="p-3 text-green-600 font-semibold">Occupied</td>
-                <td className="p-3"><FaEllipsisH className="text-blue-500 cursor-pointer" /></td>
-              </tr>
+              {loading ? (
+                <tr>
+                  <td colSpan={6} className="text-center py-8">Loading customers...</td>
+                </tr>
+              ) : filteredUsers.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="text-center py-8">No customers found.</td>
+                </tr>
+              ) : (
+                filteredUsers.map((user) => (
+                  <tr key={user.id} className="border-b hover:bg-gray-50">
+                    <td className="p-3">{user.id.substring(0, 8)}...</td>
+                    <td className="p-3">{user.full_name}</td>
+                    <td className="p-3">{user.email}</td>
+                    <td className="p-3 capitalize">{user.role}</td>
+                    <td className="p-3">{new Date(user.created_at).toLocaleDateString()}</td>
+                    <td className="p-3"><FaEllipsisH className="text-blue-500 cursor-pointer" /></td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
