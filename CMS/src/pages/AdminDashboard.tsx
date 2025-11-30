@@ -27,6 +27,7 @@ const StatCard: FC<StatCardProps> = ({ title, value, icon: Icon, change }) => (
 
 export const AdminDashboard = () => {
     const [stats, setStats] = useState<any>(null);
+    const [locationData, setLocationData] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -34,9 +35,16 @@ export const AdminDashboard = () => {
         const fetchStats = async () => {
             try {
                 setError(null);
-                const data = await adminService.getDashboardStats();
-                console.log('Dashboard stats:', data);
-                setStats(data);
+                const [dashboardStats, locationPerformance] = await Promise.all([
+                    adminService.getDashboardStats(),
+                    adminService.getLocationPerformance()
+                ]);
+                
+                console.log('Dashboard stats:', dashboardStats);
+                console.log('Location performance:', locationPerformance);
+                
+                setStats(dashboardStats);
+                setLocationData(locationPerformance || []);
             } catch (error: any) {
                 console.error("Failed to fetch dashboard stats", error);
                 setError(error.response?.data?.message || "Failed to load dashboard stats. Please try again.");
@@ -47,6 +55,10 @@ export const AdminDashboard = () => {
 
         fetchStats();
     }, []);
+
+    const formatCurrency = (amount: number) => {
+        return `R${amount.toLocaleString('en-ZA', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    };
 
     if (loading) {
         return (
@@ -93,21 +105,25 @@ export const AdminDashboard = () => {
                     <div className='bg-white rounded-2xl shadow-md p-6'>
                         <h2 className='text-xl font-bold mb-5 text-gray-800'>Performance by Location</h2>
                         <div className='space-y-4'>
-                            {[{ city: 'Gauteng', bookings: 52, occupancy: 92 }].map((item, i) => (
-                                <div key={i} className='flex items-center justify-between p-4 border rounded-xl hover:bg-gray-50 transition'>
-                                    <div className='flex items-center gap-3'>
-                                        <FaLocationDot className='text-red-500 text-xl' />
-                                        <div>
-                                            <h3 className='font-semibold text-gray-800'>{item.city}</h3>
-                                            <span className='text-sm text-gray-600'>{item.bookings} Bookings</span>
+                            {locationData.length > 0 ? (
+                                locationData.map((location, i) => (
+                                    <div key={i} className='flex items-center justify-between p-4 border rounded-xl hover:bg-gray-50 transition'>
+                                        <div className='flex items-center gap-3'>
+                                            <FaLocationDot className='text-red-500 text-xl' />
+                                            <div>
+                                                <h3 className='font-semibold text-gray-800'>{location.city}</h3>
+                                                <span className='text-sm text-gray-600'>{location.confirmed_bookings} Bookings</span>
+                                            </div>
+                                        </div>
+                                        <div className='text-right'>
+                                            <p className='font-bold text-blue-500 text-lg'>{formatCurrency(parseFloat(location.total_revenue) || 0)}</p>
+                                            <span className='text-sm text-gray-600'>Revenue</span>
                                         </div>
                                     </div>
-                                    <div className='text-right'>
-                                        <p className='font-bold text-blue-500 text-lg'>{item.occupancy}%</p>
-                                        <span className='text-sm text-gray-600'>Occupancy</span>
-                                    </div>
-                                </div>
-                            ))}
+                                ))
+                            ) : (
+                                <p className="text-gray-500 text-center py-4">No location data available</p>
+                            )}
                         </div>
                     </div>
 
