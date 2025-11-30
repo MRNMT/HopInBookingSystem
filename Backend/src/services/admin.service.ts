@@ -12,6 +12,7 @@ export class AdminService {
              WHERE p.status = 'completed' AND b.status = 'confirmed'`
         );
 
+
         // Get total number of bookings
         const bookingsRes = await db.query(
             `SELECT COUNT(*) as total FROM bookings`
@@ -63,6 +64,7 @@ export class AdminService {
             occupancy_rate: occupancyRate,
             recent_bookings: recentBookingsRes.rows
         };
+
     }
 
     public async getAllUsers(): Promise<User[]> {
@@ -74,4 +76,24 @@ export class AdminService {
         const result = await db.query(query);
         return result.rows as User[];
     }
+
+    public async getLocationPerformance() {
+        const query = `
+            SELECT 
+                a.city,
+                COUNT(DISTINCT b.id) as total_bookings,
+                COUNT(DISTINCT CASE WHEN b.status = 'confirmed' THEN b.id END) as confirmed_bookings,
+                COALESCE(SUM(CASE WHEN b.status = 'confirmed' AND p.status = 'completed' THEN p.amount ELSE 0 END), 0) as total_revenue
+            FROM accommodations a
+            LEFT JOIN room_types rt ON a.id = rt.accommodation_id
+            LEFT JOIN bookings b ON rt.id = b.room_type_id
+            LEFT JOIN payments p ON b.id = p.booking_id
+            GROUP BY a.city
+            HAVING COUNT(DISTINCT CASE WHEN b.status = 'confirmed' THEN b.id END) > 0
+            ORDER BY confirmed_bookings DESC, total_revenue DESC
+        `;
+        const result = await db.query(query);
+        return result.rows;
+    }
+
 }

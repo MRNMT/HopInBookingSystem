@@ -15,12 +15,12 @@ interface StatCardProps {
 }
 
 const StatCard: FC<StatCardProps> = ({ title, value, icon: Icon, change }) => (
-    <div className='bg-white rounded-2xl shadow-md p-6 flex-1 transition hover:shadow-lg'>
+    <div className='bg-white rounded-2xl shadow-md p-4 sm:p-6 flex-1 transition hover:shadow-lg'>
         <div className='flex items-center justify-between mb-3'>
-            <span className='text-4xl font-bold text-gray-800'>{value}</span>
-            <Icon className='text-blue-500 text-3xl' />
+            <span className='text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-800'>{value}</span>
+            <Icon className='text-blue-500 text-2xl sm:text-3xl' />
         </div>
-        <span className='block text-gray-700 text-sm font-semibold'>{title}</span>
+        <span className='block text-gray-700 text-xs sm:text-sm font-semibold'>{title}</span>
         <span className='text-green-600 text-xs font-medium mt-1'>↑ {change} from last month</span>
     </div>
 )
@@ -64,10 +64,10 @@ export const AdminDashboard = () => {
 
             <SideBar />
 
-            <div className='flex-1 p-10 overflow-auto ml-64'>
+            <div className='flex-1 p-4 sm:p-6 md:p-8 lg:p-10 overflow-auto ml-0 lg:ml-64'>
                 {/* Header */}
                 <div className='mb-10'>
-                    <h1 className='text-4xl font-bold text-gray-900 mb-1'>Dashboard</h1>
+                    <h1 className='text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-1'>Dashboard</h1>
                     <p className='text-gray-600 text-sm'>Welcome back! Here's what's happening today.</p>
                 </div>
 
@@ -79,7 +79,7 @@ export const AdminDashboard = () => {
                 )}
 
                 {/* Stats */}
-                <div className='grid grid-cols-4 gap-6 mb-10'>
+                <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-10'>
                     <StatCard title="Total Bookings" value={stats?.totalBookings?.toString() || "0"} icon={MdOutlineDateRange} change="8%" />
                     <StatCard title="Revenue" value={`R${stats?.revenue?.toLocaleString() || "0"}`} icon={TbPigMoney} change="8%" />
                     <StatCard title="Occupancy Rate" value={`${stats?.occupancyRate || 0}%`} icon={FaBed} change="3%" />
@@ -87,7 +87,7 @@ export const AdminDashboard = () => {
                 </div>
 
                 {/* Charts + Lists */}
-                <div className='grid grid-cols-2 gap-6'>
+                <div className='grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6'>
 
                     {/* Performance by Location */}
                     <div className='bg-white rounded-2xl shadow-md p-6'>
