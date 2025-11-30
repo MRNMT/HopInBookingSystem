@@ -187,6 +187,21 @@ class AdminService {
             throw error;
         }
     }
+
+    /**
+     * Fetch location performance data
+     */
+    async getLocationPerformance(): Promise<any[]> {
+        try {
+            const response = await api.get('/admin/location-performance');
+            console.log('Location performance response:', response.data);
+
+            return response.data.data || response.data;
+        } catch (error: any) {
+            console.error('Failed to fetch location performance:', error.response?.data || error.message);
+            throw error;
+        }
+    }
 }
 
 export const adminService = new AdminService();

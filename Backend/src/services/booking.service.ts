@@ -233,28 +233,71 @@ export class BookingService {
       throw new AppError(400, 'No updates provided');
     }
 
-    const query = `
+    try {
+      await db.query('BEGIN');
+
+      const query = `
         UPDATE bookings 
         SET ${updates.join(', ')}, updated_at = NOW() 
         WHERE id = $1 
         RETURNING *
-    `;
+      `;
 
-    const result = await db.query(query, values);
+      const result = await db.query(query, values);
 
-    if (result.rows.length === 0) {
-      throw new AppError(404, 'Booking not found');
+      if (result.rows.length === 0) {
+        throw new AppError(404, 'Booking not found');
+      }
+
+      const booking = result.rows[0];
+
+      // If admin confirms the booking, also mark payment as completed
+      if (status === 'confirmed') {
+        await db.query(`
+          UPDATE payments 
+          SET status = 'completed' 
+          WHERE booking_id = $1 AND status != 'completed'
+        `, [id]);
+
+        // Update booking payment status
+        await db.query(`
+          UPDATE bookings 
+          SET payment_status = 'paid' 
+          WHERE id = $1
+        `, [id]);
+      }
+
+      // If admin cancels the booking, mark payment as refunded
+      if (status === 'cancelled') {
+        await db.query(`
+          UPDATE payments 
+          SET status = 'refunded' 
+          WHERE booking_id = $1 AND status != 'refunded'
+        `, [id]);
+
+        // Update booking payment status
+        await db.query(`
+          UPDATE bookings 
+          SET payment_status = 'refunded' 
+          WHERE id = $1
+        `, [id]);
+      }
+
+      await db.query('COMMIT');
+
+      // Send notification
+      if (status && ['confirmed', 'cancelled'].includes(status)) {
+        await this.notifService.send(
+          booking.user_id,
+          'booking_update',
+          `Your booking status has been updated to: ${status}`
+        );
+      }
+
+      return booking;
+    } catch (error) {
+      await db.query('ROLLBACK');
+      throw error;
     }
-
-    const booking = result.rows[0];
-    if (status && ['confirmed', 'cancelled'].includes(status)) {
-      await this.notifService.send(
-        booking.user_id,
-        'booking_update',
-        `Your booking status has been updated to: ${status}`
-      );
-    }
-
-    return booking;
   }
 }

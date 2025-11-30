@@ -8,12 +8,37 @@ export const CustomerMetricsPage = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const [metrics, setMetrics] = useState({
+    totalCustomers: 0,
+    activeThisMonth: 0,
+    totalBookings: 0
+  });
 
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await adminService.getAllUsers();
-        setUsers(response);
+        const [usersResponse, statsResponse] = await Promise.all([
+          adminService.getAllUsers(),
+          adminService.getDashboardStats()
+        ]);
+        
+        setUsers(usersResponse);
+        
+        // Calculate metrics
+        const customers = usersResponse.filter(u => u.role === 'customer');
+        const now = new Date();
+        const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+        
+        const activeThisMonth = customers.filter(user => {
+          const createdAt = new Date(user.created_at);
+          return createdAt >= firstDayOfMonth;
+        }).length;
+
+        setMetrics({
+          totalCustomers: customers.length,
+          activeThisMonth: activeThisMonth,
+          totalBookings: statsResponse.totalBookings || 0
+        });
       } catch (error) {
         console.error("Failed to fetch users", error);
       } finally {
@@ -29,6 +54,11 @@ export const CustomerMetricsPage = () => {
     user.email?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  // Calculate average bookings per customer
+  const avgBookingsPerCustomer = metrics.totalCustomers > 0 
+    ? (metrics.totalBookings / metrics.totalCustomers).toFixed(1)
+    : '0.0';
+
   return (
     <div className="flex bg-gray-50 min-h-screen">
       <SideBar />
@@ -41,26 +71,22 @@ export const CustomerMetricsPage = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mt-4 sm:mt-6">
           <div className="bg-white p-4 sm:p-6 rounded-2xl shadow">
             <h2 className="text-base sm:text-lg font-semibold text-gray-700">Total Customers</h2>
-            <span className="text-2xl sm:text-3xl font-bold text-gray-900">{users.length}</span><br />
-            <span className="text-green-500 text-sm">↑ 12% from last month</span>
+            <span className="text-2xl sm:text-3xl font-bold text-gray-900">{metrics.totalCustomers}</span><br />
           </div>
 
           <div className="bg-white p-4 sm:p-6 rounded-2xl shadow">
             <h2 className="text-base sm:text-lg font-semibold text-gray-700">Active This Month</h2>
-            <span className="text-2xl sm:text-3xl font-bold text-gray-900">248</span><br />
-            <span className="text-green-500 text-sm">↑ 12% from last month</span>
+            <span className="text-2xl sm:text-3xl font-bold text-gray-900">{metrics.activeThisMonth}</span><br />
           </div>
 
           <div className="bg-white p-4 sm:p-6 rounded-2xl shadow">
             <h2 className="text-base sm:text-lg font-semibold text-gray-700">Avg Bookings</h2>
-            <span className="text-2xl sm:text-3xl font-bold text-gray-900">5.2</span><br />
-            <span className="text-green-500 text-sm">Per Person</span>
+            <span className="text-2xl sm:text-3xl font-bold text-gray-900">{avgBookingsPerCustomer}</span><br />
           </div>
 
           <div className="bg-white p-4 sm:p-6 rounded-2xl shadow">
-            <h2 className="text-base sm:text-lg font-semibold text-gray-700">Lifetime Value</h2>
-            <span className="text-2xl sm:text-3xl font-bold text-gray-900">R5,200</span><br />
-            <span className="text-green-500 text-sm">↑ 12% from last month</span>
+            <h2 className="text-base sm:text-lg font-semibold text-gray-700">Total Bookings</h2>
+            <span className="text-2xl sm:text-3xl font-bold text-gray-900">{metrics.totalBookings}</span><br />
           </div>
         </div>
 
