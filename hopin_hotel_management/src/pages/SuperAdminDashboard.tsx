@@ -6,6 +6,7 @@ import { logout } from '../store/authSlice';
 import { Users, UserPlus, Shield, Activity, User, LogOut, ChevronDown } from 'lucide-react';
 import { superAdminService } from '../services/superadmin.service';
 import { CreateAdminModal } from '../components/CreateAdminModal';
+import { LogoutConfirmationDialog } from '../components/LogoutConfirmationDialog';
 
 interface AdminStats {
   totalAdmins: number;
@@ -26,6 +27,7 @@ export const SuperAdminDashboard: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [showLogoutDialog, setShowLogoutDialog] = useState(false);
 
   useEffect(() => {
     loadStats();
@@ -55,8 +57,14 @@ export const SuperAdminDashboard: React.FC = () => {
   };
 
   const handleLogout = () => {
+    setShowLogoutDialog(true);
+    setShowDropdown(false);
+  };
+
+  const confirmLogout = () => {
     dispatch(logout());
     navigate('/login');
+    setShowLogoutDialog(false);
   };
 
   const formatDate = (dateString: string) => {
@@ -277,6 +285,12 @@ export const SuperAdminDashboard: React.FC = () => {
           loadStats();
           setShowCreateModal(false);
         }}
+      />
+
+      <LogoutConfirmationDialog
+        isOpen={showLogoutDialog}
+        onClose={() => setShowLogoutDialog(false)}
+        onConfirm={confirmLogout}
       />
     </>
   );

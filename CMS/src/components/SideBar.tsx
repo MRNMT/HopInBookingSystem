@@ -10,6 +10,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useDispatch } from 'react-redux';
 import { logout } from '../store/authSlice';
 import logo from '../assets/logo2.png';
+import { LogoutConfirmationDialog } from './LogoutConfirmationDialog';
 
 interface SidebarItemProps {
   icon: IconType;
@@ -44,12 +45,18 @@ const SidebarItem: FC<SidebarItemProps> = ({ icon: Icon, label, to, onClick }) =
 
 export const SideBar: FC = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [showLogoutDialog, setShowLogoutDialog] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const handleLogout = () => {
+    setShowLogoutDialog(true);
+  };
+
+  const confirmLogout = () => {
     dispatch(logout());
     navigate('/login');
+    setShowLogoutDialog(false);
   };
 
   // Close sidebar when an item is clicked (useful on mobile)
@@ -140,6 +147,12 @@ export const SideBar: FC = () => {
           </button>
         </div>
       </aside>
+
+      <LogoutConfirmationDialog
+        isOpen={showLogoutDialog}
+        onClose={() => setShowLogoutDialog(false)}
+        onConfirm={confirmLogout}
+      />
     </>
   );
 };

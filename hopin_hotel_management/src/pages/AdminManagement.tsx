@@ -7,6 +7,7 @@ import { Search, UserPlus, Trash2, ArrowLeft, Shield, User, LogOut, ChevronDown 
 import { superAdminService } from '../services/superadmin.service';
 import { CreateAdminModal } from '../components/CreateAdminModal'
 import { DeleteConfirmationModal } from '../components/DeleteConfirmationModal';
+import { LogoutConfirmationDialog } from '../components/LogoutConfirmationDialog';
 
 interface Admin {
   id: string;
@@ -30,6 +31,7 @@ export const AdminManagement: React.FC = () => {
   const [selectedAdmin, setSelectedAdmin] = useState<Admin | null>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [showLogoutDialog, setShowLogoutDialog] = useState(false);
 
   useEffect(() => {
     loadAdmins();
@@ -95,8 +97,14 @@ export const AdminManagement: React.FC = () => {
   };
 
   const handleLogout = () => {
+    setShowLogoutDialog(true);
+    setShowDropdown(false);
+  };
+
+  const confirmLogout = () => {
     dispatch(logout());
     navigate('/login');
+    setShowLogoutDialog(false);
   };
 
   const formatDate = (dateString: string) => {
@@ -313,7 +321,12 @@ export const AdminManagement: React.FC = () => {
           adminEmail={selectedAdmin.email}
           loading={deleteLoading}
         />
-      )}
+
+      <LogoutConfirmationDialog
+        isOpen={showLogoutDialog}
+        onClose={() => setShowLogoutDialog(false)}
+        onConfirm={confirmLogout}
+      />
     </>
   );
 };

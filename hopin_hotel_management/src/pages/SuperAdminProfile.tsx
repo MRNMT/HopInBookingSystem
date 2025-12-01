@@ -4,16 +4,24 @@ import { useSelector, useDispatch } from 'react-redux';
 import { type RootState } from '../store/store';
 import { logout } from '../store/authSlice';
 import { ArrowLeft, Shield, User, LogOut, ChevronDown, Mail, Calendar } from 'lucide-react';
+import { LogoutConfirmationDialog } from '../components/LogoutConfirmationDialog';
 
 export const SuperAdminProfile: React.FC = () => {
   const { user } = useSelector((state: RootState) => state.auth);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [showDropdown, setShowDropdown] = useState(false);
+  const [showLogoutDialog, setShowLogoutDialog] = useState(false);
 
   const handleLogout = () => {
+    setShowLogoutDialog(true);
+    setShowDropdown(false);
+  };
+
+  const confirmLogout = () => {
     dispatch(logout());
     navigate('/login');
+    setShowLogoutDialog(false);
   };
 
   const formatDate = (dateString?: string) => {
@@ -146,6 +154,12 @@ export const SuperAdminProfile: React.FC = () => {
           </div>
         </div>
       </div>
+
+      <LogoutConfirmationDialog
+        isOpen={showLogoutDialog}
+        onClose={() => setShowLogoutDialog(false)}
+        onConfirm={confirmLogout}
+      />
     </div>
   );
 };

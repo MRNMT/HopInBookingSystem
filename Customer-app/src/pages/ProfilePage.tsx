@@ -6,12 +6,14 @@ import { useSelector, useDispatch } from 'react-redux';
 import { type RootState } from '../store/store';
 import { logout } from '../store/authSlice';
 import hotel from '../assets/hotel1.jpg';
+import { LogoutConfirmationDialog } from '../components/LogoutConfirmationDialog';
 
 const ProfilePage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'profile' | 'bookings' | 'favorites'>('profile');
   const [bookings, setBookings] = useState<any[]>([]);
   const [favorites, setFavorites] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  const [showLogoutDialog, setShowLogoutDialog] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -106,13 +108,14 @@ const ProfilePage: React.FC = () => {
     }
   };
 
-  const handleLogout = async () => {
-    try {
-        dispatch(logout());
-        window.location.href = '/';
-    } catch (error) {
-        console.error('Logout failed', error);
-    }
+  const handleLogout = () => {
+    setShowLogoutDialog(true);
+  };
+
+  const confirmLogout = () => {
+    dispatch(logout());
+    window.location.href = '/';
+    setShowLogoutDialog(false);
   };
 
   const renderProfile = () => (
@@ -386,6 +389,12 @@ const ProfilePage: React.FC = () => {
           </div>
         </div>
       </div>
+
+      <LogoutConfirmationDialog
+        isOpen={showLogoutDialog}
+        onClose={() => setShowLogoutDialog(false)}
+        onConfirm={confirmLogout}
+      />
     </div>
   );
 };

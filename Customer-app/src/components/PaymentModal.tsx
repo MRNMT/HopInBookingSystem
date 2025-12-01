@@ -3,6 +3,7 @@ import { loadStripe } from '@stripe/stripe-js';
 import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { Button } from './Button';
 import { payments } from '../utils/api';
+import { PaymentConfirmationDialog } from './PaymentConfirmationDialog';
 
 // Initialize Stripe
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
@@ -20,6 +21,7 @@ const CheckoutForm = ({ amount, onSuccess, onClose, clientSecret }: { amount: nu
   const elements = useElements();
   const [error, setError] = useState<string | null>(null);
   const [processing, setProcessing] = useState(false);
+  const [showPaymentConfirm, setShowPaymentConfirm] = useState(false);
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -28,6 +30,16 @@ const CheckoutForm = ({ amount, onSuccess, onClose, clientSecret }: { amount: nu
       return;
     }
 
+    // Show confirmation dialog first
+    setShowPaymentConfirm(true);
+  };
+
+  const confirmPayment = async () => {
+    if (!stripe || !elements) {
+      return;
+    }
+
+    setShowPaymentConfirm(false);
     setProcessing(true);
 
     const { error: submitError } = await elements.submit();
@@ -75,20 +87,30 @@ const CheckoutForm = ({ amount, onSuccess, onClose, clientSecret }: { amount: nu
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <PaymentElement />
-      {error && <div className="text-red-500 mt-2 text-sm">{error}</div>}
-      <div className="mt-6 flex gap-3 justify-end">
-        <Button variant="secondary" onClick={onClose} type="button">Cancel</Button>
-        <Button 
-          variant="primary" 
-          type="submit" 
-          disabled={!stripe || processing}
-        >
-          {processing ? 'Processing...' : `Pay R${amount.toFixed(2)}`}
-        </Button>
-      </div>
-    </form>
+    <>
+      <form onSubmit={handleSubmit}>
+        <PaymentElement />
+        {error && <div className="text-red-500 mt-2 text-sm">{error}</div>}
+        <div className="mt-6 flex gap-3 justify-end">
+          <Button variant="secondary" onClick={onClose} type="button">Cancel</Button>
+          <Button 
+            variant="primary" 
+            type="submit" 
+            disabled={!stripe || processing}
+          >
+            {processing ? 'Processing...' : `Pay R${amount.toFixed(2)}`}
+          </Button>
+        </div>
+      </form>
+
+      <PaymentConfirmationDialog
+        isOpen={showPaymentConfirm}
+        onClose={() => setShowPaymentConfirm(false)}
+        onConfirm={confirmPayment}
+        amount={amount}
+        loading={processing}
+      />
+    </>
   );
 };
 

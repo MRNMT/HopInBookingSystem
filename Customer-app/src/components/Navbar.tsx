@@ -7,6 +7,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { type RootState } from '../store/store';
 import { logout } from '../store/authSlice';
 import { useState } from 'react';
+import { LogoutConfirmationDialog } from './LogoutConfirmationDialog';
 
 
 export const Navbar = () => {
@@ -14,11 +15,17 @@ export const Navbar = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [showDropdown, setShowDropdown] = useState(false);
+  const [showLogoutDialog, setShowLogoutDialog] = useState(false);
 
   const handleLogout = () => {
+    setShowLogoutDialog(true);
+    setShowDropdown(false);
+  };
+
+  const confirmLogout = () => {
     dispatch(logout());
     navigate('/');
-    setShowDropdown(false);
+    setShowLogoutDialog(false);
   };
 
   return (
@@ -79,6 +86,11 @@ export const Navbar = () => {
         )}
       </div>
 
+      <LogoutConfirmationDialog
+        isOpen={showLogoutDialog}
+        onClose={() => setShowLogoutDialog(false)}
+        onConfirm={confirmLogout}
+      />
     </nav>
   );
 };
