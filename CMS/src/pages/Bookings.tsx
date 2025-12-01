@@ -40,6 +40,59 @@ export const Bookings = () => {
     }
   };
 
+  const handleCheckIn = async (bookingId: string, booking: Booking) => {
+    const checkInDate = new Date(booking.check_in_date);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    checkInDate.setHours(0, 0, 0, 0);
+
+    if (checkInDate > today) {
+      if (!confirm(`Check-in date is ${booking.check_in_date}. Do you want to check in early?`)) {
+        return;
+      }
+    }
+
+    if (confirm('Mark this guest as checked in?')) {
+      try {
+        const checkInTime = new Date().toLocaleString();
+        const existingNotes = booking.admin_notes ? `${booking.admin_notes}\n` : '';
+        await adminService.updateBooking(bookingId, { 
+          status: 'confirmed',
+          admin_notes: `${existingNotes}Checked in on ${checkInTime}`
+        });
+        await fetchBookings();
+        alert('Guest checked in successfully!');
+      } catch (error: any) {
+        console.error("Failed to check in guest", error);
+        alert(error.response?.data?.message || "Failed to check in guest. Please try again.");
+      }
+    }
+  };
+
+  const handleCheckOut = async (bookingId: string, booking: Booking) => {
+    const checkOutDate = new Date(booking.check_out_date);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    checkOutDate.setHours(0, 0, 0, 0);
+
+    if (checkOutDate > today) {
+      if (!confirm(`Check-out date is ${booking.check_out_date}. Do you want to check out early?`)) {
+        return;
+      }
+    }
+
+    if (confirm('Mark this guest as checked out? This will complete the booking.')) {
+      try {
+        await adminService.updateBooking(bookingId, { status: 'completed' });
+        await fetchBookings();
+        alert('Guest checked out successfully! Booking marked as completed.');
+      } catch (error: any) {
+        console.error("Failed to check out guest", error);
+        alert(error.response?.data?.message || "Failed to check out guest. Please try again.");
+      }
+    }
+  };
+
   const handleApproveBooking = (bookingId: string) => {
     if (confirm('Are you sure you want to approve this booking?')) {
       handleUpdateBooking(bookingId, { status: 'confirmed' });
@@ -149,30 +202,56 @@ export const Bookings = () => {
                         </span>
                       </td>
                       <td className="px-6 py-4 text-right">
-                        <div className="flex justify-end gap-2">
+                        <div className="flex justify-end gap-2 flex-wrap">
                           {booking.status === 'pending' && (
                             <>
                               <button
                                 onClick={() => handleApproveBooking(booking.id)}
-                                className="px-3 py-1 bg-green-500 text-white text-xs rounded hover:bg-green-600"
+                                className="px-3 py-1 bg-green-500 text-white text-xs rounded hover:bg-green-600 transition-colors"
                               >
                                 Approve
                               </button>
                               <button
                                 onClick={() => handleCancelBooking(booking.id)}
-                                className="px-3 py-1 bg-red-500 text-white text-xs rounded hover:bg-red-600"
+                                className="px-3 py-1 bg-red-500 text-white text-xs rounded hover:bg-red-600 transition-colors"
                               >
                                 Cancel
                               </button>
                             </>
                           )}
                           {booking.status === 'confirmed' && (
-                            <button
-                              onClick={() => handleCancelBooking(booking.id)}
-                              className="px-3 py-1 bg-red-500 text-white text-xs rounded hover:bg-red-600"
-                            >
-                              Cancel
-                            </button>
+                            <>
+                              <button
+                                onClick={() => handleCheckIn(booking.id, booking)}
+                                className="px-3 py-1 bg-blue-500 text-white text-xs rounded hover:bg-blue-600 transition-colors"
+                                title="Mark guest as checked in"
+                              >
+                                Check In
+                              </button>
+                              <button
+                                onClick={() => handleCheckOut(booking.id, booking)}
+                                className="px-3 py-1 bg-purple-500 text-white text-xs rounded hover:bg-purple-600 transition-colors"
+                                title="Mark guest as checked out"
+                              >
+                                Check Out
+                              </button>
+                              <button
+                                onClick={() => handleCancelBooking(booking.id)}
+                                className="px-3 py-1 bg-red-500 text-white text-xs rounded hover:bg-red-600 transition-colors"
+                              >
+                                Cancel
+                              </button>
+                            </>
+                          )}
+                          {booking.status === 'completed' && (
+                            <span className="px-3 py-1 bg-gray-100 text-gray-600 text-xs rounded">
+                              Completed
+                            </span>
+                          )}
+                          {booking.status === 'cancelled' && (
+                            <span className="px-3 py-1 bg-gray-100 text-gray-600 text-xs rounded">
+                              Cancelled
+                            </span>
                           )}
                         </div>
                       </td>
@@ -249,30 +328,54 @@ export const Bookings = () => {
                 </div>
 
                 {/* Actions */}
-                <div className="flex gap-2">
+                <div className="flex gap-2 flex-wrap">
                   {booking.status === 'pending' && (
                     <>
                       <button
                         onClick={() => handleApproveBooking(booking.id)}
-                        className="flex-1 px-4 py-2 bg-green-500 text-white text-sm rounded-lg hover:bg-green-600"
+                        className="flex-1 px-4 py-2 bg-green-500 text-white text-sm rounded-lg hover:bg-green-600 transition-colors"
                       >
                         Approve
                       </button>
                       <button
                         onClick={() => handleCancelBooking(booking.id)}
-                        className="flex-1 px-4 py-2 bg-red-500 text-white text-sm rounded-lg hover:bg-red-600"
+                        className="flex-1 px-4 py-2 bg-red-500 text-white text-sm rounded-lg hover:bg-red-600 transition-colors"
                       >
                         Cancel
                       </button>
                     </>
                   )}
                   {booking.status === 'confirmed' && (
-                    <button
-                      onClick={() => handleCancelBooking(booking.id)}
-                      className="w-full px-4 py-2 bg-red-500 text-white text-sm rounded-lg hover:bg-red-600"
-                    >
-                      Cancel Booking
-                    </button>
+                    <>
+                      <button
+                        onClick={() => handleCheckIn(booking.id, booking)}
+                        className="flex-1 px-4 py-2 bg-blue-500 text-white text-sm rounded-lg hover:bg-blue-600 transition-colors"
+                      >
+                        Check In
+                      </button>
+                      <button
+                        onClick={() => handleCheckOut(booking.id, booking)}
+                        className="flex-1 px-4 py-2 bg-purple-500 text-white text-sm rounded-lg hover:bg-purple-600 transition-colors"
+                      >
+                        Check Out
+                      </button>
+                      <button
+                        onClick={() => handleCancelBooking(booking.id)}
+                        className="w-full px-4 py-2 bg-red-500 text-white text-sm rounded-lg hover:bg-red-600 transition-colors"
+                      >
+                        Cancel Booking
+                      </button>
+                    </>
+                  )}
+                  {booking.status === 'completed' && (
+                    <div className="w-full px-4 py-2 bg-gray-100 text-gray-600 text-sm rounded-lg text-center">
+                      Booking Completed
+                    </div>
+                  )}
+                  {booking.status === 'cancelled' && (
+                    <div className="w-full px-4 py-2 bg-gray-100 text-gray-600 text-sm rounded-lg text-center">
+                      Booking Cancelled
+                    </div>
                   )}
                 </div>
               </div>

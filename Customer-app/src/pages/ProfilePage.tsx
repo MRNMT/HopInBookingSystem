@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FaUser, FaHistory, FaHeart, FaCalendarAlt, FaSignOutAlt, FaStar, FaMapMarkerAlt, FaArrowLeft } from 'react-icons/fa';
+import { FaUser, FaHistory, FaHeart, FaCalendarAlt, FaSignOutAlt, FaStar, FaMapMarkerAlt, FaArrowLeft, FaEdit } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import { users } from '../utils/api';
 import { useSelector, useDispatch } from 'react-redux';
@@ -7,6 +7,7 @@ import { type RootState } from '../store/store';
 import { logout } from '../store/authSlice';
 import hotel from '../assets/hotel1.jpg';
 import { LogoutConfirmationDialog } from '../components/LogoutConfirmationDialog';
+import { ReviewModal } from '../components/ReviewModal';
 
 const ProfilePage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'profile' | 'bookings' | 'favorites'>('profile');
@@ -14,6 +15,7 @@ const ProfilePage: React.FC = () => {
   const [favorites, setFavorites] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
+  const [selectedBookingForReview, setSelectedBookingForReview] = useState<any | null>(null);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -216,20 +218,29 @@ const ProfilePage: React.FC = () => {
                 bookings.filter(b => b.status === 'completed' || b.status === 'cancelled').map(booking => (
                 <div key={booking.id} className="border-b last:border-0 py-4 opacity-75">
                     <div className="flex justify-between items-start">
-                    <div>
+                    <div className="flex-1">
                         <h4 className="font-bold text-lg">{booking.accommodation_name || 'Accommodation Name'}</h4>
                         <p className="text-gray-600">{booking.room_type_name || 'Room Type'}</p>
                         <p className="text-sm text-gray-500">
                         {new Date(booking.check_in_date).toLocaleDateString()} - {new Date(booking.check_out_date).toLocaleDateString()}
                         </p>
                     </div>
-                    <div className="text-right">
-                        <span className={`inline-block px-3 py-1 rounded-full text-sm font-semibold mb-2 ${
+                    <div className="text-right flex flex-col items-end gap-2">
+                        <span className={`inline-block px-3 py-1 rounded-full text-sm font-semibold ${
                         booking.status === 'completed' ? 'bg-gray-100 text-gray-800' : 'bg-red-100 text-red-800'
                         }`}>
                         {booking.status.toUpperCase()}
                         </span>
                         <p className="font-bold text-gray-600">R {booking.total_price}</p>
+                        {booking.status === 'completed' && (
+                          <button
+                            onClick={() => setSelectedBookingForReview(booking)}
+                            className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                          >
+                            <FaEdit className="text-xs" />
+                            Write Review
+                          </button>
+                        )}
                     </div>
                     </div>
                 </div>
@@ -395,6 +406,24 @@ const ProfilePage: React.FC = () => {
         onClose={() => setShowLogoutDialog(false)}
         onConfirm={confirmLogout}
       />
+
+      {selectedBookingForReview && (
+        <ReviewModal
+          isOpen={!!selectedBookingForReview}
+          onClose={() => setSelectedBookingForReview(null)}
+          onSuccess={() => {
+            fetchBookings();
+            setSelectedBookingForReview(null);
+          }}
+          booking={{
+            id: selectedBookingForReview.id,
+            accommodation_id: selectedBookingForReview.accommodation_id,
+            accommodation_name: selectedBookingForReview.accommodation_name || 'Accommodation',
+            check_in_date: selectedBookingForReview.check_in_date,
+            check_out_date: selectedBookingForReview.check_out_date,
+          }}
+        />
+      )}
     </div>
   );
 };
