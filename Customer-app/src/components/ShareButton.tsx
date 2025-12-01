@@ -45,7 +45,7 @@ export const ShareButton: React.FC<ShareButtonProps> = ({ accommodation }) => {
   };
 
   const handleNativeShare = async () => {
-    if (navigator.share) {
+    if ('share' in navigator && navigator.share) {
       try {
         await navigator.share({
           title: accommodation.name,
@@ -108,7 +108,7 @@ export const ShareButton: React.FC<ShareButtonProps> = ({ accommodation }) => {
           <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-xl border border-gray-200 z-50 overflow-hidden">
             <div className="p-2">
               {/* Native Share (if available) */}
-              {navigator.share && (
+              {'share' in navigator && (
                 <button
                   onClick={handleNativeShare}
                   className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-gray-50 rounded-lg transition-colors text-gray-700"
