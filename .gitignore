@@ -35,3 +35,6 @@ Thumbs.db
 
 # Git
 .git/
+
+missing.txt
+.gitignore

@@ -13,6 +13,7 @@ import { getRoomTypes, type RoomType } from '../services/roomTypes.service';
 import { PaymentModal } from '../components/PaymentModal';
 import { reviews as reviewsApi } from '../utils/api';
 import { getHotelImages } from '../services/unsplash.service';
+import { ShareButton } from '../components/ShareButton';
 
 const getFacilityIcon = (name: string) => {
     const lowerName = name.toLowerCase();
@@ -307,7 +308,10 @@ export const BookingPage = () => {
                 <div className='lg:col-span-2 space-y-8'>
                     {/* Header & Images */}
                     <div>
-                        <h1 className='text-3xl font-bold mb-2'>{accommodation.name}</h1>
+                        <div className="flex items-start justify-between mb-2">
+                            <h1 className='text-3xl font-bold flex-1'>{accommodation.name}</h1>
+                            <ShareButton accommodation={accommodation} />
+                        </div>
                         <div className="flex items-center gap-2 text-gray-600 mb-4">
                             <MdLocationOn className="text-blue-500" />
                             <span>{accommodation.address}, {accommodation.city}, {accommodation.country}</span>
