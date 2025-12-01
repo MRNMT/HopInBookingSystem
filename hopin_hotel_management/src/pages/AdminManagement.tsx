@@ -321,6 +321,7 @@ export const AdminManagement: React.FC = () => {
           adminEmail={selectedAdmin.email}
           loading={deleteLoading}
         />
+      )}
 
       <LogoutConfirmationDialog
         isOpen={showLogoutDialog}
